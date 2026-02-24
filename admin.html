@@ -344,7 +344,7 @@ function rfr(){
 }
 
 const pts={dashboard:'Dashboard',experts:'Experts',clients:'Clients',approaches:'Approaches',chats:'Chats',credits:'Credits',refunds:'Refunds',actions:'Actions'};
-const pss={dashboard:'Platform overview at a glance',experts:'All registered experts',clients:'All registered clients',approaches:'Expert-client approach activity',chats:'All conversations',credits:'Credit transaction ledger',refunds:'Pending refund requests',actions:'Ban &#183; Warn &#183; Flag users'};
+const pss={dashboard:'Platform overview at a glance',experts:'All registered experts',clients:'All registered clients',approaches:'Expert-client approach activity',chats:'All conversations',credits:'Credit transaction ledger',refunds:'Pending refund requests',actions:'Ban  &middot; Warn  &middot; Flag users'};
 
 function go(s){
   document.querySelectorAll('.sec').forEach(x=>x.classList.remove('active'));
@@ -358,8 +358,8 @@ function go(s){
 
 function gcf(t){go('credits');document.getElementById('ctFilter').value=t;loadCredits();}
 
-function fmt(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'&#8212;';}
-function fmtT(d){return d?new Date(d).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'&#8212;';}
+function fmt(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'--';}
+function fmtT(d){return d?new Date(d).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'--';}
 function toast(msg,t='s'){const el=document.createElement('div');el.className='toast2 '+t;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3000);}
 
 function sbadge(s){
@@ -367,7 +367,7 @@ function sbadge(s){
   return '<span class="badge '+(m[s]||'bgy')+'">'+s+'</span>';
 }
 
-function stbl(id,html){document.getElementById(id).innerHTML=html||'<tr><td colspan="20" class="empty2" style="text-align:center"><div class="ei">&#128269;</div><h3>No data found</h3></td></tr>';}
+function stbl(id,html){document.getElementById(id).innerHTML=html||'<tr><td colspan="20" class="empty2" style="text-align:center"><div class="ei">🔍</div><h3>No data found</h3></td></tr>';}
 
 // ── DASHBOARD ──
 async function loadDashboard(){
@@ -377,7 +377,7 @@ async function loadDashboard(){
     document.getElementById('st-c').textContent=s.totalClients;
     document.getElementById('st-e').textContent=s.totalExperts;
     document.getElementById('st-a').textContent=s.totalApproaches;
-    document.getElementById('st-as').textContent=(s.openApproaches||0)+' open &#183; '+(s.closedApproaches||0)+' closed';
+    document.getElementById('st-as').textContent=(s.openApproaches||0)+' open  &middot; '+(s.closedApproaches||0)+' closed';
     document.getElementById('st-r').textContent=s.totalRequests;
     document.getElementById('st-rv').textContent=s.totalReviews||0;
     document.getElementById('st-cp').textContent=s.credits?.totalPurchased||0;
@@ -385,7 +385,7 @@ async function loadDashboard(){
     document.getElementById('st-crf').textContent=s.credits?.totalRefunded||0;
     document.getElementById('st-pr').textContent=s.pendingRefunds||0;
     if(s.pendingRefunds>0){const b=document.getElementById('rbadge');b.textContent=s.pendingRefunds;b.style.display='inline-block';}
-    stbl('rtbl',(d.recentUsers||[]).map(u=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+u._id+'\')">'+u.name+'</strong></td><td>'+sbadge(u.role)+'</td><td style="font-size:12px;color:var(--t2)">'+u.email+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">&#128142; '+(u.credits||0)+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(u.createdAt)+'</td></tr>').join(''));
+    stbl('rtbl',(d.recentUsers||[]).map(u=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+u._id+'\')">'+u.name+'</strong></td><td>'+sbadge(u.role)+'</td><td style="font-size:12px;color:var(--t2)">'+u.email+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">💎 '+(u.credits||0)+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(u.createdAt)+'</td></tr>').join(''));
   }catch(e){console.error(e);}
 }
 
@@ -404,11 +404,11 @@ async function loadUsers(role){
 }
 
 function rExperts(us){
-  stbl('etbl',us.map(u=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+u._id+'\')">'+u.name+'</strong></td><td style="font-size:12px;color:var(--t2)">'+u.email+'</td><td style="font-family:\'DM Mono\',monospace;font-size:12px">'+(u.phone||'&#8212;')+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">&#128142; '+(u.credits||0)+'</td><td style="color:var(--yw)">&#11088; '+(u.rating||'&#8212;')+'</td><td>'+(u.isBanned?'<span class="badge brd">Banned</span>':u.isFlagged?'<span class="badge byw">Flagged</span>':'<span class="badge bgr">Active</span>')+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(u.createdAt)+'</td><td><button class="btn bgh" onclick="odr(\''+u._id+'\')">View</button></td></tr>').join(''));
+  stbl('etbl',us.map(u=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+u._id+'\')">'+u.name+'</strong></td><td style="font-size:12px;color:var(--t2)">'+u.email+'</td><td style="font-family:\'DM Mono\',monospace;font-size:12px">'+(u.phone||'--')+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">💎 '+(u.credits||0)+'</td><td style="color:var(--yw)">⭐ '+(u.rating||'--')+'</td><td>'+(u.isBanned?'<span class="badge brd">Banned</span>':u.isFlagged?'<span class="badge byw">Flagged</span>':'<span class="badge bgr">Active</span>')+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(u.createdAt)+'</td><td><button class="btn bgh" onclick="odr(\''+u._id+'\')">View</button></td></tr>').join(''));
 }
 
 function rClients(us){
-  stbl('ctbl',us.map(u=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+u._id+'\')">'+u.name+'</strong></td><td style="font-size:12px;color:var(--t2)">'+u.email+'</td><td style="font-family:\'DM Mono\',monospace;font-size:12px">'+(u.phone||'&#8212;')+'</td><td>'+(u.isBanned?'<span class="badge brd">Banned</span>':u.isFlagged?'<span class="badge byw">Flagged</span>':'<span class="badge bgr">Active</span>')+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(u.createdAt)+'</td><td><button class="btn bgh" onclick="odr(\''+u._id+'\')">View</button></td></tr>').join(''));
+  stbl('ctbl',us.map(u=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+u._id+'\')">'+u.name+'</strong></td><td style="font-size:12px;color:var(--t2)">'+u.email+'</td><td style="font-family:\'DM Mono\',monospace;font-size:12px">'+(u.phone||'--')+'</td><td>'+(u.isBanned?'<span class="badge brd">Banned</span>':u.isFlagged?'<span class="badge byw">Flagged</span>':'<span class="badge bgr">Active</span>')+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(u.createdAt)+'</td><td><button class="btn bgh" onclick="odr(\''+u._id+'\')">View</button></td></tr>').join(''));
 }
 
 // ── USER DRAWER ──
@@ -433,12 +433,12 @@ function rDrawer(u,d){
   const txH=d.transactions?.length?d.transactions.map(tx=>'<div class="txitem"><div><div class="txd">'+(tx.description||tx.type)+'</div><div class="txm">'+fmtT(tx.createdAt)+'</div></div><span class="txa '+(tx.amount>0?'p':'n')+'">'+(tx.amount>0?'+':'')+tx.amount+'</span></div>').join(''):'<p style="color:var(--t3);font-size:13px;padding:8px">No transactions</p>';
 
   const items=u.role==='expert'?d.approaches:d.requests;
-  const actH=items?.length?items.map(it=>'<div class="txitem" style="flex-direction:column;align-items:flex-start;gap:5px"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><div class="txd">'+(u.role==='expert'?it.request?.title:it.title)||'&#8212;'+'</div>'+sbadge(it.status||'pending')+'</div><div class="txm">'+fmtT(it.createdAt)+(u.role==='expert'?' &#183; '+(it.creditsSpent||0)+' credits':'')+(u.role==='expert'&&it.client?.name?' &#183; '+it.client.name:'')+'</div></div>').join(''):'<p style="color:var(--t3);font-size:13px;padding:8px">None</p>';
+  const actH=items&&items.length?items.map(it=>'<div class="txitem" style="flex-direction:column;align-items:flex-start;gap:5px"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><div class="txd">'+((u.role==='expert'?(it.request&&it.request.title?it.request.title:''):it.title)||'--')+'</div>'+sbadge(it.status||'pending')+'</div><div class="txm">'+fmtT(it.createdAt)+(u.role==='expert'?'  &middot; '+(it.creditsSpent||0)+' credits':'')+(u.role==='expert'&&it.client?.name?'  &middot; '+it.client.name:'')+'</div></div>').join(''):'<p style="color:var(--t3);font-size:13px;padding:8px">None</p>';
 
   const cs=d.creditSummary;
   const ledH=cs?'<div class="ledger"><div class="lc"><label>Purchased</label><span class="cg">+'+( cs.purchased||0)+'</span></div><div class="lc"><label>Spent</label><span class="cr">-'+(cs.spent||0)+'</span></div><div class="lc"><label>Refunded</label><span class="cpu">+'+(cs.refunded||0)+'</span></div><div class="lc"><label>Balance</label><span class="cy">'+(cs.closing||0)+'</span></div></div>':'';
 
-  document.getElementById('drB').innerHTML='<div class="drpanel active" id="dp-0"><div class="uhero"><div class="uav">'+(u.profilePhoto?'<img src="'+u.profilePhoto+'" alt="'+u.name+'">':u.name.charAt(0).toUpperCase())+'</div><div class="uhi"><h3>'+u.name+'</h3><p>'+u.email+' &#183; '+(u.phone||'No phone')+'</p><div style="display:flex;gap:5px;flex-wrap:wrap">'+sbadge(u.role)+(u.isBanned?'<span class="badge brd">Banned</span>':u.isFlagged?'<span class="badge byw">Flagged</span>':'<span class="badge bgr">Active</span>')+(u.warnings?'<span class="badge bo">'+u.warnings+' warns</span>':'')+'</div></div></div><div class="igrid"><div class="ic"><label>Credits</label><span class="cy">&#128142; '+(u.credits||0)+'</span></div><div class="ic"><label>Joined</label><span>'+fmt(u.createdAt)+'</span></div><div class="ic"><label>Last Login</label><span>'+fmt(u.lastLogin)+'</span></div><div class="ic"><label>Rating</label><span>&#11088; '+(u.rating||'&#8212;')+' ('+(u.reviewCount||0)+')</span></div>'+(p.specialization?'<div class="ic"><label>Specialization</label><span>'+p.specialization+'</span></div>':'')+(p.experience?'<div class="ic"><label>Experience</label><span>'+p.experience+'</span></div>':'')+'</div>'+(u.role==='expert'?'<button class="btn bgh" onclick="oLedger(\''+u._id+'\',\''+u.name+'\')" style="width:100%;justify-content:center;margin-bottom:8px">&#128142; Full Credit Ledger</button>':'')+'<button class="btn brd2" style="width:100%;justify-content:center" onclick="cdr();oActFor(\''+u._id+'\',\''+u.name+'\',\''+u.role+'\')">&#9889; Take Action on this User</button></div><div class="drpanel" id="dp-1"><div class="sl">Transaction History</div>'+(u.role==='expert'?ledH:'')+txH+'</div><div class="drpanel" id="dp-2"><div class="sl">'+(u.role==='expert'?'Approaches Sent':'Requests Posted')+'</div>'+actH+'</div><div class="drpanel" id="dp-3"><div class="sl">Support Tickets</div>'+(d.tickets?.length?d.tickets.map(t=>'<div class="txitem" style="flex-direction:column;align-items:flex-start;gap:4px"><div style="display:flex;justify-content:space-between;width:100%"><div class="txd">'+(t.issueType||'Support')+'</div>'+sbadge(t.status)+'</div><div class="txm">'+fmtT(t.createdAt)+' &#183; '+(t.decision||'&#8212;')+' &#183; &#128142; '+(t.eligibleCredits||0)+'</div></div>').join(''):'<p style="color:var(--t3);font-size:13px;padding:8px">No tickets</p>')+'</div>';
+  document.getElementById('drB').innerHTML='<div class="drpanel active" id="dp-0"><div class="uhero"><div class="uav">'+(u.profilePhoto?'<img src="'+u.profilePhoto+'" alt="'+u.name+'">':u.name.charAt(0).toUpperCase())+'</div><div class="uhi"><h3>'+u.name+'</h3><p>'+u.email+'  &middot; '+(u.phone||'No phone')+'</p><div style="display:flex;gap:5px;flex-wrap:wrap">'+sbadge(u.role)+(u.isBanned?'<span class="badge brd">Banned</span>':u.isFlagged?'<span class="badge byw">Flagged</span>':'<span class="badge bgr">Active</span>')+(u.warnings?'<span class="badge bo">'+u.warnings+' warns</span>':'')+'</div></div></div><div class="igrid"><div class="ic"><label>Credits</label><span class="cy">💎 '+(u.credits||0)+'</span></div><div class="ic"><label>Joined</label><span>'+fmt(u.createdAt)+'</span></div><div class="ic"><label>Last Login</label><span>'+fmt(u.lastLogin)+'</span></div><div class="ic"><label>Rating</label><span>⭐ '+(u.rating||'--')+' ('+(u.reviewCount||0)+')</span></div>'+(p.specialization?'<div class="ic"><label>Specialization</label><span>'+p.specialization+'</span></div>':'')+(p.experience?'<div class="ic"><label>Experience</label><span>'+p.experience+'</span></div>':'')+'</div>'+(u.role==='expert'?'<button class="btn bgh" onclick="oLedger(\''+u._id+'\',\''+u.name+'\')" style="width:100%;justify-content:center;margin-bottom:8px">💎 Full Credit Ledger</button>':'')+'<button class="btn brd2" style="width:100%;justify-content:center" onclick="cdr();oActFor(\''+u._id+'\',\''+u.name+'\',\''+u.role+'\')">⚡ Take Action on this User</button></div><div class="drpanel" id="dp-1"><div class="sl">Transaction History</div>'+(u.role==='expert'?ledH:'')+txH+'</div><div class="drpanel" id="dp-2"><div class="sl">'+(u.role==='expert'?'Approaches Sent':'Requests Posted')+'</div>'+actH+'</div><div class="drpanel" id="dp-3"><div class="sl">Support Tickets</div>'+(d.tickets&&d.tickets.length?d.tickets.map(t=>'<div class="txitem" style="flex-direction:column;align-items:flex-start;gap:4px"><div style="display:flex;justify-content:space-between;width:100%"><div class="txd">'+(t.issueType||'Support')+'</div>'+sbadge(t.status)+'</div><div class="txm">'+fmtT(t.createdAt)+'  &middot; '+(t.decision||'--')+'  &middot; 💎 '+(t.eligibleCredits||0)+'</div></div>').join(''):'<p style="color:var(--t3);font-size:13px;padding:8px">No tickets</p>')+'</div>';
 }
 
 function swDT(el,pid){
@@ -452,13 +452,13 @@ function cdr(){document.getElementById('ov1').classList.remove('open');document.
 async function oLedger(eid,en){
   cdr();
   document.getElementById('ov1').classList.add('open');document.getElementById('dr1').classList.add('open');
-  document.getElementById('drT').textContent='&#128142; Ledger &#8212; '+en;
+  document.getElementById('drT').textContent='💎 Ledger -- '+en;
   document.getElementById('drTabs').innerHTML='';
   document.getElementById('drB').innerHTML='<div style="text-align:center;padding:40px"><div class="spin2"></div></div>';
   try{
     const d=await req('credits/expert/'+eid+'?'+qs({}));if(!d.success)return;
     const {transactions:txs,summary:sm}=d;
-    document.getElementById('drB').innerHTML='<div class="ledger" style="margin-bottom:18px"><div class="lc"><label>Opening</label><span>'+(sm.opening||0)+'</span></div><div class="lc"><label>Purchased</label><span class="cg">+'+(sm.purchased||0)+'</span></div><div class="lc"><label>Spent</label><span class="cr">-'+(sm.spent||0)+'</span></div><div class="lc"><label>Balance</label><span class="cy">'+(sm.closing||0)+'</span></div></div><div class="sl">All Transactions ('+txs.length+')</div>'+(txs.length?txs.map(tx=>'<div class="txitem"><div><div class="txd">'+(tx.description||tx.type)+'</div><div class="txm">'+fmtT(tx.createdAt)+(tx.relatedClient?.name?' &#183; '+tx.relatedClient.name:'')+(tx.relatedRequest?.title?' &#183; '+tx.relatedRequest.title:'')+'</div></div><div style="text-align:right"><div class="txa '+(tx.amount>0?'p':'n')+'">'+(tx.amount>0?'+':'')+tx.amount+'</div><div class="txm">Bal: '+(tx.balanceAfter||0)+'</div></div></div>').join(''):'<p style="color:var(--t3);font-size:13px;padding:8px">No transactions</p>');
+    document.getElementById('drB').innerHTML='<div class="ledger" style="margin-bottom:18px"><div class="lc"><label>Opening</label><span>'+(sm.opening||0)+'</span></div><div class="lc"><label>Purchased</label><span class="cg">+'+(sm.purchased||0)+'</span></div><div class="lc"><label>Spent</label><span class="cr">-'+(sm.spent||0)+'</span></div><div class="lc"><label>Balance</label><span class="cy">'+(sm.closing||0)+'</span></div></div><div class="sl">All Transactions ('+txs.length+')</div>'+(txs.length?txs.map(tx=>'<div class="txitem"><div><div class="txd">'+(tx.description||tx.type)+'</div><div class="txm">'+fmtT(tx.createdAt)+(tx.relatedClient?.name?'  &middot; '+tx.relatedClient.name:'')+(tx.relatedRequest?.title?'  &middot; '+tx.relatedRequest.title:'')+'</div></div><div style="text-align:right"><div class="txa '+(tx.amount>0?'p':'n')+'">'+(tx.amount>0?'+':'')+tx.amount+'</div><div class="txm">Bal: '+(tx.balanceAfter||0)+'</div></div></div>').join(''):'<p style="color:var(--t3);font-size:13px;padding:8px">No transactions</p>');
   }catch(e){document.getElementById('drB').innerHTML='<p class="empty2">Error</p>';}
 }
 
@@ -468,7 +468,7 @@ async function loadApproaches(){
   stbl('atbl','<tr><td colspan="7" style="text-align:center;padding:18px"><div class="spin2"></div></td></tr>');
   try{
     const d=await req('approaches?'+qs({status:st}));
-    stbl('atbl',(d.approaches||[]).map(a=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+a.expert?._id+'\')">'+( a.expert?.name||'&#8212;')+'</strong></td><td style="color:var(--t2)">'+( a.client?.name||'&#8212;')+'</td><td style="font-size:12px">'+(a.request?.title||'&#8212;')+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">&#128142; '+(a.creditsSpent||0)+'</td><td>'+sbadge(a.status)+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(a.createdAt)+'</td></tr>').join(''));
+    stbl('atbl',(d.approaches||[]).map(a=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+a.expert&&a.expert._id+'\')">'+( a.expert&&a.expert.name||'--')+'</strong></td><td style="color:var(--t2)">'+( a.client&&a.client.name||'--')+'</td><td style="font-size:12px">'+(a.request?.title||'--')+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">💎 '+(a.creditsSpent||0)+'</td><td>'+sbadge(a.status)+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(a.createdAt)+'</td></tr>').join(''));
   }catch(e){stbl('atbl','');}
 }
 
@@ -477,7 +477,7 @@ async function loadChats(){
   stbl('chtbl','<tr><td colspan="6" style="text-align:center;padding:18px"><div class="spin2"></div></td></tr>');
   try{
     const d=await req('chats?'+qs({}));
-    stbl('chtbl',(d.chats||[]).map(c=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+c.expert?._id+'\')">'+( c.expert?.name||'&#8212;')+'</strong></td><td style="cursor:pointer;color:var(--bl)" onclick="odr(\''+c.client?._id+'\')">'+( c.client?.name||'&#8212;')+'</td><td style="font-size:12px">'+(c.request?.title||'&#8212;')+'</td><td style="font-size:12px;color:var(--t2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(c.lastMessage||'&#8212;')+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(c.updatedAt||c.createdAt)+'</td><td><button class="btn bgh" onclick="vChat(\''+c._id+'\',\''+(c.expert?.name||'Expert')+'\',\''+(c.client?.name||'Client')+'\',\''+(c.request?.title||'')+'\')">View</button></td></tr>').join(''));
+    stbl('chtbl',(d.chats||[]).map(c=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+c.expert&&c.expert._id+'\')">'+( c.expert&&c.expert.name||'--')+'</strong></td><td style="cursor:pointer;color:var(--bl)" onclick="odr(\''+c.client&&c.client._id+'\')">'+( c.client&&c.client.name||'--')+'</td><td style="font-size:12px">'+(c.request?.title||'--')+'</td><td style="font-size:12px;color:var(--t2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(c.lastMessage||'--')+'</td><td style="font-size:12px;color:var(--t2)">'+fmt(c.updatedAt||c.createdAt)+'</td><td><button class="btn bgh" onclick="vChat(\''+c._id+'\',\''+(c.expert&&c.expert.name||'Expert')+'\',\''+(c.client&&c.client.name||'Client')+'\',\''+(c.request?.title||'')+'\')">View</button></td></tr>').join(''));
   }catch(e){stbl('chtbl','');}
 }
 
@@ -506,7 +506,7 @@ function loadCredits(){clearTimeout(cst);cst=setTimeout(async()=>{
     let txs=d.transactions||[];
     if(srch)txs=txs.filter(t=>t.user?.name?.toLowerCase().includes(srch.toLowerCase())||t.user?.email?.toLowerCase().includes(srch.toLowerCase()));
     const tc={purchase:'bgr',spent:'bo',refund:'bpu',bonus:'bt'};
-    stbl('crtbl',txs.map(tx=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+tx.user?._id+'\')">'+( tx.user?.name||'&#8212;')+'</strong><br><span style="font-size:11px;color:var(--t3)">'+( tx.user?.email||'')+'</span></td><td><span class="badge '+(tc[tx.type]||'bgy')+'">'+tx.type+'</span></td><td style="font-family:\'DM Mono\',monospace" class="'+(tx.amount>0?'cg':'cr')+'">'+(tx.amount>0?'+':'')+tx.amount+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">'+(tx.balanceAfter||0)+'</td><td style="font-size:12px;color:var(--t2);max-width:180px">'+(tx.description||'&#8212;')+'</td><td style="font-size:12px;color:var(--t2)">'+fmtT(tx.createdAt)+'</td></tr>').join(''));
+    stbl('crtbl',txs.map(tx=>'<tr><td><strong style="cursor:pointer;color:var(--p)" onclick="odr(\''+tx.user&&tx.user._id+'\')">'+( tx.user&&tx.user.name||'--')+'</strong><br><span style="font-size:11px;color:var(--t3)">'+( tx.user&&tx.user.email||'')+'</span></td><td><span class="badge '+(tc[tx.type]||'bgy')+'">'+tx.type+'</span></td><td style="font-family:\'DM Mono\',monospace" class="'+(tx.amount>0?'cg':'cr')+'">'+(tx.amount>0?'+':'')+tx.amount+'</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">'+(tx.balanceAfter||0)+'</td><td style="font-size:12px;color:var(--t2);max-width:180px">'+(tx.description||'--')+'</td><td style="font-size:12px;color:var(--t2)">'+fmtT(tx.createdAt)+'</td></tr>').join(''));
   }catch(e){stbl('crtbl','');}
 },300);}
 
@@ -516,10 +516,10 @@ async function loadRefunds(){
   try{
     const d=await req('tickets?status=pending_review&limit=50');
     const ts=d.tickets||[];
-    if(!ts.length){document.getElementById('rfList').innerHTML='<div class="empty2"><div class="ei">&#127881;</div><h3>No pending refunds</h3><p>All clear!</p></div>';return;}
+    if(!ts.length){document.getElementById('rfList').innerHTML='<div class="empty2"><div class="ei">🎉</div><h3>No pending refunds</h3><p>All clear!</p></div>';return;}
     document.getElementById('rfList').innerHTML=ts.map(t=>{
       const u=t.user||{};
-      return '<div class="tcard" id="tc-'+t._id+'"><div class="ttop"><div class="ttu"><div class="ttav">'+(u.name||'U').charAt(0).toUpperCase()+'</div><div class="tti"><strong>'+(u.name||'&#8212;')+'</strong><small>'+(u.email||'')+' &#183; &#128142; '+(u.credits||0)+'</small></div></div><span class="badge byw">Pending</span></div><div class="tamt">+'+(t.eligibleCredits||0)+' credits requested</div>'+((t.transactionBreakdown||[]).filter(b=>b.eligible).map(b=>'<div class="trow"><span>'+(b.clientName||'Client')+'</span><span style="color:var(--t3)">'+(b.reason||'')+'</span><span class="cy">'+(b.creditsSpent)+'cr</span></div>').join(''))+'<div style="font-size:12px;color:var(--t3);margin:8px 0">'+fmtT(t.createdAt)+' &#183; #'+t._id+'</div><textarea class="tacnote" id="tn-'+t._id+'" rows="2" placeholder="Admin note..."></textarea><div class="tacbtns"><button class="btn bgr2 tacbtns" onclick="apRef(\''+t._id+'\')">&#9989; Approve '+(t.eligibleCredits||0)+' credits</button><button class="btn brd2 tacbtns" onclick="rjRef(\''+t._id+'\')">&#10060; Reject</button><button class="btn bgh" onclick="odr(\''+u._id+'\')">&#128100;</button></div></div>';
+      return '<div class="tcard" id="tc-'+t._id+'"><div class="ttop"><div class="ttu"><div class="ttav">'+(u.name||'U').charAt(0).toUpperCase()+'</div><div class="tti"><strong>'+(u.name||'--')+'</strong><small>'+(u.email||'')+'  &middot; 💎 '+(u.credits||0)+'</small></div></div><span class="badge byw">Pending</span></div><div class="tamt">+'+(t.eligibleCredits||0)+' credits requested</div>'+((t.transactionBreakdown||[]).filter(b=>b.eligible).map(b=>'<div class="trow"><span>'+(b.clientName||'Client')+'</span><span style="color:var(--t3)">'+(b.reason||'')+'</span><span class="cy">'+(b.creditsSpent)+'cr</span></div>').join(''))+'<div style="font-size:12px;color:var(--t3);margin:8px 0">'+fmtT(t.createdAt)+'  &middot; #'+t._id+'</div><textarea class="tacnote" id="tn-'+t._id+'" rows="2" placeholder="Admin note..."></textarea><div class="tacbtns"><button class="btn bgr2 tacbtns" onclick="apRef(\''+t._id+'\')">✅ Approve '+(t.eligibleCredits||0)+' credits</button><button class="btn brd2 tacbtns" onclick="rjRef(\''+t._id+'\')">❌ Reject</button><button class="btn bgh" onclick="odr(\''+u._id+'\')">👤</button></div></div>';
 
 ```
 }).join('');
@@ -547,7 +547,7 @@ if(!srch&&role===‘all’){stbl(‘actbl’,’<tr><td colspan="6" style="text-
 stbl(‘actbl’,’<tr><td colspan="6" style="text-align:center;padding:18px"><div class="spin2"></div></td></tr>’);
 try{
 const d=await req(‘users?’+qs({role,search:srch}));
-stbl(‘actbl’,(d.users||[]).map(u=>’<tr><td><strong>’+u.name+’</strong></td><td>’+sbadge(u.role)+’</td><td style="font-size:12px;color:var(--t2)">’+u.email+’</td><td>’+(u.isBanned?’<span class="badge brd">Banned</span>’:u.isFlagged?’<span class="badge byw">Flagged</span>’:’<span class="badge bgr">Active</span>’)+’</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">’+(u.warnings||0)+’</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">’+(u.isBanned?’<button class="btn bgr2" onclick="doAct(\''+u._id+'\',\'unban\',\'\',\''+u.name+'\')">✅ Unban</button>’:’<button class="btn brd2" onclick="doAct(\''+u._id+'\',\'ban\',\'\',\''+u.name+'\')">🚫 Ban</button>’)+’<button class="btn byw2" onclick="warnBox(\''+u._id+'\',\''+u.name+'\')">⚠ Warn</button>’+(u.isFlagged?’<button class="btn bgh" onclick="doAct(\''+u._id+'\',\'unflag\',\'\',\''+u.name+'\')">Unflag</button>’:’<button class="btn bgh" onclick="doAct(\''+u._id+'\',\'flag\',\'\',\''+u.name+'\')">🚩 Flag</button>’)+’<button class="btn bgh" onclick="odr(\''+u._id+'\')">View</button></div></td></tr>’).join(’’));
+stbl(‘actbl’,(d.users||[]).map(u=>’<tr><td><strong>’+u.name+’</strong></td><td>’+sbadge(u.role)+’</td><td style="font-size:12px;color:var(--t2)">’+u.email+’</td><td>’+(u.isBanned?’<span class="badge brd">Banned</span>’:u.isFlagged?’<span class="badge byw">Flagged</span>’:’<span class="badge bgr">Active</span>’)+’</td><td style="font-family:\'DM Mono\',monospace;color:var(--yw)">’+(u.warnings||0)+’</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">’+(u.isBanned?’<button class="btn bgr2" onclick="doAct(\''+u._id+'\',\'unban\',\'\',\''+u.name+'\')">✅ Unban</button>’:’<button class="btn brd2" onclick="doAct(\''+u._id+'\',\'ban\',\'\',\''+u.name+'\')">🚫 Ban</button>’)+’<button class="btn byw2" onclick="warnBox(\''+u._id+'\',\''+u.name+'\')">⚠️ Warn</button>’+(u.isFlagged?’<button class="btn bgh" onclick="doAct(\''+u._id+'\',\'unflag\',\'\',\''+u.name+'\')">Unflag</button>’:’<button class="btn bgh" onclick="doAct(\''+u._id+'\',\'flag\',\'\',\''+u.name+'\')">🚩 Flag</button>’)+’<button class="btn bgh" onclick="odr(\''+u._id+'\')">View</button></div></td></tr>’).join(’’));
 }catch(e){stbl(‘actbl’,’’);}
 },300);}
 
