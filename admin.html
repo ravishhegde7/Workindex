@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -146,7 +147,40 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   .cnt{padding:14px}.sgrid{grid-template-columns:1fr 1fr}
   .igrid,.ledger{grid-template-columns:1fr 1fr}.dfrow{width:100%}.tbar{padding:12px 14px}
 }
+
+/* –– MODAL –– */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:center;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:#111115;border:1px solid rgba(255,255,255,.1);border-radius:16px;width:100%;max-width:520px;margin:20px;max-height:90vh;display:flex;flex-direction:column}
+.modal-h{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-h h3{font-size:15px;font-weight:700}
+.modal-x{background:none;border:none;color:#a0a0b8;font-size:22px;cursor:pointer;padding:0;line-height:1}
+.modal-b{padding:20px;overflow-y:auto}
+.mfld{margin-bottom:14px}
+.mfld label{display:block;font-size:11px;font-weight:700;color:#606078;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.mfld input,.mfld textarea,.mfld select{width:100%;padding:10px 13px;background:#18181d;border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#f0f0f4;font-size:13px;outline:none;font-family:inherit}
+.mfld textarea{resize:vertical;min-height:80px}
+.mfld input:focus,.mfld textarea:focus,.mfld select:focus{border-color:#FC8019}
+.mfoot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+/* CHAT FULL */
+.chat-full{display:flex;flex-direction:column;height:100%}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.chat-inp-row{padding:12px 14px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:8px;flex-shrink:0}
+/* TICKET card */
+.tk-card{background:#18181d;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-bottom:10px}
+.tk-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.tk-meta{font-size:11px;color:#606078;margin-bottom:6px}
+.tk-body{font-size:13px;color:#d0d0e0;line-height:1.55;margin-bottom:10px}
+/* COMM */
+.rec-chip{display:inline-flex;align-items:center;gap:5px;background:#18181d;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px 10px;font-size:12px;margin:3px}
+.rec-chip button{background:none;border:none;color:#606078;cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 3px}
+/* INVOICE */
+.inv-preview{background:#fff;color:#111;border-radius:8px;padding:28px;font-family:system-ui;font-size:13px}
+.inv-preview h2{font-size:22px;font-weight:800;color:#FC8019;margin-bottom:4px}
+.inv-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee;font-size:12px}
+.inv-total{display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:14px}
 </style>
+
 </head>
 <body>
 
@@ -180,8 +214,19 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
         <div class="ni" data-s="credits"><span>&#128142;</span><span>Credits</span></div>
       </div>
       <div class="ng"><div class="ngl">Support</div>
+        <div class="ni" data-s="tickets"><span>&#127915;</span><span>Tickets</span><span class="nbadge" id="tkbadge" style="display:none">0</span></div>
         <div class="ni" data-s="refunds"><span>&#128176;</span><span>Refunds</span><span class="nbadge" id="rbadge" style="display:none">0</span></div>
         <div class="ni" data-s="actions"><span>&#9889;</span><span>Actions</span></div>
+      </div>
+      <div class="ng"><div class="ngl">Platform</div>
+        <div class="ni" data-s="posts"><span>&#128221;</span><span>Posts</span></div>
+        <div class="ni" data-s="reviews"><span>&#11088;</span><span>Reviews</span></div>
+        <div class="ni" data-s="registrations"><span>&#9989;</span><span>Registrations</span></div>
+        <div class="ni" data-s="payments"><span>&#128184;</span><span>Payments</span></div>
+      </div>
+      <div class="ng"><div class="ngl">Tools</div>
+        <div class="ni" data-s="communication"><span>&#128140;</span><span>Communication</span></div>
+        <div class="ni" data-s="invoices"><span>&#128196;</span><span>Invoices</span></div>
       </div>
     </nav>
     <div class="sbbot">
@@ -237,6 +282,88 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
         </div>
       </div>
       <div class="sec" id="sec-refunds"><div id="rfList"></div></div>
+      <div class="sec" id="sec-tickets">
+        <div class="card"><div class="ch"><h3>Support Tickets</h3><div class="fbar">
+          <select id="tkSt"><option value="all">All</option><option value="open">Open</option><option value="pending_review">Pending Review</option><option value="resolved">Resolved</option></select>
+          <input type="text" id="tkSrch" placeholder="Search user..." style="width:160px">
+        </div></div>
+          <div class="tw"><table><thead><tr><th>User</th><th>Type</th><th>Subject</th><th>Status</th><th>Credits Req</th><th>Date</th><th></th></tr></thead><tbody id="tkTbl"></tbody></table></div>
+        </div>
+      </div>
+      <div class="sec" id="sec-posts">
+        <div class="card"><div class="ch"><h3>User Posts / Requests</h3><div class="fbar">
+          <input type="text" id="poSrch" placeholder="Search posts..." style="width:185px">
+          <select id="poSt"><option value="all">All Status</option><option value="open">Open</option><option value="closed">Closed</option><option value="flagged">Flagged</option></select>
+        </div></div>
+          <div class="tw"><table><thead><tr><th>Title</th><th>Client</th><th>Service</th><th>Budget</th><th>Status</th><th>Credits</th><th>Date</th><th></th></tr></thead><tbody id="poTbl"></tbody></table></div>
+        </div>
+      </div>
+      <div class="sec" id="sec-reviews">
+        <div class="card"><div class="ch"><h3>Ratings &amp; Reviews</h3><div class="fbar">
+          <input type="text" id="rvSrch" placeholder="Search expert..." style="width:160px">
+          <select id="rvMin"><option value="0">All Ratings</option><option value="1">1+ Stars</option><option value="1" selected>All</option><option value="3">Below 3 Stars</option></select>
+        </div></div>
+          <div class="tw"><table><thead><tr><th>Expert</th><th>Client</th><th>Rating</th><th>Review</th><th>Date</th><th></th></tr></thead><tbody id="rvTbl"></tbody></table></div>
+        </div>
+      </div>
+      <div class="sec" id="sec-registrations">
+        <div class="card"><div class="ch"><h3>Expert Registrations</h3><div class="fbar">
+          <select id="rgSt"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select>
+        </div></div>
+          <div class="tw"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Specialization</th><th>Status</th><th>Applied</th><th></th></tr></thead><tbody id="rgTbl"></tbody></table></div>
+        </div>
+      </div>
+      <div class="sec" id="sec-payments">
+        <div class="card"><div class="ch"><h3>Failed Payments</h3></div>
+          <div class="tw"><table><thead><tr><th>User</th><th>Amount</th><th>Gateway</th><th>Reason</th><th>Date</th><th></th></tr></thead><tbody id="pyTbl"></tbody></table></div>
+        </div>
+      </div>
+      <div class="sec" id="sec-communication">
+        <div class="card" style="margin-bottom:16px"><div class="ch"><h3>Bulk Email / Notification</h3></div>
+          <div style="padding:20px">
+            <div class="mfld"><label>Recipients</label>
+              <select id="commTarget" style="margin-bottom:8px">
+                <option value="all">All Users</option>
+                <option value="experts">All Experts</option>
+                <option value="clients">All Clients</option>
+                <option value="custom">Custom (paste emails)</option>
+              </select>
+              <div id="commCustomBox" style="display:none"><textarea id="commEmails" rows="3" placeholder="Paste emails comma separated..."></textarea></div>
+            </div>
+            <div class="mfld"><label>Subject</label><input type="text" id="commSubj" placeholder="Email subject"></div>
+            <div class="mfld"><label>Message</label><textarea id="commMsg" rows="6" placeholder="Write your message..."></textarea></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+              <span id="commChips" style="display:flex;flex-wrap:wrap"></span>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="abtn" id="previewCommBtn">Preview Recipients</button>
+              <button class="abtn" id="sendCommBtn">Send Now</button>
+            </div>
+            <div id="commStatus" style="margin-top:12px;font-size:13px;color:#22c55e"></div>
+          </div>
+        </div>
+        <div class="card"><div class="ch"><h3>Notification History</h3></div>
+          <div class="tw"><table><thead><tr><th>Subject</th><th>Target</th><th>Sent</th><th>Date</th></tr></thead><tbody id="commHist"></tbody></table></div>
+        </div>
+      </div>
+      <div class="sec" id="sec-invoices">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="card"><div class="ch"><h3>Generate Invoice</h3></div>
+            <div style="padding:16px">
+              <div class="mfld"><label>Expert / User</label><input type="text" id="invUser" placeholder="Search name or email..."></div>
+              <div class="mfld"><label>Service Description</label><input type="text" id="invDesc" placeholder="e.g. ITR Filing - FY 2024"></div>
+              <div class="mfld"><label>Amount (INR)</label><input type="number" id="invAmt" placeholder="0"></div>
+              <div class="mfld"><label>Invoice Date</label><input type="date" id="invDate"></div>
+              <div class="mfld"><label>Due Date</label><input type="date" id="invDue"></div>
+              <div class="mfld"><label>Notes</label><textarea id="invNotes" rows="2" placeholder="Additional notes..."></textarea></div>
+              <button class="abtn" id="genInvBtn" style="width:100%">Generate Invoice</button>
+            </div>
+          </div>
+          <div class="card"><div class="ch"><h3>Invoice Preview</h3></div>
+            <div id="invPreview" style="padding:16px"><div class="empty"><h3>Fill form to preview</h3></div></div>
+          </div>
+        </div>
+      </div>
       <div class="sec" id="sec-actions">
         <div class="card"><div class="ch"><h3>User Actions</h3><div class="fbar">
           <input type="text" id="acSrch" placeholder="Search any user..." style="width:200px">
@@ -261,6 +388,85 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   <div class="drb"><div id="chDrMeta" style="margin-bottom:12px"></div><div class="chatbox" id="chDrMsgs"></div></div>
 </div>
 
+<!-- CREDIT ADJUST MODAL -->
+
+<div class="modal-bg" id="creditModal">
+  <div class="modal">
+    <div class="modal-h"><h3>Adjust Credits</h3><button class="modal-x" data-close="creditModal">&#215;</button></div>
+    <div class="modal-b">
+      <div id="creditModalInfo" style="margin-bottom:14px;padding:12px;background:#18181d;border-radius:8px;font-size:13px"></div>
+      <div class="mfld"><label>Action</label>
+        <select id="creditAction">
+          <option value="add">Add Credits</option>
+          <option value="deduct">Deduct Credits</option>
+          <option value="set">Set to Exact Amount</option>
+        </select>
+      </div>
+      <div class="mfld"><label>Amount</label><input type="number" id="creditAmount" placeholder="0" min="0"></div>
+      <div class="mfld"><label>Reason</label><textarea id="creditReason" rows="2" placeholder="Reason for adjustment..."></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bgho" data-close="creditModal">Cancel</button>
+      <button class="btn bpri" id="creditSubmit">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+
+<div class="modal-bg" id="pwModal">
+  <div class="modal">
+    <div class="modal-h"><h3>Reset Password</h3><button class="modal-x" data-close="pwModal">&#215;</button></div>
+    <div class="modal-b">
+      <div id="pwModalInfo" style="margin-bottom:14px;font-size:13px;color:#a0a0b8"></div>
+      <div class="mfld"><label>New Password</label><input type="password" id="newPw" placeholder="Min 8 characters"></div>
+      <div class="mfld"><label>Confirm Password</label><input type="password" id="newPw2" placeholder="Repeat password"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bgho" data-close="pwModal">Cancel</button>
+      <button class="btn bpri" id="pwSubmit">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT POST MODAL -->
+
+<div class="modal-bg" id="postModal">
+  <div class="modal">
+    <div class="modal-h"><h3>Edit Post</h3><button class="modal-x" data-close="postModal">&#215;</button></div>
+    <div class="modal-b">
+      <div class="mfld"><label>Title</label><input type="text" id="postTitle"></div>
+      <div class="mfld"><label>Description</label><textarea id="postDesc" rows="4"></textarea></div>
+      <div class="mfld"><label>Status</label>
+        <select id="postStatus"><option value="open">Open</option><option value="closed">Closed</option><option value="flagged">Flagged</option></select>
+      </div>
+      <div class="mfld"><label>Credits Required</label><input type="number" id="postCredits"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bgho" data-close="postModal">Cancel</button>
+      <button class="btn brdn" id="deletePostBtn">Delete Post</button>
+      <button class="btn bpri" id="savePostBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- TICKET DETAIL MODAL -->
+
+<div class="modal-bg" id="ticketModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-h"><h3 id="tkModalTitle">Ticket Details</h3><button class="modal-x" data-close="ticketModal">&#215;</button></div>
+    <div class="modal-b" id="tkModalBody"></div>
+    <div class="mfoot">
+      <button class="btn bgho" data-close="ticketModal">Close</button>
+      <button class="btn bgrn" id="tkApproveBtn" style="display:none">Approve Refund</button>
+      <button class="btn brdn" id="tkRejectBtn" style="display:none">Reject</button>
+      <button class="btn bpri" id="tkResolveBtn" style="display:none">Mark Resolved</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT FULL DRAWER (reuse dr2) -->
+
 <script>
 (function(){
   var API = 'https://workindex-production.up.railway.app/api/admin';
@@ -268,28 +474,30 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   var adm = null;
   try { adm = JSON.parse(localStorage.getItem('admData') || 'null'); } catch(e) {}
   var dF = '', dT = '', T = {};
+  var _editPostId = null, _creditUid = null, _pwUid = null, _tkId = null;
 
   function g(id) { return document.getElementById(id); }
   function qa(s) { return Array.from(document.querySelectorAll(s)); }
   function deb(k, fn) { clearTimeout(T[k]); T[k] = setTimeout(fn, 300); }
   function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  if (document.readyState !== 'loading') { init(); }
-  else { document.addEventListener('DOMContentLoaded', init); }
+  if (document.readyState !== 'loading') { init(); } else { document.addEventListener('DOMContentLoaded', init); }
 
+  /* ═══ INIT ═══════════════════════════════════════════════════════════════ */
   function init() {
     if (tok && adm) { showApp(); }
-
     g('loginBtn').onclick = doLogin;
     g('liPw').onkeydown = function(e) { if (e.key === 'Enter') doLogin(); };
     g('logoutBtn').onclick = doLogout;
-    g('applyDF').onclick = function() { dF = g('dfF').value; dT = g('dfT').value; refresh(); };
-    g('clearDF').onclick = function() { dF = ''; dT = ''; g('dfF').value = ''; g('dfT').value = ''; refresh(); };
+    g('applyDF').onclick = applyDates;
+    g('clearDF').onclick = clearDates;
     g('drClose').onclick = closeDr;
     g('chDrClose').onclick = closeChDr;
     g('ov1').onclick = closeDr;
     g('ov2').onclick = closeChDr;
     qa('.ni').forEach(function(n) { n.onclick = function() { goTo(n.dataset.s); }; });
+
+    /* search inputs */
     g('eSrch').oninput = function() { deb('e', function() { loadUsers('expert'); }); };
     g('cSrch').oninput = function() { deb('c', function() { loadUsers('client'); }); };
     g('apSt').onchange = loadApproaches;
@@ -297,11 +505,45 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
     g('crSrch').oninput = function() { deb('cr', loadCredits); };
     g('acSrch').oninput = function() { deb('ac', searchActions); };
     g('acRole').onchange = searchActions;
+    g('tkSt').onchange = loadTickets;
+    g('tkSrch').oninput = function() { deb('tk', loadTickets); };
+    g('poSrch').oninput = function() { deb('po', loadPosts); };
+    g('poSt').onchange = loadPosts;
+    g('rvSrch').oninput = function() { deb('rv', loadReviews); };
+    g('rvMin').onchange = loadReviews;
+    g('rgSt').onchange = loadRegistrations;
+    g('commTarget').onchange = function() {
+      g('commCustomBox').style.display = this.value === 'custom' ? 'block' : 'none';
+    };
+    g('previewCommBtn').onclick = previewComm;
+    g('sendCommBtn').onclick = sendComm;
+    g('genInvBtn').onclick = genInvoice;
+    g('invUser').oninput = function() { deb('inv', previewInvoice); };
+    g('invDesc').oninput = previewInvoice;
+    g('invAmt').oninput = previewInvoice;
+    g('invDate').oninput = previewInvoice;
 
+    /* modal close buttons */
+    document.addEventListener('click', function(ev) {
+      var cl = ev.target.closest('[data-close]');
+      if (cl) { closeModal(cl.dataset.close); }
+    });
+
+    /* modal submits */
+    g('creditSubmit').onclick = submitCredit;
+    g('pwSubmit').onclick = submitPw;
+    g('savePostBtn').onclick = savePost;
+    g('deletePostBtn').onclick = deletePost;
+    g('tkApproveBtn').onclick = function() { processTicket('approve'); };
+    g('tkRejectBtn').onclick = function() { processTicket('reject'); };
+    g('tkResolveBtn').onclick = function() { processTicket('resolve'); };
+
+    /* delegated: open user drawer */
     document.addEventListener('click', function(ev) {
       var el = ev.target.closest('[data-uid]');
       if (el && !ev.defaultPrevented) { openDr(el.dataset.uid); }
     });
+    /* delegated: stat card nav */
     document.addEventListener('click', function(ev) {
       var el = ev.target.closest('[data-goto]');
       if (!el) return;
@@ -311,16 +553,23 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
       else if (gt === 'credits-refund') { goTo('credits'); g('crType').value = 'refund'; loadCredits(); }
       else { goTo(gt); }
     });
+    /* delegated: ledger + action uid buttons in drawer */
     document.addEventListener('click', function(ev) {
       var lb = ev.target.closest('[data-ledger-uid]');
       if (lb) { ev.preventDefault(); openLedger(lb.dataset.ledgerUid); return; }
       var ab = ev.target.closest('[data-action-uid]');
       if (ab) { ev.preventDefault(); closeDr(); goActId(ab.dataset.actionUid); return; }
+      var cb = ev.target.closest('[data-credit-uid]');
+      if (cb) { ev.preventDefault(); openCreditModal(cb.dataset.creditUid, cb.dataset.creditName, cb.dataset.creditBal); return; }
+      var pb = ev.target.closest('[data-pw-uid]');
+      if (pb) { ev.preventDefault(); openPwModal(pb.dataset.pwUid, pb.dataset.pwName); return; }
     });
+    /* delegated: chat view */
     document.addEventListener('click', function(ev) {
       var btn = ev.target.closest('[data-cid]');
       if (btn) { ev.preventDefault(); viewChat(btn.dataset.cid, btn.dataset.en, btn.dataset.cn, btn.dataset.rt); }
     });
+    /* delegated: approve/reject refunds */
     document.addEventListener('click', function(ev) {
       var ap = ev.target.closest('[data-approve]');
       if (ap) {
@@ -346,6 +595,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
         }).catch(function() { toast('Error', 'e'); });
       }
     });
+    /* delegated: action buttons (ban/warn/flag) */
     document.addEventListener('click', function(ev) {
       var btn = ev.target.closest('[data-act]');
       if (!btn) return;
@@ -360,50 +610,88 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
         doAct(uid, act, '');
       }
     });
+    /* delegated: post edit */
+    document.addEventListener('click', function(ev) {
+      var btn = ev.target.closest('[data-edit-post]');
+      if (btn) { ev.preventDefault(); openPostModal(btn.dataset.editPost); }
+    });
+    /* delegated: review delete */
+    document.addEventListener('click', function(ev) {
+      var btn = ev.target.closest('[data-del-review]');
+      if (btn) {
+        ev.preventDefault();
+        if (!confirm('Delete this review?')) return;
+        api('reviews/' + btn.dataset.delReview, 'DELETE').then(function(d) {
+          if (d.success) { toast('Review deleted'); loadReviews(); }
+          else toast(d.message || 'Failed', 'e');
+        }).catch(function() { toast('Error', 'e'); });
+      }
+    });
+    /* delegated: registration approve/reject */
+    document.addEventListener('click', function(ev) {
+      var btn = ev.target.closest('[data-reg-action]');
+      if (btn) {
+        ev.preventDefault();
+        var uid = btn.dataset.regAction, action = btn.dataset.action, nm = btn.dataset.nm;
+        if (!confirm(action + ' ' + nm + '?')) return;
+        api('users/' + uid + '/action', 'POST', { action: action }).then(function(d) {
+          if (d.success) { toast(d.message); loadRegistrations(); }
+          else toast(d.message || 'Failed', 'e');
+        }).catch(function() { toast('Error', 'e'); });
+      }
+    });
+    /* delegated: open ticket detail */
+    document.addEventListener('click', function(ev) {
+      var btn = ev.target.closest('[data-tk-id]');
+      if (btn) { ev.preventDefault(); openTicketModal(btn.dataset.tkId); }
+    });
+    /* delegated: add manual refund */
+    document.addEventListener('click', function(ev) {
+      var btn = ev.target.closest('[data-manual-refund]');
+      if (btn) { ev.preventDefault(); openCreditModal(btn.dataset.manualRefund, btn.dataset.nm, btn.dataset.bal); }
+    });
   }
 
+  /* ═══ DATE FILTER ════════════════════════════════════════════════════════ */
+  function applyDates() {
+    var f = g('dfF').value, t = g('dfT').value;
+    if (!f && !t) { toast('Select at least one date', 'i'); return; }
+    dF = f; dT = t;
+    refresh();
+    toast('Date filter applied', 'i');
+  }
+  function clearDates() {
+    dF = ''; dT = '';
+    g('dfF').value = ''; g('dfT').value = '';
+    refresh();
+  }
+
+  /* ═══ AUTH ═══════════════════════════════════════════════════════════════ */
   function doLogin() {
-    var id = g('liId').value.trim();
-    var pw = g('liPw').value;
+    var id = g('liId').value.trim(), pw = g('liPw').value;
     g('lerr').textContent = '';
     if (!id || !pw) { g('lerr').textContent = 'Please fill all fields'; return; }
     g('lerr').textContent = 'Signing in...';
     g('lerr').style.color = '#a0a0b8';
-    fetch(API + '/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminId: id, password: pw })
-    })
-    .then(function(r) {
-      if (!r.ok && r.status !== 401 && r.status !== 400) {
-        throw new Error('Server error: ' + r.status);
-      }
-      return r.json();
-    })
-    .then(function(r) {
-      g('lerr').style.color = '#ef4444';
-      if (r.success) {
-        tok = r.token; adm = r.admin;
-        localStorage.setItem('admTok', tok);
-        localStorage.setItem('admData', JSON.stringify(adm));
-        showApp();
-      } else {
-        g('lerr').textContent = r.message || 'Invalid credentials';
-      }
-    })
-    .catch(function(err) {
-      g('lerr').style.color = '#ef4444';
-      g('lerr').textContent = 'Connection failed: ' + err.message;
-    });
+    fetch(API + '/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: id, password: pw }) })
+      .then(function(r) { return r.json(); })
+      .then(function(r) {
+        g('lerr').style.color = '#ef4444';
+        if (r.success) {
+          tok = r.token; adm = r.admin;
+          localStorage.setItem('admTok', tok);
+          localStorage.setItem('admData', JSON.stringify(adm));
+          showApp();
+        } else { g('lerr').textContent = r.message || 'Invalid credentials'; }
+      })
+      .catch(function(err) { g('lerr').style.color = '#ef4444'; g('lerr').textContent = 'Connection failed: ' + err.message; });
   }
 
   function showApp() {
     g('loginWrap').style.display = 'none';
     g('appWrap').style.display = 'block';
     var nm = (adm && adm.name) ? adm.name : 'Admin';
-    g('sbNm').textContent = nm;
-    g('sbId').textContent = (adm && adm.adminId) || '';
-    g('sbAv').textContent = nm.charAt(0).toUpperCase();
+    g('sbNm').textContent = nm; g('sbId').textContent = (adm && adm.adminId) || ''; g('sbAv').textContent = nm.charAt(0).toUpperCase();
     loadDashboard();
   }
 
@@ -414,6 +702,7 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
     g('loginWrap').style.display = 'flex';
   }
 
+  /* ═══ API ════════════════════════════════════════════════════════════════ */
   function api(path, method, body, noauth) {
     var opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
     if (!noauth && tok) { opts.headers['Authorization'] = 'Bearer ' + tok; }
@@ -429,15 +718,36 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
     return p.length ? '?' + p.join('&') : '';
   }
 
+  /* ═══ NAVIGATION ═════════════════════════════════════════════════════════ */
   function refresh() {
     var a = document.querySelector('.sec.on'); if (!a) return;
     var s = a.id.replace('sec-', '');
-    var m = { dashboard: loadDashboard, experts: function() { loadUsers('expert'); }, clients: function() { loadUsers('client'); }, approaches: loadApproaches, chats: loadChats, credits: loadCredits, refunds: loadRefunds, actions: searchActions };
+    var m = sectionLoaders();
     if (m[s]) m[s]();
   }
 
-  var PT = { dashboard:'Dashboard', experts:'Experts', clients:'Clients', approaches:'Approaches', chats:'Chats', credits:'Credits', refunds:'Refunds', actions:'Actions' };
-  var PS = { dashboard:'Platform overview', experts:'All registered experts', clients:'All registered clients', approaches:'Expert approach activity', chats:'All conversations', credits:'Credit ledger', refunds:'Pending refund requests', actions:'Ban, warn and flag users' };
+  function sectionLoaders() {
+    return {
+      dashboard: loadDashboard,
+      experts: function() { loadUsers('expert'); },
+      clients: function() { loadUsers('client'); },
+      approaches: loadApproaches,
+      chats: loadChats,
+      credits: loadCredits,
+      refunds: loadRefunds,
+      actions: searchActions,
+      tickets: loadTickets,
+      posts: loadPosts,
+      reviews: loadReviews,
+      registrations: loadRegistrations,
+      payments: loadPayments,
+      communication: function() { loadCommHistory(); },
+      invoices: function() {}
+    };
+  }
+
+  var PT = { dashboard:'Dashboard', experts:'Experts', clients:'Clients', approaches:'Approaches', chats:'Chats', credits:'Credits', refunds:'Refunds', actions:'Actions', tickets:'Tickets', posts:'Posts', reviews:'Reviews', registrations:'Registrations', payments:'Payments', communication:'Communication', invoices:'Invoices' };
+  var PS = { dashboard:'Platform overview', experts:'All registered experts', clients:'All registered clients', approaches:'Expert approach activity', chats:'All conversations', credits:'Credit ledger', refunds:'Pending refund requests', actions:'Ban, warn and flag users', tickets:'All support tickets', posts:'User posted requests', reviews:'Ratings & reviews', registrations:'Expert approval queue', payments:'Failed payment tracking', communication:'Bulk email & notifications', invoices:'Generate invoices' };
 
   function goTo(s) {
     qa('.sec').forEach(function(e) { e.classList.remove('on'); });
@@ -446,43 +756,53 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
     var ni = document.querySelector('[data-s="' + s + '"]'); if (ni) ni.classList.add('on');
     g('ptitle').textContent = PT[s] || s;
     g('psub').textContent = PS[s] || '';
-    var m = { dashboard: loadDashboard, experts: function() { loadUsers('expert'); }, clients: function() { loadUsers('client'); }, approaches: loadApproaches, chats: loadChats, credits: loadCredits, refunds: loadRefunds, actions: searchActions };
+    var m = sectionLoaders();
     if (m[s]) m[s]();
   }
 
+  /* ═══ HELPERS ════════════════════════════════════════════════════════════ */
   function fmt(d) { return d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'; }
   function fmtT(d) { return d ? new Date(d).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-'; }
 
   function toast(msg, t) {
-    var el = document.createElement('div');
-    el.className = 'toast-el ' + (t || 's');
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 3500);
+    var el = document.createElement('div'); el.className = 'toast-el ' + (t || 's'); el.textContent = msg;
+    document.body.appendChild(el); setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 3500);
   }
 
   function bdg(s) {
-    var m = { pending:'byw', accepted:'bgr', rejected:'brd', active:'bbl', completed:'bgr', cancelled:'brd', resolved:'btl', pending_review:'byw', client:'bbl', expert:'bo', banned:'brd' };
+    var m = { pending:'byw', accepted:'bgr', rejected:'brd', active:'bbl', completed:'bgr', cancelled:'brd', resolved:'btl', pending_review:'byw', client:'bbl', expert:'bo', banned:'brd', open:'bbl', flagged:'brd', approved:'bgr' };
     return '<span class="badge ' + (m[s] || 'bgy') + '">' + esc(s) + '</span>';
   }
-
   function ust(u) {
     if (u.isBanned) return '<span class="badge brd">Banned</span>';
     if (u.isFlagged) return '<span class="badge byw">Flagged</span>';
     return '<span class="badge bgr">Active</span>';
   }
-
-  function setT(id, html) {
-    var el = g(id);
-    if (el) el.innerHTML = html || '<tr><td colspan="20" style="text-align:center;padding:30px;color:#606078">No data found</td></tr>';
-  }
-
+  function stars(n) { var s = ''; for (var i=0;i<5;i++) s += (i<n?'&#11088;':'&#9734;'); return '<span style="font-size:11px">' + s + '</span>'; }
+  function setT(id, html) { var el = g(id); if (el) el.innerHTML = html || '<tr><td colspan="20" style="text-align:center;padding:30px;color:#606078">No data found</td></tr>'; }
   function spin() { return '<tr><td colspan="20" style="text-align:center;padding:24px"><div class="spin"></div></td></tr>'; }
+  function uLnk(uid, name, col) { return '<span data-uid="' + esc(uid) + '" style="cursor:pointer;color:' + (col || '#FC8019') + ';font-weight:600">' + esc(name) + '</span>'; }
 
-  function uLnk(uid, name, col) {
-    return '<span data-uid="' + esc(uid) + '" style="cursor:pointer;color:' + (col || '#FC8019') + ';font-weight:600">' + esc(name) + '</span>';
+  function openModal(id) { var m = g(id); if (m) m.classList.add('on'); }
+  function closeModal(id) { var m = g(id); if (m) m.classList.remove('on'); }
+
+  /* ═══ EXPORT CSV ═════════════════════════════════════════════════════════ */
+  function exportCSV(data, filename) {
+    if (!data.length) { toast('No data to export', 'i'); return; }
+    var keys = Object.keys(data[0]);
+    var csv = keys.join(',') + '\n' + data.map(function(row) {
+      return keys.map(function(k) {
+        var v = row[k] || '';
+        return '"' + String(v).replace(/"/g, '""') + '"';
+      }).join(',');
+    }).join('\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = filename + '.csv';
+    a.click();
   }
 
+  /* ═══ DASHBOARD ══════════════════════════════════════════════════════════ */
   function loadDashboard() {
     api('stats' + qs({})).then(function(d) {
       if (!d.success) return;
@@ -491,14 +811,16 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
         sc('Total Clients', st.totalClients, 'cb', 'clients'),
         sc('Total Experts', st.totalExperts, 'co', 'experts'),
         sc('Approaches', st.totalApproaches, '', 'approaches', (st.openApproaches||0) + ' open / ' + (st.closedApproaches||0) + ' closed'),
-        sc('Requests', st.totalRequests, '', ''),
-        sc('Reviews', st.totalReviews || 0, 'cy', ''),
+        sc('Requests', st.totalRequests, '', 'posts'),
+        sc('Reviews', st.totalReviews || 0, 'cy', 'reviews'),
         sc('Credits Purchased', cr.totalPurchased || 0, 'cg', 'credits-purchase'),
         sc('Credits Spent', cr.totalSpent || 0, 'co', 'credits-spent'),
         sc('Credits Refunded', cr.totalRefunded || 0, 'cpu', 'credits-refund'),
-        sc('Pending Refunds', st.pendingRefunds || 0, 'cy', 'refunds')
+        sc('Pending Refunds', st.pendingRefunds || 0, 'cy', 'refunds'),
+        sc('Open Tickets', st.openTickets || 0, 'cb', 'tickets')
       ].join('');
-      if ((st.pendingRefunds || 0) > 0) { var rb = g('rbadge'); rb.textContent = st.pendingRefunds; rb.style.display = 'inline-block'; }
+      var rb = g('rbadge'); if ((st.pendingRefunds||0) > 0) { rb.textContent = st.pendingRefunds; rb.style.display = 'inline-block'; }
+      var tb = g('tkbadge'); if ((st.openTickets||0) > 0) { tb.textContent = st.openTickets; tb.style.display = 'inline-block'; }
       setT('recentTbl', (d.recentUsers || []).map(function(u) {
         return '<tr><td>' + uLnk(u._id, u.name) + '</td><td>' + bdg(u.role) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="color:#f59e0b">' + (u.credits || 0) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td></tr>';
       }).join(''));
@@ -510,25 +832,38 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
     return '<div class="sc' + cl + '><div class="sclbl">' + label + '</div><div class="scval ' + col + '">' + val + '</div>' + (sub ? '<div class="scsub">' + sub + '</div>' : '') + (goto_ ? '<div class="sclink">View &rarr;</div>' : '') + '</div>';
   }
 
+  /* ═══ USERS ══════════════════════════════════════════════════════════════ */
   function loadUsers(role) {
-    var si = role === 'expert' ? 'eSrch' : 'cSrch';
-    var ti = role === 'expert' ? 'eTbl' : 'cTbl';
+    var si = role === 'expert' ? 'eSrch' : 'cSrch', ti = role === 'expert' ? 'eTbl' : 'cTbl';
     var srch = g(si) ? g(si).value : '';
     setT(ti, spin());
     api('users' + qs({ role: role, search: srch })).then(function(d) {
       if (!d.success) { setT(ti, ''); return; }
+      /* export button */
+      var card = document.querySelector('#sec-' + (role==='expert'?'experts':'clients') + ' .ch');
+      if (card && !card.querySelector('.exp-btn')) {
+        var eb = document.createElement('button');
+        eb.className = 'btn bgho exp-btn'; eb.textContent = 'Export CSV';
+        eb.onclick = function() {
+          exportCSV((d.users||[]).map(function(u) {
+            return { Name: u.name, Email: u.email, Phone: u.phone||'', Role: u.role, Credits: u.credits||0, Status: u.isBanned?'Banned':u.isFlagged?'Flagged':'Active', Joined: fmt(u.createdAt) };
+          }), role + 's-export');
+        };
+        card.appendChild(eb);
+      }
       if (role === 'expert') {
         setT('eTbl', (d.users || []).map(function(u) {
-          return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone || '-') + '</td><td style="color:#f59e0b">' + (u.credits || 0) + '</td><td>' + (u.rating || '-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
+          return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td style="color:#f59e0b">' + (u.credits||0) + '</td><td>' + (u.rating||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
         }).join(''));
       } else {
         setT('cTbl', (d.users || []).map(function(u) {
-          return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone || '-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
+          return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
         }).join(''));
       }
     }).catch(function() { setT(ti, ''); });
   }
 
+  /* ═══ USER DRAWER ════════════════════════════════════════════════════════ */
   function openDr(uid) {
     if (!uid) return;
     g('ov1').classList.add('on'); g('dr1').classList.add('on');
@@ -538,13 +873,13 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
       if (!d.success) { g('drB').innerHTML = '<div class="empty"><h3>Failed to load</h3></div>'; return; }
       g('drT').textContent = d.user.name;
       buildDr(d.user, d);
-    }).catch(function() { g('drB').innerHTML = '<div class="empty"><h3>Error loading user</h3></div>'; });
+    }).catch(function() { g('drB').innerHTML = '<div class="empty"><h3>Error</h3></div>'; });
   }
 
   function buildDr(u, d) {
     var tabs = ['Profile', 'Transactions', u.role === 'expert' ? 'Approaches' : 'Requests', 'Tickets'];
     g('drTabs').innerHTML = tabs.map(function(t, i) {
-      return '<div class="drt' + (i === 0 ? ' on' : '') + '" data-panel="dp' + i + '">' + t + '</div>';
+      return '<div class="drt' + (i===0?' on':'') + '" data-panel="dp' + i + '">' + t + '</div>';
     }).join('');
     g('drTabs').addEventListener('click', function(ev) {
       var tab = ev.target.closest('.drt'); if (!tab) return;
@@ -555,30 +890,36 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
     });
 
     var pr = u.profile || {};
-    var av = u.profilePhoto ? '<img src="' + esc(u.profilePhoto) + '" alt="">' : esc((u.name || '?').charAt(0).toUpperCase());
-    var p0 = '<div class="uhero"><div class="uav">' + av + '</div><div class="uhi"><h3>' + esc(u.name) + '</h3><p>' + esc(u.email) + ' / ' + esc(u.phone || 'No phone') + '</p><div style="display:flex;gap:5px;flex-wrap:wrap">' + bdg(u.role) + ust(u) + (u.warnings ? '<span class="badge bo">' + u.warnings + ' warns</span>' : '') + '</div></div></div>';
-    p0 += '<div class="igrid"><div class="ic"><label>Credits</label><span style="color:#f59e0b">' + (u.credits || 0) + '</span></div><div class="ic"><label>Joined</label><span>' + fmt(u.createdAt) + '</span></div><div class="ic"><label>Last Login</label><span>' + fmt(u.lastLogin) + '</span></div><div class="ic"><label>Rating</label><span>' + (u.rating || '-') + ' (' + (u.reviewCount || 0) + ')</span></div>' + (pr.specialization ? '<div class="ic"><label>Specialization</label><span>' + esc(pr.specialization) + '</span></div>' : '') + '</div>';
-    if (u.role === 'expert') { p0 += '<button class="btn bgho" style="width:100%;justify-content:center;margin-bottom:8px" data-ledger-uid="' + u._id + '">View Full Credit Ledger</button>'; }
-    p0 += '<button class="btn brdn" style="width:100%;justify-content:center" data-action-uid="' + u._id + '">Take Action on This User</button>';
+    var av = u.profilePhoto ? '<img src="' + esc(u.profilePhoto) + '" alt="">' : esc((u.name||'?').charAt(0).toUpperCase());
+    var p0 = '<div class="uhero"><div class="uav">' + av + '</div><div class="uhi"><h3>' + esc(u.name) + '</h3><p>' + esc(u.email) + ' / ' + esc(u.phone||'No phone') + '</p><div style="display:flex;gap:5px;flex-wrap:wrap">' + bdg(u.role) + ust(u) + (u.warnings ? '<span class="badge bo">' + u.warnings + ' warns</span>' : '') + '</div></div></div>';
+    p0 += '<div class="igrid"><div class="ic"><label>Credits</label><span style="color:#f59e0b">' + (u.credits||0) + '</span></div><div class="ic"><label>Joined</label><span>' + fmt(u.createdAt) + '</span></div><div class="ic"><label>Last Login</label><span>' + fmt(u.lastLogin) + '</span></div><div class="ic"><label>Rating</label><span>' + (u.rating||'-') + ' (' + (u.reviewCount||0) + ')</span></div>' + (pr.specialization ? '<div class="ic"><label>Specialization</label><span>' + esc(pr.specialization) + '</span></div>' : '') + '</div>';
+    /* Action buttons */
+    var actionRow = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
+    actionRow += '<button class="btn bgho" style="justify-content:center" data-ledger-uid="' + u._id + '">Credit Ledger</button>';
+    actionRow += '<button class="btn bywn" style="justify-content:center" data-credit-uid="' + u._id + '" data-credit-name="' + esc(u.name) + '" data-credit-bal="' + (u.credits||0) + '">Adjust Credits</button>';
+    actionRow += '<button class="btn bgy" style="justify-content:center;background:rgba(255,255,255,.06);color:#f0f0f4" data-pw-uid="' + u._id + '" data-pw-name="' + esc(u.name) + '">Reset Password</button>';
+    actionRow += '<button class="btn brdn" style="justify-content:center" data-action-uid="' + u._id + '">Take Action</button>';
+    actionRow += '</div>';
+    p0 += actionRow;
 
     var cs = d.creditSummary, p1 = '';
-    if (cs) { p1 = '<div class="ledger"><div class="lc"><label>Purchased</label><span style="color:#22c55e">+' + (cs.purchased || 0) + '</span></div><div class="lc"><label>Spent</label><span style="color:#ef4444">-' + (cs.spent || 0) + '</span></div><div class="lc"><label>Refunded</label><span style="color:#a855f7">+' + (cs.refunded || 0) + '</span></div><div class="lc"><label>Balance</label><span style="color:#f59e0b">' + (cs.closing || 0) + '</span></div></div>'; }
+    if (cs) { p1 = '<div class="ledger"><div class="lc"><label>Purchased</label><span style="color:#22c55e">+' + (cs.purchased||0) + '</span></div><div class="lc"><label>Spent</label><span style="color:#ef4444">-' + (cs.spent||0) + '</span></div><div class="lc"><label>Refunded</label><span style="color:#a855f7">+' + (cs.refunded||0) + '</span></div><div class="lc"><label>Balance</label><span style="color:#f59e0b">' + (cs.closing||0) + '</span></div></div>'; }
     p1 += '<div class="slbl">Transaction History</div>';
-    p1 += (d.transactions || []).length ? (d.transactions || []).map(function(tx) {
-      return '<div class="txi"><div><div class="txd">' + esc(tx.description || tx.type) + '</div><div class="txm">' + fmtT(tx.createdAt) + '</div></div><span class="txa ' + (tx.amount > 0 ? 'p' : 'n') + '">' + (tx.amount > 0 ? '+' : '') + tx.amount + '</span></div>';
+    p1 += (d.transactions||[]).length ? (d.transactions||[]).map(function(tx) {
+      return '<div class="txi"><div><div class="txd">' + esc(tx.description||tx.type) + '</div><div class="txm">' + fmtT(tx.createdAt) + '</div></div><span class="txa ' + (tx.amount>0?'p':'n') + '">' + (tx.amount>0?'+':'') + tx.amount + '</span></div>';
     }).join('') : '<p style="color:#606078;font-size:13px;padding:8px">No transactions</p>';
 
-    var items = u.role === 'expert' ? (d.approaches || []) : (d.requests || []);
-    var p2 = '<div class="slbl">' + (u.role === 'expert' ? 'Approaches' : 'Requests') + '</div>';
+    var items = u.role === 'expert' ? (d.approaches||[]) : (d.requests||[]);
+    var p2 = '<div class="slbl">' + (u.role==='expert'?'Approaches':'Requests') + '</div>';
     p2 += items.length ? items.map(function(it) {
-      var title = u.role === 'expert' ? ((it.request && it.request.title) || '-') : (it.title || '-');
-      var sub = fmtT(it.createdAt) + (u.role === 'expert' ? ' / ' + (it.creditsSpent || 0) + ' cr' + (it.client ? ' / ' + esc(it.client.name || '') : '') : '');
-      return '<div class="txi" style="flex-direction:column;align-items:flex-start;gap:5px"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><div class="txd">' + esc(title) + '</div>' + bdg(it.status || 'pending') + '</div><div class="txm">' + sub + '</div></div>';
+      var title = u.role === 'expert' ? ((it.request&&it.request.title)||'-') : (it.title||'-');
+      var sub = fmtT(it.createdAt) + (u.role==='expert' ? ' / ' + (it.creditsSpent||0) + ' cr' + (it.client?' / '+esc(it.client.name||''):'') : '');
+      return '<div class="txi" style="flex-direction:column;align-items:flex-start;gap:5px"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><div class="txd">' + esc(title) + '</div>' + bdg(it.status||'pending') + '</div><div class="txm">' + sub + '</div></div>';
     }).join('') : '<p style="color:#606078;font-size:13px;padding:8px">None</p>';
 
     var p3 = '<div class="slbl">Support Tickets</div>';
-    p3 += (d.tickets || []).length ? (d.tickets || []).map(function(t) {
-      return '<div class="txi" style="flex-direction:column;align-items:flex-start;gap:4px"><div style="display:flex;justify-content:space-between;width:100%"><span class="txd">' + esc(t.issueType || 'Support') + '</span>' + bdg(t.status) + '</div><div class="txm">' + fmtT(t.createdAt) + ' / ' + (t.decision || '-') + ' / ' + (t.eligibleCredits || 0) + ' cr</div></div>';
+    p3 += (d.tickets||[]).length ? (d.tickets||[]).map(function(t) {
+      return '<div class="txi" style="flex-direction:column;align-items:flex-start;gap:4px"><div style="display:flex;justify-content:space-between;width:100%"><span class="txd">' + esc(t.issueType||'Support') + '</span>' + bdg(t.status) + '</div><div class="txm">' + fmtT(t.createdAt) + ' / ' + (t.decision||'-') + ' / ' + (t.eligibleCredits||0) + ' cr</div></div>';
     }).join('') : '<p style="color:#606078;font-size:13px;padding:8px">No tickets</p>';
 
     g('drB').innerHTML = '<div class="drp on" id="dp0">' + p0 + '</div><div class="drp" id="dp1">' + p1 + '</div><div class="drp" id="dp2">' + p2 + '</div><div class="drp" id="dp3">' + p3 + '</div>';
@@ -586,6 +927,49 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
 
   function closeDr() { g('ov1').classList.remove('on'); g('dr1').classList.remove('on'); }
 
+  /* ═══ CREDIT MODAL ═══════════════════════════════════════════════════════ */
+  function openCreditModal(uid, name, bal) {
+    _creditUid = uid;
+    g('creditModalInfo').innerHTML = '<strong>' + esc(name) + '</strong><br>Current balance: <span style="color:#f59e0b">' + bal + ' credits</span>';
+    g('creditAmount').value = '';
+    g('creditReason').value = '';
+    openModal('creditModal');
+  }
+
+  function submitCredit() {
+    if (!_creditUid) return;
+    var action = g('creditAction').value;
+    var amount = parseInt(g('creditAmount').value);
+    var reason = g('creditReason').value;
+    if (!amount || amount <= 0) { toast('Enter valid amount', 'e'); return; }
+    api('users/' + _creditUid + '/credits', 'POST', { action: action, amount: amount, reason: reason })
+      .then(function(d) {
+        if (d.success) { toast('Credits updated!'); closeModal('creditModal'); closeDr(); }
+        else toast(d.message || 'Failed', 'e');
+      }).catch(function() { toast('Error', 'e'); });
+  }
+
+  /* ═══ RESET PASSWORD MODAL ═══════════════════════════════════════════════ */
+  function openPwModal(uid, name) {
+    _pwUid = uid;
+    g('pwModalInfo').textContent = 'Reset password for: ' + name;
+    g('newPw').value = ''; g('newPw2').value = '';
+    openModal('pwModal');
+  }
+
+  function submitPw() {
+    if (!_pwUid) return;
+    var p1 = g('newPw').value, p2 = g('newPw2').value;
+    if (!p1 || p1.length < 8) { toast('Password must be 8+ characters', 'e'); return; }
+    if (p1 !== p2) { toast('Passwords do not match', 'e'); return; }
+    api('users/' + _pwUid + '/reset-password', 'POST', { newPassword: p1 })
+      .then(function(d) {
+        if (d.success) { toast('Password reset!'); closeModal('pwModal'); }
+        else toast(d.message || 'Failed', 'e');
+      }).catch(function() { toast('Error', 'e'); });
+  }
+
+  /* ═══ LEDGER ═════════════════════════════════════════════════════════════ */
   function openLedger(eid) {
     closeDr();
     g('ov1').classList.add('on'); g('dr1').classList.add('on');
@@ -594,35 +978,37 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
     api('credits/expert/' + eid + qs({})).then(function(d) {
       if (!d.success) return;
       var sm = d.summary || {}, txs = d.transactions || [];
-      var html = '<div class="ledger"><div class="lc"><label>Opening</label><span>' + (sm.opening || 0) + '</span></div><div class="lc"><label>Purchased</label><span style="color:#22c55e">+' + (sm.purchased || 0) + '</span></div><div class="lc"><label>Spent</label><span style="color:#ef4444">-' + (sm.spent || 0) + '</span></div><div class="lc"><label>Balance</label><span style="color:#f59e0b">' + (sm.closing || 0) + '</span></div></div>';
+      var html = '<div class="ledger"><div class="lc"><label>Opening</label><span>' + (sm.opening||0) + '</span></div><div class="lc"><label>Purchased</label><span style="color:#22c55e">+' + (sm.purchased||0) + '</span></div><div class="lc"><label>Spent</label><span style="color:#ef4444">-' + (sm.spent||0) + '</span></div><div class="lc"><label>Balance</label><span style="color:#f59e0b">' + (sm.closing||0) + '</span></div></div>';
       html += '<div class="slbl">All Transactions (' + txs.length + ')</div>';
       html += txs.length ? txs.map(function(tx) {
-        var sub = fmtT(tx.createdAt) + (tx.relatedClient && tx.relatedClient.name ? ' / ' + esc(tx.relatedClient.name) : '') + (tx.relatedRequest && tx.relatedRequest.title ? ' / ' + esc(tx.relatedRequest.title) : '');
-        return '<div class="txi"><div><div class="txd">' + esc(tx.description || tx.type) + '</div><div class="txm">' + sub + '</div></div><div style="text-align:right"><div class="txa ' + (tx.amount > 0 ? 'p' : 'n') + '">' + (tx.amount > 0 ? '+' : '') + tx.amount + '</div><div class="txm">Bal: ' + (tx.balanceAfter || 0) + '</div></div></div>';
+        var sub = fmtT(tx.createdAt) + (tx.relatedClient&&tx.relatedClient.name?' / '+esc(tx.relatedClient.name):'') + (tx.relatedRequest&&tx.relatedRequest.title?' / '+esc(tx.relatedRequest.title):'');
+        return '<div class="txi"><div><div class="txd">' + esc(tx.description||tx.type) + '</div><div class="txm">' + sub + '</div></div><div style="text-align:right"><div class="txa ' + (tx.amount>0?'p':'n') + '">' + (tx.amount>0?'+':'') + tx.amount + '</div><div class="txm">Bal: ' + (tx.balanceAfter||0) + '</div></div></div>';
       }).join('') : '<p style="color:#606078;font-size:13px;padding:8px">No transactions</p>';
       g('drB').innerHTML = html;
     }).catch(function() { g('drB').innerHTML = '<div class="empty"><h3>Error</h3></div>'; });
   }
 
+  /* ═══ APPROACHES ═════════════════════════════════════════════════════════ */
   function loadApproaches() {
     setT('apTbl', spin());
     api('approaches' + qs({ status: g('apSt').value })).then(function(d) {
-      setT('apTbl', (d.approaches || []).map(function(a) {
-        var en = a.expert ? esc(a.expert.name || '-') : '-', eid = a.expert ? a.expert._id : '';
-        return '<tr><td><span data-uid="' + eid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + en + '</span></td><td style="color:#a0a0b8">' + (a.client ? esc(a.client.name) : '-') + '</td><td style="font-size:12px">' + (a.request ? esc(a.request.title) : '-') + '</td><td style="color:#f59e0b">' + (a.creditsSpent || 0) + '</td><td>' + bdg(a.status) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(a.createdAt) + '</td></tr>';
+      setT('apTbl', (d.approaches||[]).map(function(a) {
+        var en = a.expert ? esc(a.expert.name||'-') : '-', eid = a.expert ? a.expert._id : '';
+        return '<tr><td><span data-uid="' + eid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + en + '</span></td><td style="color:#a0a0b8">' + (a.client?esc(a.client.name):'-') + '</td><td style="font-size:12px">' + (a.request?esc(a.request.title):'-') + '</td><td style="color:#f59e0b">' + (a.creditsSpent||0) + '</td><td>' + bdg(a.status) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(a.createdAt) + '</td></tr>';
       }).join(''));
     }).catch(function() { setT('apTbl', ''); });
   }
 
+  /* ═══ CHATS ══════════════════════════════════════════════════════════════ */
   function loadChats() {
     setT('chTbl', spin());
     api('chats' + qs({})).then(function(d) {
-      setT('chTbl', (d.chats || []).map(function(c) {
-        var en = c.expert ? esc(c.expert.name || '-') : '-', eid = c.expert ? c.expert._id : '';
-        var cn = c.client ? esc(c.client.name || '-') : '-', cid = c.client ? c.client._id : '';
-        var rt = c.request ? esc(c.request.title || '-') : '-';
-        var lm = esc(((c.lastMessage || '-').substring(0, 50)));
-        return '<tr><td><span data-uid="' + eid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + en + '</span></td><td><span data-uid="' + cid + '" style="cursor:pointer;color:#3b82f6;font-weight:600">' + cn + '</span></td><td style="font-size:12px">' + rt + '</td><td style="font-size:12px;color:#a0a0b8">' + lm + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(c.updatedAt || c.createdAt) + '</td><td><button class="btn bgho" data-cid="' + c._id + '" data-en="' + en + '" data-cn="' + cn + '" data-rt="' + rt + '">View</button></td></tr>';
+      setT('chTbl', (d.chats||[]).map(function(c) {
+        var en = c.expert ? esc(c.expert.name||'-') : '-', eid = c.expert ? c.expert._id : '';
+        var cn = c.client ? esc(c.client.name||'-') : '-', cid = c.client ? c.client._id : '';
+        var rt = c.request ? esc(c.request.title||'-') : '-';
+        var lm = esc(((c.lastMessage||'-').substring(0, 50)));
+        return '<tr><td><span data-uid="' + eid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + en + '</span></td><td><span data-uid="' + cid + '" style="cursor:pointer;color:#3b82f6;font-weight:600">' + cn + '</span></td><td style="font-size:12px">' + rt + '</td><td style="font-size:12px;color:#a0a0b8">' + lm + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(c.updatedAt||c.createdAt) + '</td><td><button class="btn bgho" data-cid="' + c._id + '" data-en="' + en + '" data-cn="' + cn + '" data-rt="' + rt + '">View Chat</button></td></tr>';
       }).join(''));
     }).catch(function() { setT('chTbl', ''); });
   }
@@ -630,74 +1016,304 @@ tr:last-child td{border-bottom:none}tr:hover td{background:rgba(255,255,255,.01)
   function viewChat(cid, en, cn, rt) {
     g('ov2').classList.add('on'); g('dr2').classList.add('on');
     g('chDrT').textContent = en + ' / ' + cn;
-    g('chDrMeta').innerHTML = '<span class="badge bgy">' + rt + '</span>';
+    g('chDrMeta').innerHTML = '<span class="badge bgy" style="margin-bottom:10px">' + rt + '</span>';
     g('chDrMsgs').innerHTML = '<div style="text-align:center;padding:20px"><div class="spin"></div></div>';
     api('chats/' + cid + '/messages').then(function(d) {
       var msgs = d.messages || [];
-      g('chDrMsgs').innerHTML = msgs.length ? msgs.map(function(m) {
+      if (!msgs.length) { g('chDrMsgs').innerHTML = '<p style="text-align:center;color:#606078;padding:20px">No messages in this conversation</p>'; return; }
+      g('chDrMsgs').innerHTML = msgs.map(function(m) {
         var isE = m.sender && m.sender.role === 'expert';
-        return '<div class="cmsg ' + (isE ? 'r' : 'l') + '"><div><div class="cmsgn">' + esc((m.sender && m.sender.name) || '?') + ' (' + esc((m.sender && m.sender.role) || '') + ')</div><div class="cbub">' + esc(m.text || '') + '</div><div class="cmsgt">' + fmtT(m.createdAt) + '</div></div></div>';
-      }).join('') : '<p style="text-align:center;color:#606078">No messages</p>';
-    }).catch(function() { g('chDrMsgs').innerHTML = '<p style="text-align:center;color:#606078">Error loading</p>'; });
+        return '<div class="cmsg ' + (isE?'r':'l') + '"><div><div class="cmsgn">' + esc((m.sender&&m.sender.name)||'?') + ' (' + esc((m.sender&&m.sender.role)||'') + ')</div><div class="cbub">' + esc(m.text||'[media]') + '</div><div class="cmsgt">' + fmtT(m.createdAt) + '</div></div></div>';
+      }).join('');
+      /* scroll to bottom */
+      g('chDrMsgs').scrollTop = g('chDrMsgs').scrollHeight;
+    }).catch(function() { g('chDrMsgs').innerHTML = '<p style="text-align:center;color:#606078">Error loading messages</p>'; });
   }
 
   function closeChDr() { g('ov2').classList.remove('on'); g('dr2').classList.remove('on'); }
 
+  /* ═══ CREDITS ════════════════════════════════════════════════════════════ */
   function loadCredits() {
     var type = g('crType').value, srch = g('crSrch').value.toLowerCase();
     setT('crTbl', spin());
     api('credits' + qs({ type: type })).then(function(d) {
       var txs = d.transactions || [];
-      if (srch) { txs = txs.filter(function(t) { return t.user && ((t.user.name || '').toLowerCase().indexOf(srch) >= 0 || (t.user.email || '').toLowerCase().indexOf(srch) >= 0); }); }
-      var tc = { purchase: 'bgr', spent: 'bo', refund: 'bpu', bonus: 'btl' };
+      if (srch) { txs = txs.filter(function(t) { return t.user && ((t.user.name||'').toLowerCase().indexOf(srch) >= 0 || (t.user.email||'').toLowerCase().indexOf(srch) >= 0); }); }
+      var tc = { purchase:'bgr', spent:'bo', refund:'bpu', bonus:'btl' };
       setT('crTbl', txs.map(function(tx) {
-        var uid = tx.user ? tx.user._id : '', un = tx.user ? esc(tx.user.name || '-') : '-', ue = tx.user ? esc(tx.user.email || '') : '';
-        return '<tr><td><span data-uid="' + uid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + un + '</span><br><small style="color:#606078">' + ue + '</small></td><td><span class="badge ' + (tc[tx.type] || 'bgy') + '">' + (tx.type || '') + '</span></td><td style="color:' + (tx.amount > 0 ? '#22c55e' : '#ef4444') + '">' + (tx.amount > 0 ? '+' : '') + tx.amount + '</td><td style="color:#f59e0b">' + (tx.balanceAfter || 0) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc((tx.description || '-').substring(0, 40)) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmtT(tx.createdAt) + '</td></tr>';
+        var uid = tx.user ? tx.user._id : '', un = tx.user ? esc(tx.user.name||'-') : '-', ue = tx.user ? esc(tx.user.email||'') : '';
+        return '<tr><td><span data-uid="' + uid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + un + '</span><br><small style="color:#606078">' + ue + '</small></td><td><span class="badge ' + (tc[tx.type]||'bgy') + '">' + (tx.type||'') + '</span></td><td style="color:' + (tx.amount>0?'#22c55e':'#ef4444') + '">' + (tx.amount>0?'+':'') + tx.amount + '</td><td style="color:#f59e0b">' + (tx.balanceAfter||0) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc((tx.description||'-').substring(0, 40)) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmtT(tx.createdAt) + '</td></tr>';
       }).join(''));
     }).catch(function() { setT('crTbl', ''); });
   }
 
+  /* ═══ REFUNDS ════════════════════════════════════════════════════════════ */
   function loadRefunds() {
     g('rfList').innerHTML = '<div style="text-align:center;padding:40px"><div class="spin"></div></div>';
-    api('tickets?status=pending_review&limit=50').then(function(d) {
+    /* load all experts too so admin can manually add credits */
+    api('tickets?status=pending_review&limit=100').then(function(d) {
       var ts = d.tickets || [];
-      if (!ts.length) { g('rfList').innerHTML = '<div class="empty"><h3>No pending refunds</h3></div>'; return; }
-      g('rfList').innerHTML = ts.map(function(t) {
-        var u = t.user || {}, uid = u._id || '', un = esc(u.name || '-'), ue = esc(u.email || '');
-        var bk = (t.transactionBreakdown || []).filter(function(b) { return b.eligible; }).map(function(b) {
-          return '<div class="trow"><span>' + esc(b.clientName || 'Client') + '</span><span style="color:#606078">' + esc(b.reason || '') + '</span><span style="color:#f59e0b">' + (b.creditsSpent || 0) + ' cr</span></div>';
+      var header = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:13px;color:#a0a0b8">' + ts.length + ' pending requests</div><button class="btn bywn" id="manualCreditBtn">+ Manual Credit Adjustment</button></div>';
+      if (!ts.length) {
+        g('rfList').innerHTML = header + '<div class="empty"><h3>No pending refunds</h3></div>';
+        g('manualCreditBtn').onclick = function() { openManualCredit(); };
+        return;
+      }
+      g('rfList').innerHTML = header + ts.map(function(t) {
+        var u = t.user || {}, uid = u._id || '', un = esc(u.name||'-'), ue = esc(u.email||'');
+        var bk = (t.transactionBreakdown||[]).filter(function(b) { return b.eligible; }).map(function(b) {
+          return '<div class="trow"><span>' + esc(b.clientName||'Client') + '</span><span style="color:#606078">' + esc(b.reason||'') + '</span><span style="color:#f59e0b">' + (b.creditsSpent||0) + ' cr</span></div>';
         }).join('');
-        return '<div class="tcard" id="tc-' + t._id + '"><div class="ttop"><div class="ttu"><div class="ttav">' + esc((u.name || 'U').charAt(0).toUpperCase()) + '</div><div class="tti"><strong>' + un + '</strong><small>' + ue + ' / ' + (u.credits || 0) + ' credits</small></div></div><span class="badge byw">Pending</span></div><div class="tamt">+' + (t.eligibleCredits || 0) + ' credits requested</div>' + bk + '<div style="font-size:12px;color:#606078;margin:8px 0">' + fmtT(t.createdAt) + '</div><textarea class="tnote" id="tn-' + t._id + '" rows="2" placeholder="Admin note (optional)..."></textarea><div class="tacrow"><button class="btn bgrn" style="flex:1;padding:10px" data-approve="' + t._id + '" data-credits="' + (t.eligibleCredits || 0) + '">Approve ' + (t.eligibleCredits || 0) + ' credits</button><button class="btn brdn" style="flex:1;padding:10px" data-reject="' + t._id + '">Reject</button><span class="btn bgho" style="padding:10px" data-uid="' + uid + '">Profile</span></div></div>';
-      }).join('');
-    }).catch(function() { g('rfList').innerHTML = '<div class="empty"><h3>Failed to load</h3></div>'; });
-  }
+        return '<div class="tcard" id="tc-' + t._id + '"><div class="ttop"><div class="ttu"><div class="ttav">' + esc((u.name||'U').charAt(0).toUpperCase()) + '</div><div class="tti"><strong>' + un + '</strong><small>' + ue + ' / ' + (u.credits||0) + ' credits</small></div></div><span class="badge byw">Pending</span></div><div class="tamt">+' + (t.eligibleCredits||0) + ' credits requested</div>' + bk + '<div style="font-size:12px;color:#606078;margin:8px 0">' + fmtT(t.createdAt) + '</div><textarea class="tnote" id="tn-' + t._id + '" rows="2" placeholder="Admin note (optional)..."></textarea><div class="tacrow"><button class="btn bgrn" style="flex:1;padding:10px" data-approve="' + t._id + '" data-credits="' + (t.eligibleCredits||0) + '">Approve ' + (t.eligibleCredits||0) + ' credits</button><button class="btn brdn" style="flex:1;padding:10px" data-reject="' + t._id + '">Reject</button><span class="btn bgho" style="padding:10px" data-uid="' + uid + '">Profile</span></div></div>';
 
-  function searchActions() {
-    var srch = g('acSrch').value, role = g('acRole').value;
-    if (!srch && role === 'all') { setT('acTbl', '<tr><td colspan="6" style="text-align:center;padding:26px;color:#606078">Search for a user to take action</td></tr>'); return; }
-    setT('acTbl', spin());
-    api('users' + qs({ role: role, search: srch })).then(function(d) {
-      setT('acTbl', (d.users || []).map(function(u) {
-        var bb = u.isBanned ? '<button class="btn bgrn" data-act="unban" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Unban</button>' : '<button class="btn brdn" data-act="ban" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Ban</button>';
-        var fb = u.isFlagged ? '<button class="btn bgho" data-act="unflag" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Unflag</button>' : '<button class="btn bgho" data-act="flag" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Flag</button>';
-        return '<tr><td><strong>' + esc(u.name) + '</strong></td><td>' + bdg(u.role) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td>' + ust(u) + '</td><td>' + (u.warnings || 0) + '</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">' + bb + '<button class="btn bywn" data-act="warn" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Warn</button>' + fb + '<span class="btn bgho" data-uid="' + u._id + '">View</span></div></td></tr>';
-      }).join(''));
-    }).catch(function() { setT('acTbl', ''); });
-  }
+```
+  }).join('');
+  g('manualCreditBtn').onclick = function() { openManualCredit(); };
+}).catch(function() { g('rfList').innerHTML = '<div class="empty"><h3>Failed to load</h3></div>'; });
+```
 
-  function doAct(uid, act, reason) {
-    api('users/' + uid + '/action', 'POST', { action: act, reason: reason || '' }).then(function(d) {
-      if (d.success) { toast(d.message); searchActions(); }
-      else toast(d.message || 'Failed', 'e');
-    }).catch(function() { toast('Error', 'e'); });
-  }
+}
 
-  function goActId(uid) {
-    goTo('actions');
-    setTimeout(function() { g('acSrch').value = uid; searchActions(); }, 200);
-  }
+function openManualCredit() {
+/* search for expert first */
+var nm = prompt(‘Enter expert name or email to add credits:’);
+if (!nm) return;
+api(‘users’ + qs({ role: ‘expert’, search: nm })).then(function(d) {
+var users = d.users || [];
+if (!users.length) { toast(‘No expert found’, ‘e’); return; }
+var u = users[0];
+openCreditModal(u._id, u.name, u.credits || 0);
+}).catch(function() { toast(‘Error’, ‘e’); });
+}
+
+/* ═══ TICKETS ════════════════════════════════════════════════════════════ */
+function loadTickets() {
+setT(‘tkTbl’, spin());
+var st = g(‘tkSt’).value, srch = g(‘tkSrch’).value;
+api(‘tickets’ + qs({ status: st })).then(function(d) {
+var ts = d.tickets || [];
+if (srch) { srch = srch.toLowerCase(); ts = ts.filter(function(t) { return t.user && ((t.user.name||’’).toLowerCase().indexOf(srch)>=0||(t.user.email||’’).toLowerCase().indexOf(srch)>=0); }); }
+setT(‘tkTbl’, ts.map(function(t) {
+var u = t.user || {};
+return ‘<tr><td>’ + uLnk(u._id||’’, u.name||’-’) + ‘<br><small style="color:#606078">’ + esc(u.email||’’) + ‘</small></td><td style="font-size:12px">’ + esc(t.issueType||’-’) + ‘</td><td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">’ + esc((t.subject||t.description||’-’).substring(0,60)) + ‘</td><td>’ + bdg(t.status) + ‘</td><td style="color:#f59e0b">’ + (t.eligibleCredits||0) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + fmt(t.createdAt) + ‘</td><td><button class="btn bgho" data-tk-id="' + t._id + '">View</button></td></tr>’;
+}).join(’’));
+}).catch(function() { setT(‘tkTbl’, ‘’); });
+}
+
+function openTicketModal(tid) {
+_tkId = tid;
+g(‘tkModalBody’).innerHTML = ‘<div style="text-align:center;padding:20px"><div class="spin"></div></div>’;
+openModal(‘ticketModal’);
+api(‘tickets/’ + tid).then(function(d) {
+if (!d.success || !d.ticket) { g(‘tkModalBody’).innerHTML = ‘<p style="color:#606078">Failed to load</p>’; return; }
+var t = d.ticket, u = t.user || {};
+g(‘tkModalTitle’).textContent = ‘Ticket: ’ + (t.issueType || ‘Support’);
+var html = ‘<div class="uhero" style="margin-bottom:12px"><div class="ttav">’ + esc((u.name||‘U’).charAt(0).toUpperCase()) + ‘</div><div><strong>’ + esc(u.name||’-’) + ‘</strong><div style="font-size:12px;color:#a0a0b8">’ + esc(u.email||’’) + ‘</div></div></div>’;
+html += ‘<div class="igrid" style="margin-bottom:12px"><div class="ic"><label>Status</label>’ + bdg(t.status) + ‘</div><div class="ic"><label>Credits Req</label><span style="color:#f59e0b">’ + (t.eligibleCredits||0) + ‘</span></div><div class="ic"><label>Created</label><span>’ + fmt(t.createdAt) + ‘</span></div><div class="ic"><label>Decision</label><span>’ + (t.decision||‘Pending’) + ‘</span></div></div>’;
+if (t.description) html += ‘<div class="tk-body" style="background:#18181d;padding:12px;border-radius:8px;margin-bottom:12px">’ + esc(t.description) + ‘</div>’;
+if ((t.transactionBreakdown||[]).length) {
+html += ‘<div class="slbl">Breakdown</div>’;
+t.transactionBreakdown.forEach(function(b) {
+html += ‘<div class="trow"><span>’ + esc(b.clientName||‘Client’) + ‘</span><span>’ + esc(b.reason||’’) + ‘</span><span style="color:' + (b.eligible?'#22c55e':'#606078') + '">’ + (b.creditsSpent||0) + ’ cr</span></div>’;
+});
+}
+if (t.adminNote) html += ‘<div style="margin-top:12px;padding:10px;background:#18181d;border-radius:8px;font-size:12px;color:#a0a0b8">Admin note: ’ + esc(t.adminNote) + ‘</div>’;
+html += ‘<textarea class="tnote" id="tkNote" rows="2" placeholder="Add admin note..." style="margin-top:12px">’ + (t.adminNote||’’) + ‘</textarea>’;
+g(‘tkModalBody’).innerHTML = html;
+var isPending = t.status === ‘pending_review’;
+g(‘tkApproveBtn’).style.display = isPending ? ‘inline-flex’ : ‘none’;
+g(‘tkRejectBtn’).style.display = isPending ? ‘inline-flex’ : ‘none’;
+g(‘tkResolveBtn’).style.display = (t.status === ‘open’) ? ‘inline-flex’ : ‘none’;
+}).catch(function() { g(‘tkModalBody’).innerHTML = ‘<p style="color:#606078">Error</p>’; });
+}
+
+function processTicket(action) {
+if (!_tkId) return;
+var note = ‘’; var nt = g(‘tkNote’); if (nt) note = nt.value;
+var path = action === ‘resolve’ ? (‘tickets/’ + _tkId + ‘/resolve’) : (‘tickets/’ + _tkId + ‘/’ + action);
+api(path, ‘POST’, { note: note }).then(function(d) {
+if (d.success) { toast(action === ‘approve’ ? ‘Refund approved!’ : action === ‘reject’ ? ‘Rejected’ : ‘Resolved’); closeModal(‘ticketModal’); loadTickets(); loadDashboard(); }
+else toast(d.message || ‘Failed’, ‘e’);
+}).catch(function() { toast(‘Error’, ‘e’); });
+}
+
+/* ═══ POSTS ══════════════════════════════════════════════════════════════ */
+function loadPosts() {
+setT(‘poTbl’, spin());
+var srch = g(‘poSrch’).value, st = g(‘poSt’).value;
+api(‘requests’ + qs({ search: srch, status: st })).then(function(d) {
+var posts = d.requests || [];
+setT(‘poTbl’, posts.map(function(p) {
+var cname = p.client ? esc(p.client.name||’-’) : ‘-’;
+return ‘<tr><td style="font-size:13px;font-weight:600">’ + esc((p.title||’-’).substring(0,40)) + ‘</td><td>’ + uLnk(p.client?p.client._id:’’, cname, ‘#3b82f6’) + ‘</td><td style="font-size:12px">’ + esc(p.service||’-’) + ‘</td><td style="color:#f59e0b">’ + (p.budget||’-’) + ‘</td><td>’ + bdg(p.status||‘open’) + ‘</td><td style="color:#FC8019">’ + (p.creditsRequired||0) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + fmt(p.createdAt) + ‘</td><td><button class="btn bgho" data-edit-post="' + p._id + '">Edit</button></td></tr>’;
+}).join(’’));
+}).catch(function() { setT(‘poTbl’, ‘’); });
+}
+
+function openPostModal(pid) {
+_editPostId = pid;
+api(‘requests/’ + pid).then(function(d) {
+var p = d.request || {};
+g(‘postTitle’).value = p.title || ‘’;
+g(‘postDesc’).value = p.description || ‘’;
+g(‘postStatus’).value = p.status || ‘open’;
+g(‘postCredits’).value = p.creditsRequired || 0;
+openModal(‘postModal’);
+}).catch(function() { toast(‘Error loading post’, ‘e’); });
+}
+
+function savePost() {
+if (!_editPostId) return;
+api(‘requests/’ + _editPostId, ‘PUT’, { title: g(‘postTitle’).value, description: g(‘postDesc’).value, status: g(‘postStatus’).value, creditsRequired: parseInt(g(‘postCredits’).value)||0 })
+.then(function(d) {
+if (d.success) { toast(‘Post updated’); closeModal(‘postModal’); loadPosts(); }
+else toast(d.message || ‘Failed’, ‘e’);
+}).catch(function() { toast(‘Error’, ‘e’); });
+}
+
+function deletePost() {
+if (!_editPostId || !confirm(‘Delete this post permanently?’)) return;
+api(‘requests/’ + _editPostId, ‘DELETE’)
+.then(function(d) {
+if (d.success) { toast(‘Post deleted’); closeModal(‘postModal’); loadPosts(); }
+else toast(d.message || ‘Failed’, ‘e’);
+}).catch(function() { toast(‘Error’, ‘e’); });
+}
+
+/* ═══ REVIEWS ════════════════════════════════════════════════════════════ */
+function loadReviews() {
+setT(‘rvTbl’, spin());
+var srch = g(‘rvSrch’).value;
+api(‘ratings’ + qs({ search: srch })).then(function(d) {
+var reviews = d.ratings || [];
+setT(‘rvTbl’, reviews.map(function(r) {
+var en = r.expert ? esc(r.expert.name||’-’) : ‘-’, eid = r.expert ? r.expert._id : ‘’;
+var cl = r.client ? esc(r.client.name||’-’) : ‘-’;
+return ‘<tr><td><span data-uid="' + eid + '" style="cursor:pointer;color:#FC8019;font-weight:600">’ + en + ‘</span></td><td style="color:#a0a0b8">’ + cl + ‘</td><td>’ + stars(r.rating||0) + ’ <span style="font-size:11px;color:#f59e0b">’ + (r.rating||0) + ‘</span></td><td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis">’ + esc((r.review||r.comment||’-’).substring(0,80)) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + fmt(r.createdAt) + ‘</td><td><button class="btn brdn" data-del-review="' + r._id + '">Delete</button></td></tr>’;
+}).join(’’));
+}).catch(function() { setT(‘rvTbl’, ‘’); });
+}
+
+/* ═══ REGISTRATIONS ══════════════════════════════════════════════════════ */
+function loadRegistrations() {
+setT(‘rgTbl’, spin());
+var st = g(‘rgSt’).value;
+api(‘users’ + qs({ role: ‘expert’, registrationStatus: st })).then(function(d) {
+var users = d.users || [];
+/* filter by approval status if field exists */
+if (st !== ‘all’) {
+users = users.filter(function(u) {
+if (st === ‘pending’) return !u.isApproved && !u.isRejected && !u.isBanned;
+if (st === ‘approved’) return u.isApproved;
+if (st === ‘rejected’) return u.isRejected || u.isBanned;
+return true;
+});
+}
+setT(‘rgTbl’, users.map(function(u) {
+var pr = u.profile || {};
+var actions = ‘’;
+if (!u.isApproved) actions += ‘<button class="btn bgrn" data-reg-action="' + u._id + '" data-action="approve" data-nm="' + esc(u.name) + '">Approve</button> ‘;
+if (!u.isBanned) actions += ‘<button class="btn brdn" data-reg-action="' + u._id + '" data-action="ban" data-nm="' + esc(u.name) + '">Reject</button>’;
+return ‘<tr><td>’ + uLnk(u._id, u.name) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + esc(u.email) + ‘</td><td style="font-size:12px">’ + (u.phone||’-’) + ‘</td><td style="font-size:12px">’ + esc(pr.specialization||’-’) + ‘</td><td>’ + (u.isApproved ? ‘<span class="badge bgr">Approved</span>’ : u.isBanned ? ‘<span class="badge brd">Rejected</span>’ : ‘<span class="badge byw">Pending</span>’) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + fmt(u.createdAt) + ‘</td><td>’ + actions + ‘</td></tr>’;
+}).join(’’));
+}).catch(function() { setT(‘rgTbl’, ‘’); });
+}
+
+/* ═══ PAYMENTS ═══════════════════════════════════════════════════════════ */
+function loadPayments() {
+setT(‘pyTbl’, spin());
+api(‘payments/failed’ + qs({})).then(function(d) {
+var payments = d.payments || [];
+if (!payments.length) { setT(‘pyTbl’, ‘<tr><td colspan="6" style="text-align:center;padding:30px;color:#606078">No failed payments found</td></tr>’); return; }
+setT(‘pyTbl’, payments.map(function(p) {
+var u = p.user || {};
+return ‘<tr><td>’ + uLnk(u._id||’’, u.name||’-’) + ‘<br><small style="color:#606078">’ + esc(u.email||’’) + ‘</small></td><td style="color:#ef4444">₹’ + (p.amount||0) + ‘</td><td style="font-size:12px">’ + esc(p.gateway||’-’) + ‘</td><td style="font-size:12px;color:#f59e0b">’ + esc(p.failureReason||p.reason||’-’) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + fmtT(p.createdAt) + ‘</td><td><span class="btn bgho" data-uid="' + (u._id||'') + '">Profile</span></td></tr>’;
+}).join(’’));
+}).catch(function() { setT(‘pyTbl’, ‘<tr><td colspan="6" style="text-align:center;padding:30px;color:#606078">Payments API not available</td></tr>’); });
+}
+
+/* ═══ COMMUNICATION ══════════════════════════════════════════════════════ */
+function previewComm() {
+var target = g(‘commTarget’).value;
+var label = { all:‘All Users’, experts:‘All Experts’, clients:‘All Clients’, custom:‘Custom List’ }[target] || target;
+toast(’Will send to: ’ + label, ‘i’);
+}
+
+function sendComm() {
+var subj = g(‘commSubj’).value.trim();
+var msg = g(‘commMsg’).value.trim();
+var target = g(‘commTarget’).value;
+if (!subj || !msg) { toast(‘Subject and message required’, ‘e’); return; }
+var payload = { subject: subj, message: msg, target: target };
+if (target === ‘custom’) { payload.emails = g(‘commEmails’).value.split(’,’).map(function(e) { return e.trim(); }).filter(Boolean); }
+g(‘commStatus’).textContent = ‘Sending…’;
+api(‘communications/send’, ‘POST’, payload).then(function(d) {
+if (d.success) {
+g(‘commStatus’).textContent = ‘Sent to ’ + (d.recipientCount || ‘?’) + ’ recipients!’;
+g(‘commSubj’).value = ‘’; g(‘commMsg’).value = ‘’;
+loadCommHistory();
+} else { g(‘commStatus’).textContent = ’Failed: ’ + (d.message || ‘Unknown error’); g(‘commStatus’).style.color = ‘#ef4444’; }
+}).catch(function() { g(‘commStatus’).textContent = ‘Error - check server logs’; g(‘commStatus’).style.color = ‘#ef4444’; });
+}
+
+function loadCommHistory() {
+api(‘communications/history’).then(function(d) {
+var logs = d.logs || [];
+setT(‘commHist’, logs.length ? logs.map(function(l) {
+return ‘<tr><td style="font-size:13px">’ + esc(l.subject||’-’) + ‘</td><td>’ + bdg(l.target||‘all’) + ‘</td><td style="color:#22c55e">’ + (l.recipientCount||0) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + fmtT(l.createdAt) + ‘</td></tr>’;
+}).join(’’) : ‘<tr><td colspan="4" style="text-align:center;padding:20px;color:#606078">No history yet</td></tr>’);
+}).catch(function() {});
+}
+
+/* ═══ INVOICES ═══════════════════════════════════════════════════════════ */
+function previewInvoice() {
+var user = g(‘invUser’).value, desc = g(‘invDesc’).value, amt = parseFloat(g(‘invAmt’).value)||0;
+var date = g(‘invDate’).value, due = g(‘invDue’).value, notes = g(‘invNotes’).value;
+if (!desc && !amt) { g(‘invPreview’).innerHTML = ‘<div class="empty"><h3>Fill form to preview</h3></div>’; return; }
+var inv_no = ‘WI-’ + Date.now().toString().slice(-6);
+var gst = (amt * 0.18).toFixed(2);
+var total = (amt + parseFloat(gst)).toFixed(2);
+g(‘invPreview’).innerHTML = ‘<div class="inv-preview"><h2>WorkIndex</h2><div style="font-size:11px;color:#666;margin-bottom:16px">Tax Invoice</div><div style="display:flex;justify-content:space-between;margin-bottom:16px"><div><div style="font-weight:700">Bill To:</div><div style="font-size:13px">’ + esc(user||‘Expert Name’) + ‘</div></div><div style="text-align:right"><div style="font-size:11px;color:#666">Invoice #: <strong>’ + inv_no + ‘</strong></div><div style="font-size:11px;color:#666">Date: ’ + (date||’–’) + ‘</div><div style="font-size:11px;color:#666">Due: ’ + (due||’–’) + ‘</div></div></div><div class="inv-row" style="font-weight:700;font-size:11px;color:#666"><span>Description</span><span>Amount</span></div><div class="inv-row"><span>’ + esc(desc||‘Service’) + ‘</span><span>₹’ + amt.toFixed(2) + ‘</span></div><div class="inv-row"><span>GST (18%)</span><span>₹’ + gst + ‘</span></div><div class="inv-total"><span>Total</span><span style="color:#FC8019">₹’ + total + ‘</span></div>’ + (notes?’<div style="margin-top:12px;font-size:11px;color:#666">Notes: ‘+esc(notes)+’</div>’:’’) + ‘</div>’;
+}
+
+function genInvoice() {
+var preview = g(‘invPreview’).innerHTML;
+if (!preview || preview.indexOf(‘Fill form’) >= 0) { previewInvoice(); }
+/* Print as PDF */
+var w = window.open(’’, ‘_blank’);
+w.document.write(’<html><head><title>Invoice</title><style>body{font-family:system-ui;padding:30px;max-width:600px;margin:auto}.inv-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;font-size:13px}.inv-total{display:flex;justify-content:space-between;padding:8px 0;font-weight:700;font-size:15px}h2{color:#FC8019;font-size:24px}</style></head><body>’ + g(‘invPreview’).innerHTML + ‘</body></html>’);
+w.document.close();
+setTimeout(function() { w.print(); }, 500);
+}
+
+/* ═══ ACTIONS ════════════════════════════════════════════════════════════ */
+function searchActions() {
+var srch = g(‘acSrch’).value, role = g(‘acRole’).value;
+if (!srch && role === ‘all’) { setT(‘acTbl’, ‘<tr><td colspan="6" style="text-align:center;padding:26px;color:#606078">Search for a user to take action</td></tr>’); return; }
+setT(‘acTbl’, spin());
+api(‘users’ + qs({ role: role, search: srch })).then(function(d) {
+setT(‘acTbl’, (d.users||[]).map(function(u) {
+var bb = u.isBanned ? ‘<button class="btn bgrn" data-act="unban" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Unban</button>’ : ‘<button class="btn brdn" data-act="ban" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Ban</button>’;
+var fb = u.isFlagged ? ‘<button class="btn bgho" data-act="unflag" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Unflag</button>’ : ‘<button class="btn bgho" data-act="flag" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Flag</button>’;
+return ‘<tr><td><strong>’ + esc(u.name) + ‘</strong></td><td>’ + bdg(u.role) + ‘</td><td style="font-size:12px;color:#a0a0b8">’ + esc(u.email) + ‘</td><td>’ + ust(u) + ‘</td><td>’ + (u.warnings||0) + ‘</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">’ + bb + ‘<button class="btn bywn" data-act="warn" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Warn</button>’ + fb + ‘<span class="btn bgho" data-uid="' + u._id + '">View</span></div></td></tr>’;
+}).join(’’));
+}).catch(function() { setT(‘acTbl’, ‘’); });
+}
+
+function doAct(uid, act, reason) {
+api(‘users/’ + uid + ‘/action’, ‘POST’, { action: act, reason: reason || ‘’ }).then(function(d) {
+if (d.success) { toast(d.message); searchActions(); }
+else toast(d.message || ‘Failed’, ‘e’);
+}).catch(function() { toast(‘Error’, ‘e’); });
+}
+
+function goActId(uid) {
+goTo(‘actions’);
+setTimeout(function() { g(‘acSrch’).value = uid; searchActions(); }, 200);
+}
 
 })();
 </script>
+
 </body>
 </html>
