@@ -541,6 +541,10 @@
       <span class="logo-text">WorkIndex</span>
     </div>
     <div style="display: flex; gap: 12px; align-items: center;">
+            <div style="position:relative;display:inline-flex;cursor:pointer;" onclick="openNotifications()">
+        <span style="font-size:22px;">🔔</span>
+        <span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;border-radius:50%;width:17px;height:17px;font-size:10px;font-weight:700;align-items:center;justify-content:center;">0</span>
+      </div>
       <button onclick="showPage('settings')" style="padding: 8px; border: none; background: transparent; cursor: pointer;">⚙️</button>
       <div class="avatar" id="clientAvatar">C</div>
     </div>
@@ -701,6 +705,10 @@
     <div style="display: flex; gap: 12px; align-items: center;">
       <div style="padding: 6px 12px; background: var(--primary); color: #fff; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;" onclick="openCreditModal()">
         💎 <span id="expertCredits" class="credit-display">0</span>
+      </div>
+           <div style="position:relative;display:inline-flex;cursor:pointer;" onclick="openNotifications()">
+        <span style="font-size:22px;">🔔</span>
+        <span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#e74c3c;color:#fff;border-radius:50%;width:17px;height:17px;font-size:10px;font-weight:700;align-items:center;justify-content:center;">0</span>
       </div>
       <button onclick="showPage('settings')" style="padding: 8px; border: none; background: transparent; cursor: pointer;">⚙️</button>
       <div class="avatar" id="expertAvatar">E</div>
