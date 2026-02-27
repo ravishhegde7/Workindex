@@ -825,7 +825,91 @@ async function markHelpful(ratingId) {
     console.error('Mark helpful error:', error);
   }
 }
+// ─── NOTIFICATIONS ───
+async function loadNotifications() {
+  try {
+    const res = await fetch(`${API_URL}/notifications`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    const data = await res.json();
+    if (!data.success) return;
+    
+    const unread = (data.notifications || []).filter(n => !n.isRead).length;
+    const badge = document.getElementById('notifBadge');
+    if (badge) {
+      if (unread > 0) {
+        badge.textContent = unread;
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+    return data.notifications || [];
+  } catch (err) {
+    console.error('Load notifications error:', err);
+    return [];
+  }
+}
 
+async function openNotifications() {
+  const notifications = await loadNotifications();
+  
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:flex-start;justify-content:flex-end;z-index:1001;padding:60px 16px 0;';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+  const typeIcons = {
+    announcement: '📢',
+    admin_dm: '💬',
+    refund: '💰',
+    approach: '👋',
+    chat: '💬',
+    system: 'ℹ️'
+  };
+
+  const listHTML = notifications.length ? notifications.map(n => `
+    <div style="padding:14px;border-bottom:1px solid var(--border);background:${n.isRead ? 'transparent' : 'rgba(252,128,25,0.05)'};">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:20px;">${typeIcons[n.type] || 'ℹ️'}</span>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:${n.isRead ? '400' : '700'};color:var(--text);margin-bottom:2px;">${n.title}</div>
+          <div style="font-size:13px;color:var(--text-muted);line-height:1.4;">${n.message}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${formatDate(n.createdAt)}</div>
+        </div>
+        ${!n.isRead ? '<span style="width:8px;height:8px;background:var(--primary);border-radius:50%;flex-shrink:0;margin-top:4px;"></span>' : ''}
+      </div>
+    </div>
+  `).join('') : '<div style="padding:40px;text-align:center;color:var(--text-muted);">No notifications yet</div>';
+
+  modal.innerHTML = `
+    <div style="background:var(--bg);border-radius:16px;width:100%;max-width:380px;max-height:70vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15);">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg);">
+        <h3 style="font-size:17px;font-weight:700;">Notifications</h3>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <span onclick="markAllRead()" style="font-size:12px;color:var(--primary);cursor:pointer;font-weight:600;">Mark all read</span>
+          <button onclick="this.closest('[style*=fixed]').remove()" style="border:none;background:none;font-size:22px;cursor:pointer;color:var(--text-muted);">×</button>
+        </div>
+      </div>
+      ${listHTML}
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  markAllRead(); // auto mark as read when opened
+}
+
+async function markAllRead() {
+  try {
+    await fetch(`${API_URL}/notifications/mark-read`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    const badge = document.getElementById('notifBadge');
+    if (badge) badge.style.display = 'none';
+  } catch (err) {
+    console.error('Mark read error:', err);
+  }
+}
 
 // ─── FIND PROFESSIONALS ─── 
 async function loadExperts(filters = {}) {
