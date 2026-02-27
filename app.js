@@ -197,6 +197,8 @@ async function register(formData) {
 function enterDashboard() {
   const dashPage = state.user.role === 'client' ? 'clientDash' : 'expertDash';
   showPage(dashPage);
+  loadNotifications();
+  setInterval(loadNotifications, 30000);
 }
 
 function logout() {
