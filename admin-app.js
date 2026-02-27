@@ -1049,7 +1049,7 @@
           opt.dataset.desc = tx.description || tx.type || '';
           opt.dataset.date = tx.createdAt ? tx.createdAt.split('T')[0] : '';
           opt.dataset.type = tx.type || '';
-          sel.appendChild(opt);
+          txSel.appendChild(opt);
         });
       }
       txSel.disabled = false;
