@@ -1290,7 +1290,6 @@
   byState[groupKey].count++;
   byState[groupKey].cities[subKey] = (byState[groupKey].cities[subKey] || 0) + 1;
 });
-      });
       _hmData = { byState: byState, total: users.length, role: role };
       renderHeatmapIndia(byState, users.length);
       renderHmBars(byState, null);
