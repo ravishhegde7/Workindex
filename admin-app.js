@@ -1218,34 +1218,78 @@
       // We use city as the top-level grouping since experts don't have state
       var byState = {};
       users.forEach(function(u) {
-        var pr = u.profile || {};
-        // Get city from all sources (priority order)
-        var city = null;
-        var state = null;
-        // 1. explicit location fields (if User model has them)
-        if (u.location) {
-          city  = (u.location.city  || '').trim() || null;
-          state = (u.location.state || '').trim() || null;
-        }
-        // 2. profile.fullAddress (client questionnaire)
-        if (!city && pr.fullAddress) {
-          city  = (pr.fullAddress.city  || '').trim() || null;
-          state = (pr.fullAddress.state || '').trim() || null;
-        }
-        // 3. profile.city (expert questionnaire — direct string)
-        if (!city && pr.city) {
-          city = pr.city.trim() || null;
-        }
-        // 4. profile.state
-        if (!state && pr.state) {
-          state = pr.state.trim() || null;
-        }
-        // Group key: use state if available, else city, else 'Unknown'
-        var groupKey = state || city || 'Unknown';
-        var subKey   = city  || 'Unknown';
-        if (!byState[groupKey]) byState[groupKey] = { count: 0, cities: {} };
-        byState[groupKey].count++;
-        byState[groupKey].cities[subKey] = (byState[groupKey].cities[subKey] || 0) + 1;
+  var pr = u.profile || {};
+  var city = null;
+  var state = null;
+
+  // 1. profile.fullAddress (client — in-person service)
+  if (pr.fullAddress) {
+    city  = (pr.fullAddress.city  || '').trim() || null;
+    state = (pr.fullAddress.state || '').trim() || null;
+  }
+
+  // 2. profile.clientLocation (client — online service, new field)
+  if (!city && pr.clientLocation) {
+    city  = (pr.clientLocation.city  || '').trim() || null;
+    state = (pr.clientLocation.state || '').trim() || null;
+  }
+
+  // 3. profile.city + profile.state (expert questionnaire)
+  if (!city && pr.city) {
+    city = pr.city.trim() || null;
+  }
+  if (!state && pr.state) {
+    state = pr.state.trim() || null;
+  }
+
+  // 4. top-level user location field (fallback)
+  if (!city && u.location) {
+    city  = (u.location.city  || '').trim() || null;
+    state = (u.location.state || '').trim() || null;
+  }
+
+  // 5. try to derive state from city for old client records
+  // that only have fullAddress without state filled
+  if (city && !state) {
+    var cityStateMap = {
+      'Bengaluru': 'Karnataka', 'Bangalore': 'Karnataka',
+      'Mumbai': 'Maharashtra', 'Pune': 'Maharashtra',
+      'Nagpur': 'Maharashtra', 'Nashik': 'Maharashtra',
+      'Delhi': 'Delhi', 'New Delhi': 'Delhi',
+      'Noida': 'Uttar Pradesh', 'Agra': 'Uttar Pradesh',
+      'Lucknow': 'Uttar Pradesh', 'Varanasi': 'Uttar Pradesh',
+      'Meerut': 'Uttar Pradesh', 'Kanpur': 'Uttar Pradesh',
+      'Gurgaon': 'Haryana', 'Gurugram': 'Haryana',
+      'Faridabad': 'Haryana', 'Chandigarh': 'Chandigarh',
+      'Hyderabad': 'Telangana',
+      'Chennai': 'Tamil Nadu', 'Coimbatore': 'Tamil Nadu',
+      'Madurai': 'Tamil Nadu',
+      'Kolkata': 'West Bengal',
+      'Ahmedabad': 'Gujarat', 'Surat': 'Gujarat',
+      'Vadodara': 'Gujarat', 'Rajkot': 'Gujarat',
+      'Jaipur': 'Rajasthan', 'Jodhpur': 'Rajasthan',
+      'Kochi': 'Kerala', 'Kozhikode': 'Kerala',
+      'Thiruvananthapuram': 'Kerala',
+      'Bhopal': 'Madhya Pradesh', 'Indore': 'Madhya Pradesh',
+      'Patna': 'Bihar',
+      'Bhubaneswar': 'Odisha',
+      'Raipur': 'Chhattisgarh',
+      'Dehradun': 'Uttarakhand',
+      'Guwahati': 'Assam',
+      'Mysuru': 'Karnataka', 'Mysore': 'Karnataka',
+      'Visakhapatnam': 'Andhra Pradesh',
+      'Amritsar': 'Punjab', 'Ludhiana': 'Punjab',
+      'Thane': 'Maharashtra', 'Aurangabad': 'Maharashtra'
+    };
+    state = cityStateMap[city] || null;
+  }
+
+  var groupKey = state || city || 'Unknown';
+  var subKey   = city  || 'Unknown';
+  if (!byState[groupKey]) byState[groupKey] = { count: 0, cities: {} };
+  byState[groupKey].count++;
+  byState[groupKey].cities[subKey] = (byState[groupKey].cities[subKey] || 0) + 1;
+});
       });
       _hmData = { byState: byState, total: users.length, role: role };
       renderHeatmapIndia(byState, users.length);
