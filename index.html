@@ -1408,7 +1408,20 @@ const BARK_Q_FORMS = {
       landmark: { label: "Landmark (Optional)", placeholder: "e.g., Near Metro Station", required: false }
     }
   },
-  
+  client_location: {
+  condition: { serviceLocationType: "online" },
+  title: "Your location",
+  subtitle: "Helps us match you with nearby professionals even for online work",
+  type: "address",
+  key: "clientLocation",
+  required: true,
+  fields: {
+    city:    { label: "City",    placeholder: "e.g. Bengaluru", required: true },
+    state:   { label: "State",   placeholder: "e.g. Karnataka", required: true },
+    pincode: { label: "Pincode", placeholder: "e.g. 560034",    required: true }
+  }
+},
+
   urgency: {
     title: "When do you need this service?",
     subtitle: "Select your timeline preference",
