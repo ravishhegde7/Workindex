@@ -3099,9 +3099,11 @@ async function loadMyTickets() {
 }
 
 // Close modal when clicking backdrop
-document.addEventListener('click', function(e) {
-  var modal = document.getElementById('ticketModal');
-  if (modal && e.target === modal) closeTicketModal();
-});
+var ticketModalEl = document.getElementById('ticketModal');
+if (ticketModalEl) {
+  ticketModalEl.addEventListener('click', function(e) {
+    if (e.target === this) closeTicketModal();
+  });
+}
 
 // ═══ END OF JAVASCRIPT ═══
