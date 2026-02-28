@@ -2401,7 +2401,7 @@ function calculateProfileStrength(user, profile) {
 
   // ── TRUST SIGNALS (10%) ──
   const hasReview = (user.reviewCount || 0) >= 1;
-  const hasApproach = (user.totalApproaches || 0) >= 1;
+  const hasApproach = (user.totalApproaches || 0) >= 1 || (state.myApproaches && state.myApproaches.length >= 1);
   if (hasReview)  { scores.trust.earned += 5;  scores.trust.items.push({ done: true,  label: 'Min 1 client review' }); }
   else            {                             scores.trust.items.push({ done: false, label: 'Min 1 client review' }); }
   if (hasApproach){ scores.trust.earned += 5;  scores.trust.items.push({ done: true,  label: 'Min 1 approach sent' }); }
