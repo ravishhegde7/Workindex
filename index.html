@@ -1807,10 +1807,35 @@ if (question.type === 'single') {
     html += '<div style="display: flex; flex-direction: column; gap: 16px;">';
     Object.entries(question.fields).forEach(([fieldKey, field]) => {
       const value = (qState.answers[question.key] || {})[fieldKey] || '';
+      const questionKey = question.key;
+      
+      // Determine which pincode lookup function to call based on parent key
+      const isPincode = fieldKey === 'pincode';
+      let extraHandler = '';
+      let extraDiv = '';
+      
+      if (isPincode) {
+        if (questionKey === 'fullAddress') {
+          extraHandler = `lookupAddressPincode(this.value);`;
+          extraDiv = `<div id="addressPincodeResult"></div>`;
+        } else if (questionKey === 'clientLocation') {
+          extraHandler = `lookupClientLocationPincode(this.value);`;
+          extraDiv = `<div id="clientLocationPincodeResult"></div>`;
+        }
+      }
+      
       html += `
         <div>
           <label style="display: block; font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px;">${field.label}</label>
-          <input type="text" data-address-field="${fieldKey}" value="${value}" placeholder="${field.placeholder}" style="width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 15px;" oninput="updateAddressField('${question.key}', '${fieldKey}', this.value)">
+          <input type="text" 
+            id="q_${questionKey}_${fieldKey}"
+            data-address-field="${fieldKey}" 
+            value="${value}" 
+            placeholder="${field.placeholder}" 
+            ${isPincode ? 'maxlength="6" inputmode="numeric"' : ''}
+            style="width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 10px; font-size: 15px;" 
+            oninput="updateAddressField('${questionKey}', '${fieldKey}', this.value); ${extraHandler}">
+          ${extraDiv}
         </div>
       `;
     });
