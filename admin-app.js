@@ -1671,28 +1671,30 @@
       var u = d.user;
       var pr = u.profile || {};
       // Collect all possible doc fields
-           // New KYC system (base64 stored in u.kyc.docBase64)
-      if (u.kyc && u.kyc.docBase64) {
-        docs.splice(0, 0, {
-          label: u.kyc.docType || 'KYC Document',
-          url: u.kyc.docBase64,
-          icon: '🛡️'
-        });
-      }
-       var docs = [
-        { label: 'Aadhar Card', url: u.aadharDoc || pr.aadhar || pr.aadharUrl || pr.aadharDoc || null, icon: '\ud83d\udcb3' },
-        { label: 'PAN Card', url: u.panDoc || pr.pan || pr.panUrl || pr.panDoc || null, icon: '\ud83d\udccb' },
-        { label: 'Certificate / Degree', url: u.certificateDoc || pr.certificate || pr.certificateUrl || pr.certDoc || null, icon: '\ud83c\udf93' },
-        { label: 'KYC Document', url: u.kycDocument || pr.kycDocument || pr.kyc || null, icon: '\ud83d\udcdc' },
-        { label: 'Profile Photo', url: u.profilePhoto || null, icon: '\ud83d\uddbc\ufe0f' }
-      ];
-      // Also check for any array of documents
-      var extraDocs = u.documents || pr.documents || [];
-      extraDocs.forEach(function(doc, i) {
-        var url = typeof doc === 'string' ? doc : (doc.url || doc.path || null);
-        var label = typeof doc === 'object' ? (doc.name || doc.label || 'Document ' + (i+1)) : 'Document ' + (i+1);
-        docs.push({ label: label, url: url, icon: '\ud83d\udcce' });
-      });
+        var docs = [
+  { label: 'Aadhar Card', url: u.aadharDoc || pr.aadhar || pr.aadharUrl || pr.aadharDoc || null, icon: '💳' },
+  { label: 'PAN Card', url: u.panDoc || pr.pan || pr.panUrl || pr.panDoc || null, icon: '📋' },
+  { label: 'Certificate / Degree', url: u.certificateDoc || pr.certificate || pr.certificateUrl || pr.certDoc || null, icon: '🎓' },
+  { label: 'KYC Document', url: u.kycDocument || pr.kycDocument || pr.kyc || null, icon: '📜' },
+  { label: 'Profile Photo', url: u.profilePhoto || null, icon: '🖼️' }
+];
+
+// Extra docs array
+var extraDocs = u.documents || pr.documents || [];
+extraDocs.forEach(function(doc, i) {
+  var url = typeof doc === 'string' ? doc : (doc.url || doc.path || null);
+  var label = typeof doc === 'object' ? (doc.name || doc.label || 'Document ' + (i+1)) : 'Document ' + (i+1);
+  docs.push({ label: label, url: url, icon: '📎' });
+});
+
+// NEW KYC system — inject AFTER docs is declared
+if (u.kyc && u.kyc.docBase64) {
+  docs.unshift({
+    label: (u.kyc.docType || 'KYC Document') + ' (Submitted)',
+    url: u.kyc.docBase64,
+    icon: '🛡️'
+  });
+}
       // Inject new KYC base64 doc at top
       if (u.kyc && u.kyc.docBase64) {
         docs.unshift({ label: (u.kyc.docType || 'KYC Document') + ' (New)', url: u.kyc.docBase64, icon: '🛡️' });
