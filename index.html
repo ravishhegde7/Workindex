@@ -2204,7 +2204,12 @@ function showNewRequestForm() {
 <div id="ticketModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; overflow-y:auto;">
   <div style="min-height:100vh; display:flex; align-items:flex-end; justify-content:center;">
     <div style="background:var(--bg); width:100%; max-width:600px; border-radius:20px 20px 0 0; padding:24px 20px 40px; max-height:90vh; overflow-y:auto;">
-      <div style="width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 20px;"></div>
+      <!-- Handle + Close -->
+<div style="display:flex; align-items:center; margin-bottom:20px;">
+  <button onclick="closeTicketModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:var(--text); padding:0; margin-right:auto;">←</button>
+  <div style="width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto;"></div>
+  <div style="width:32px;"></div>
+</div>
       <div id="tkUserStep1">
         <h3 style="font-size:20px; font-weight:800; margin-bottom:6px;">🎫 Raise a Ticket</h3>
         <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Select the category that best describes your issue</p>
