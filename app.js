@@ -1952,7 +1952,7 @@ async function loadMyApproaches() {
 
 // ─── RENDER EXPERT'S APPROACHES ───
 function renderMyApproaches() {
-  const container = document.getElementById('approachesTab');
+  const container = document.getElementById('approachesList');
   if (!container) return;
   
   if (!state.myApproaches || state.myApproaches.length === 0) {
@@ -1968,6 +1968,7 @@ function renderMyApproaches() {
   
   container.innerHTML = state.myApproaches.map(app => {
     const req = app.request;
+    if (!req) return '';
     const statusColors = {
       pending: 'badge-warning',
       accepted: 'badge-success',
@@ -1978,23 +1979,22 @@ function renderMyApproaches() {
       <div class="request-card" style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; cursor: pointer;" onclick="showMyApproachDetail('${app._id}')">
         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
           <div style="flex: 1;">
-            <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${req.title}</h3>
-            <p style="font-size: 14px; color: var(--text-muted);">${req.service.toUpperCase()}</p>
+            <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${req.title || 'Request'}</h3>
+            <p style="font-size: 14px; color: var(--text-muted);">${(req.service || '').toUpperCase()}</p>
           </div>
-          <span class="badge ${statusColors[app.status]}">${app.status.toUpperCase()}</span>
+          <span class="badge ${statusColors[app.status] || 'badge-warning'}">${(app.status || 'pending').toUpperCase()}</span>
         </div>
         
-        <p style="font-size: 14px; color: var(--text-light); margin-bottom: 12px;">${req.description}</p>
+        <p style="font-size: 14px; color: var(--text-light); margin-bottom: 12px;">${req.description || ''}</p>
         
         <div style="display: flex; gap: 20px; font-size: 13px; color: var(--text-muted);">
-          <span>💰 ${app.creditsSpent} credits spent</span>
+          <span>💰 ${app.creditsSpent || 0} credits spent</span>
           <span>📅 ${new Date(app.createdAt).toLocaleDateString()}</span>
         </div>
       </div>
     `;
   }).join('');
 }
-
 // ─── SHOW APPROACH DETAIL WITH CONTACT INFO ───
 async function showMyApproachDetail(approachId) {
   try {
