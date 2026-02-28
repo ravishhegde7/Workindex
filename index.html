@@ -2181,7 +2181,9 @@ function handleSignup() {
 function showNewRequestForm() {
   startQuestionnaire();
 }
-    <!-- MY TICKETS PAGE -->
+</script>
+
+<!-- MY TICKETS PAGE -->
 <div id="myTickets" class="page">
   <div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border);">
     <button onclick="goBack()" style="background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; padding: 0; margin-right: 12px;">←</button>
@@ -2202,24 +2204,17 @@ function showNewRequestForm() {
 <div id="ticketModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; overflow-y:auto;">
   <div style="min-height:100vh; display:flex; align-items:flex-end; justify-content:center;">
     <div style="background:var(--bg); width:100%; max-width:600px; border-radius:20px 20px 0 0; padding:24px 20px 40px; max-height:90vh; overflow-y:auto;">
-      
-      <!-- Handle -->
       <div style="width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 20px;"></div>
-      
-      <!-- Step 1: Category Selection -->
       <div id="tkUserStep1">
         <h3 style="font-size:20px; font-weight:800; margin-bottom:6px;">🎫 Raise a Ticket</h3>
         <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Select the category that best describes your issue</p>
         <div id="tkUserCatList" style="display:flex; flex-direction:column; gap:4px;"></div>
       </div>
-
-      <!-- Step 2: Details -->
       <div id="tkUserStep2" style="display:none;">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
           <button onclick="tkUserGoBack()" style="background:none; border:1px solid var(--border); border-radius:8px; padding:6px 12px; cursor:pointer; color:var(--text); font-size:14px;">← Back</button>
           <div id="tkUserSelectedCat" style="font-size:14px; font-weight:700; color:var(--primary); flex:1;"></div>
         </div>
-        
         <div class="field" style="margin-bottom:16px;">
           <label style="display:block; font-size:13px; font-weight:600; margin-bottom:8px; color:var(--text-muted);">PRIORITY</label>
           <select id="tkUserPriority" style="width:100%; padding:12px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; background:var(--bg); color:var(--text);">
@@ -2229,22 +2224,20 @@ function showNewRequestForm() {
             <option value="urgent">🚨 Urgent — Critical issue</option>
           </select>
         </div>
-
         <div class="field" style="margin-bottom:16px;">
           <label style="display:block; font-size:13px; font-weight:600; margin-bottom:8px; color:var(--text-muted);">DESCRIBE YOUR ISSUE</label>
-          <textarea id="tkUserDescription" rows="5" placeholder="Please describe your issue in detail. Include any error messages, steps to reproduce, or relevant information..." style="width:100%; padding:14px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-family:inherit; resize:vertical; background:var(--bg); color:var(--text);"></textarea>
+          <textarea id="tkUserDescription" rows="5" placeholder="Please describe your issue in detail..." style="width:100%; padding:14px; border:1.5px solid var(--border); border-radius:10px; font-size:15px; font-family:inherit; resize:vertical; background:var(--bg); color:var(--text);"></textarea>
         </div>
-
         <button id="tkUserSubmitBtn" onclick="submitUserTicket()" style="width:100%; padding:16px; background:var(--primary); color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer;">
           🎫 Submit Ticket
         </button>
         <button onclick="closeTicketModal()" style="width:100%; padding:12px; background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; margin-top:8px;">Cancel</button>
       </div>
-
     </div>
   </div>
-</div> 
-</script>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="app.js"></script>
 
 </body>
 </html>
