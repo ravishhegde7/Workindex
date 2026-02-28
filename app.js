@@ -49,7 +49,9 @@ function showPage(pageId) {
   if (page) {
     page.classList.add('active');
     state.currentPage = pageId;
-    
+   if (page === 'myTickets') {
+    loadMyTickets();
+  }   
     // Load data for specific pages
     if (pageId === 'findProfessionals') {
   const pending = state.pendingSearch || {};
