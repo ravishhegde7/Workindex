@@ -1733,6 +1733,92 @@
         else toast(d.message || 'Failed', 'e');
       }).catch(function() { toast('Error', 'e'); });
   }
+  /* ═══ KYC REQUESTS TAB ══════════════════════════════════════════════════ */
+  function loadKycRequests() {
+    setT('kycTbl', spin());
+    var st = g('kycSt') ? g('kycSt').value : 'pending';
+
+    // Fetch all experts and filter those with kyc.status matching
+    api('users' + qs({ role: 'expert' })).then(function(d) {
+      var users = d.users || [];
+      var filtered = users.filter(function(u) {
+        var kycStatus = (u.kyc && u.kyc.status) || 'not_submitted';
+        return kycStatus === st;
+      });
+
+      // Update badge count for pending
+      if (st === 'pending') {
+        var badge = g('kycbadge');
+        if (badge) {
+          badge.textContent = filtered.length;
+          badge.style.display = filtered.length > 0 ? 'inline-block' : 'none';
+        }
+      }
+
+      if (!filtered.length) {
+        setT('kycTbl', '<tr><td colspan="8" style="text-align:center;padding:30px;color:#606078">No ' + st + ' KYC requests</td></tr>');
+        return;
+      }
+
+      setT('kycTbl', filtered.map(function(u) {
+        var kyc = u.kyc || {};
+        var regStatus = u.isApproved
+          ? '<span class="badge bgr">Approved</span>'
+          : u.isBanned
+          ? '<span class="badge brd">Rejected</span>'
+          : '<span class="badge byw">Pending</span>';
+
+        var kycStatusMap = {
+          pending:  '<span class="badge byw">⏳ Under Review</span>',
+          approved: '<span class="badge bgr">✅ Verified</span>',
+          rejected: '<span class="badge brd">❌ Rejected</span>',
+          not_submitted: '<span class="badge bgy">Not Submitted</span>'
+        };
+        var kycBadge = kycStatusMap[kyc.status || 'not_submitted'];
+
+        var actions = '';
+        if (kyc.status === 'pending') {
+          actions += '<button class="btn bgrn" onclick="processKycDirect(\'' + u._id + '\',\'approve\')">✅ Approve</button> ';
+          actions += '<button class="btn brdn" onclick="processKycDirect(\'' + u._id + '\',\'reject\')">❌ Reject</button> ';
+        }
+        actions += '<button class="btn bgho" data-kyc-uid="' + u._id + '" data-kyc-name="' + esc(u.name) + '">View Doc</button>';
+
+        return '<tr>' +
+          '<td>' + uLnk(u._id, u.name) + '</td>' +
+          '<td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td>' +
+          '<td style="font-size:12px">' + (u.phone || '-') + '</td>' +
+          '<td style="font-size:13px;font-weight:600;color:#f0f0f4">' + esc(kyc.docType || '—') + '</td>' +
+          '<td style="font-size:12px;color:#a0a0b8">' + fmt(kyc.submittedAt) + '</td>' +
+          '<td>' + kycBadge + '</td>' +
+          '<td>' + regStatus + '</td>' +
+          '<td><div style="display:flex;gap:4px;flex-wrap:wrap">' + actions + '</div></td>' +
+          '</tr>';
+      }).join(''));
+    }).catch(function() { setT('kycTbl', ''); });
+  }
+
+  function processKycDirect(uid, action) {
+    var confirmMsg = action === 'approve'
+      ? 'Approve KYC for this expert?'
+      : 'Reject KYC? Enter rejection reason:';
+
+    if (action === 'reject') {
+      var reason = prompt(confirmMsg);
+      if (reason === null) return; // cancelled
+      api('kyc/' + uid + '/reject', 'POST', { reason: reason || 'Document unclear or invalid' })
+        .then(function(d) {
+          if (d.success) { toast('KYC rejected'); loadKycRequests(); }
+          else toast(d.message || 'Failed', 'e');
+        }).catch(function() { toast('Error', 'e'); });
+    } else {
+      if (!confirm('Approve KYC for this expert?')) return;
+      api('kyc/' + uid + '/approve', 'POST', {})
+        .then(function(d) {
+          if (d.success) { toast('KYC approved! Expert is now verified ✅'); loadKycRequests(); }
+          else toast(d.message || 'Failed', 'e');
+        }).catch(function() { toast('Error', 'e'); });
+    }
+  }
 
   /* ═══ ANNOUNCEMENT ═══════════════════════════════════════════════════════ */
   function sendAnnouncement() {
