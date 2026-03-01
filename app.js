@@ -3493,5 +3493,339 @@ if (ticketModalEl) {
     if (e.target === this) closeTicketModal();
   });
 }
+// ═══════════════════════════════════════════════════════════
+//  CLIENT EXPLORE TAB — HIRE / SHORTLIST / BLOCK
+// ═══════════════════════════════════════════════════════════
 
+var _clientExploreAll = [];       // all loaded experts
+var _clientShortlisted = [];      // shortlisted expert IDs
+var _clientBlocked = [];          // blocked expert IDs (local)
+var _blockTargetId = null;
+var _blockTargetName = null;
+var _exploreFilter = 'all';
+
+// ─── LOAD EXPLORE PAGE ───
+async function loadClientExplorePage() {
+  const grid = document.getElementById('clientExploreGrid');
+  const empty = document.getElementById('clientExploreEmpty');
+  if (!grid) return;
+  
+  grid.innerHTML = '<div style="text-align:center;padding:40px;"><div class="spinner"></div></div>';
+  if (empty) empty.style.display = 'none';
+  
+  try {
+    // Load blocked list from localStorage (persisted locally)
+    _clientBlocked = JSON.parse(localStorage.getItem('blockedExperts_' + state.user._id) || '[]');
+    
+    // Load shortlisted
+    const slRes = await fetch(`${API_URL}/users/shortlisted`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    const slData = await slRes.json();
+    if (slData.success) {
+      _clientShortlisted = (slData.experts || []).map(e => e._id || e);
+    }
+    
+    // Load experts
+    const res = await fetch(`${API_URL}/users/experts?limit=50`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      // Filter out blocked
+      _clientExploreAll = (data.experts || []).filter(e => 
+        !_clientBlocked.includes(e._id)
+      );
+      renderClientExploreGrid(_clientExploreAll);
+    }
+  } catch (err) {
+    console.error('Load explore error:', err);
+    if (grid) grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Failed to load experts</div>';
+  }
+}
+
+// ─── FILTER (all / shortlisted) ───
+function filterClientExplore(filter) {
+  _exploreFilter = filter;
+  
+  // Update button styles
+  const allBtn = document.getElementById('exploreFilterAll');
+  const slBtn = document.getElementById('exploreFilterShortlisted');
+  if (allBtn) {
+    allBtn.style.background = filter === 'all' ? 'var(--primary)' : 'transparent';
+    allBtn.style.color = filter === 'all' ? '#fff' : 'var(--text)';
+    allBtn.style.borderColor = filter === 'all' ? 'var(--primary)' : 'var(--border)';
+  }
+  if (slBtn) {
+    slBtn.style.background = filter === 'shortlisted' ? 'var(--primary)' : 'transparent';
+    slBtn.style.color = filter === 'shortlisted' ? '#fff' : 'var(--text)';
+    slBtn.style.borderColor = filter === 'shortlisted' ? 'var(--primary)' : 'var(--border)';
+  }
+  
+  if (filter === 'shortlisted') {
+    const shortlisted = _clientExploreAll.filter(e => _clientShortlisted.includes(e._id));
+    renderClientExploreGrid(shortlisted);
+  } else {
+    renderClientExploreGrid(_clientExploreAll);
+  }
+}
+
+// ─── SEARCH ───
+function searchClientExperts(value) {
+  if (!value.trim()) {
+    filterClientExplore(_exploreFilter);
+    return;
+  }
+  const lower = value.toLowerCase();
+  const filtered = _clientExploreAll.filter(e =>
+    (e.name || '').toLowerCase().includes(lower) ||
+    (e.specialization || '').toLowerCase().includes(lower) ||
+    (e.profile?.specialization || '').toLowerCase().includes(lower) ||
+    (e.location?.city || '').toLowerCase().includes(lower) ||
+    (e.profile?.city || '').toLowerCase().includes(lower)
+  );
+  renderClientExploreGrid(filtered);
+}
+
+// ─── RENDER GRID ───
+function renderClientExploreGrid(experts) {
+  const grid = document.getElementById('clientExploreGrid');
+  const empty = document.getElementById('clientExploreEmpty');
+  if (!grid) return;
+  
+  if (!experts || !experts.length) {
+    grid.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  
+  grid.innerHTML = experts.map(expert => {
+    const profile = expert.profile || {};
+    const name = expert.name || 'Expert';
+    const spec = profile.specialization || expert.specialization || 'Professional';
+    const city = profile.city || expert.location?.city || '';
+    const rating = expert.rating || 0;
+    const reviews = expert.reviewCount || 0;
+    const photo = expert.profilePhoto;
+    const isShortlisted = _clientShortlisted.includes(expert._id);
+    const bio = profile.bio || expert.bio || '';
+    
+    return `
+      <div style="background:var(--bg); border:1.5px solid var(--border); border-radius:14px; padding:18px; margin-bottom:14px;">
+        
+        <!-- Header -->
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <div style="width:52px; height:52px; border-radius:50%; background:var(--primary); color:#fff; font-size:20px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden;">
+            ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : name.charAt(0).toUpperCase()}
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:16px; font-weight:700; color:var(--text);">${name}</div>
+            <div style="font-size:13px; color:var(--primary); font-weight:600;">${spec}</div>
+            ${city ? `<div style="font-size:12px; color:var(--text-muted);">📍 ${city}</div>` : ''}
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:14px; font-weight:700; color:var(--text);">⭐ ${rating ? parseFloat(rating).toFixed(1) : '—'}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${reviews} reviews</div>
+          </div>
+        </div>
+        
+        <!-- Bio -->
+        ${bio ? `<p style="font-size:13px; color:var(--text-light); line-height:1.5; margin-bottom:12px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${bio}</p>` : ''}
+        
+        <!-- Action Buttons -->
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          
+          <!-- View Profile -->
+          <button onclick="viewExpertProfile('${expert._id}')"
+            style="width:100%; padding:10px; border:1.5px solid var(--border); border-radius:10px; background:transparent; color:var(--text); font-size:13px; font-weight:600; cursor:pointer;">
+            👤 View Profile
+          </button>
+          
+          <!-- 3 action buttons -->
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            
+            <button onclick="hireExpert('${expert._id}', '${name.replace(/'/g, '')}')"
+              style="padding:10px 6px; border:none; border-radius:10px; background:#22c55e; color:#fff; font-size:12px; font-weight:700; cursor:pointer; text-align:center; line-height:1.3;">
+              ✅ Hire
+            </button>
+            
+            <button id="sl_${expert._id}" onclick="shortlistExpert('${expert._id}', '${name.replace(/'/g, '')}')"
+              style="padding:10px 6px; border:1.5px solid ${isShortlisted ? '#e74c3c' : 'var(--border)'}; border-radius:10px; background:${isShortlisted ? 'rgba(231,76,60,0.1)' : 'transparent'}; color:${isShortlisted ? '#e74c3c' : 'var(--text)'}; font-size:12px; font-weight:700; cursor:pointer; text-align:center; line-height:1.3;">
+              ${isShortlisted ? '❤️ Saved' : '🤍 Save'}
+            </button>
+            
+            <button onclick="openBlockModal('${expert._id}', '${name.replace(/'/g, '')}')"
+              style="padding:10px 6px; border:1.5px solid var(--border); border-radius:10px; background:transparent; color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; text-align:center; line-height:1.3;">
+              ❌ Block
+            </button>
+            
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── HIRE EXPERT ───
+async function hireExpert(expertId, expertName) {
+  // Show confirmation
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1002;padding:20px;';
+  modal.onclick = e => { if (e.target === modal) modal.remove(); };
+  
+  modal.innerHTML = `
+    <div style="background:var(--bg);border-radius:16px;max-width:360px;width:100%;padding:28px;text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">✅</div>
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Hire ${expertName}?</h3>
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.5;">
+        We'll notify this expert that you're interested in hiring them. They can spend credits to see your contact details.
+      </p>
+      <p style="font-size:13px;color:var(--text-muted);padding:10px;background:var(--bg-gray);border-radius:8px;margin-bottom:20px;">
+        Your contact will show as:<br>
+        <strong>📞 ${maskPhone(state.user.phone || '9999999999')}</strong><br>
+        <strong>✉️ ${maskEmail(state.user.email || 'you@email.com')}</strong>
+      </p>
+      <div style="display:flex;gap:10px;">
+        <button onclick="confirmHireExpert('${expertId}'); this.closest('[style*=fixed]').remove();"
+          style="flex:1;padding:14px;background:#22c55e;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">
+          ✅ Yes, Notify
+        </button>
+        <button onclick="this.closest('[style*=fixed]').remove()"
+          style="flex:1;padding:14px;border:1.5px solid var(--border);border-radius:12px;background:transparent;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+async function confirmHireExpert(expertId) {
+  try {
+    const res = await fetch(`${API_URL}/users/${expertId}/interest`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ type: 'hire' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Expert notified! They will reach out soon.', 'success');
+    } else {
+      showToast(data.message || 'Failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
+
+// ─── SHORTLIST EXPERT ───
+async function shortlistExpert(expertId, expertName) {
+  try {
+    const isCurrentlyShortlisted = _clientShortlisted.includes(expertId);
+    
+    const res = await fetch(`${API_URL}/users/${expertId}/interest`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ type: 'shortlist' })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      if (isCurrentlyShortlisted) {
+        _clientShortlisted = _clientShortlisted.filter(id => id !== expertId);
+        showToast('Removed from shortlist', 'info');
+      } else {
+        _clientShortlisted.push(expertId);
+        showToast(`${expertName} shortlisted!`, 'success');
+      }
+      // Re-render to update heart button
+      filterClientExplore(_exploreFilter);
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
+
+// ─── BLOCK / REPORT ───
+function openBlockModal(expertId, expertName) {
+  _blockTargetId = expertId;
+  _blockTargetName = expertName;
+  
+  const modal = document.getElementById('blockReportModal');
+  document.getElementById('blockModalName').textContent = expertName;
+  
+  // Show/hide reason box based on selection
+  document.querySelectorAll('input[name="blockType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const reasonBox = document.getElementById('blockReasonBox');
+      if (reasonBox) reasonBox.style.display = this.value === 'report' ? 'block' : 'none';
+    });
+  });
+  
+  modal.style.display = 'flex';
+}
+
+function closeBlockModal() {
+  document.getElementById('blockReportModal').style.display = 'none';
+  _blockTargetId = null;
+  _blockTargetName = null;
+}
+
+async function confirmBlock() {
+  if (!_blockTargetId) return;
+  
+  const blockType = document.querySelector('input[name="blockType"]:checked')?.value || 'block';
+  const reason = document.getElementById('blockReason')?.value || '';
+  const isReport = blockType === 'report';
+  
+  try {
+    const res = await fetch(`${API_URL}/users/${_blockTargetId}/block`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ report: isReport, reason })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      // Add to local blocked list
+      _clientBlocked.push(_blockTargetId);
+      localStorage.setItem('blockedExperts_' + state.user._id, JSON.stringify(_clientBlocked));
+      
+      // Remove from explore grid
+      _clientExploreAll = _clientExploreAll.filter(e => e._id !== _blockTargetId);
+      filterClientExplore(_exploreFilter);
+      
+      closeBlockModal();
+      showToast(isReport ? 'Expert blocked and reported to admin' : 'Expert blocked', 'success');
+    } else {
+      showToast(data.message || 'Failed', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
+
+// ─── MASK HELPERS ───
+function maskPhone(phone) {
+  const p = String(phone).replace(/\D/g, '');
+  if (p.length < 4) return 'XXXXXXXXXX';
+  return p.slice(0,2) + 'XXXXXX' + p.slice(-2);
+}
+
+function maskEmail(email) {
+  const parts = String(email).split('@');
+  if (parts.length < 2) return '****@****.com';
+  return parts[0][0] + '****@' + parts[1];
+}
 // ═══ END OF JAVASCRIPT ═══
