@@ -577,6 +577,10 @@
       <span>💬</span>
       <span>Chat <span id="clientUnreadBadge" style="display:none; background:red; color:white; border-radius:50%; padding:1px 6px; font-size:11px;">0</span></span>
     </div>
+       <div class="dash-tab" data-tab="explore" onclick="switchTab('explore')">
+  <span>🔍</span>
+  <span>Explore</span>
+</div>
     <div class="dash-tab" data-tab="profile" onclick="switchTab('profile')">
       <span>👤</span>
       <span>Profile</span>
@@ -671,7 +675,33 @@
 
     </div>
   </div>
-
+<!-- Explore Tab -->
+<div id="exploreTab" class="tab-content" style="display: none; padding: 20px;">
+  <div style="display:flex; gap:8px; margin-bottom:16px; overflow-x:auto;">
+    <button id="exploreFilterAll" onclick="filterClientExplore('all')" 
+      style="padding:8px 16px; border-radius:20px; border:1.5px solid var(--primary); background:var(--primary); color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;">
+      All Experts
+    </button>
+    <button id="exploreFilterShortlisted" onclick="filterClientExplore('shortlisted')"
+      style="padding:8px 16px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--text); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;">
+      ❤️ Shortlisted
+    </button>
+  </div>
+  <div style="display:flex; gap:8px; margin-bottom:16px;">
+    <div style="position:relative; flex:1;">
+      <input type="text" id="clientExploreSearch" placeholder="Search by name, city, service..."
+        style="width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; box-sizing:border-box;"
+        oninput="searchClientExperts(this.value)">
+    </div>
+  </div>
+  <div id="clientExploreGrid"></div>
+  <div id="clientExploreEmpty" style="display:none;" class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3 class="empty-title">No experts found</h3>
+    <p class="empty-text">Try adjusting your search</p>
+  </div>
+</div>
+     
   <!-- Profile Tab -->
   <div id="profileTab" class="tab-content" style="display: none; padding: 20px;">
     <div style="text-align: center; margin-bottom: 30px;">
