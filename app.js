@@ -1983,7 +1983,7 @@ function renderMyApproaches(interests = []) {
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-size:14px; font-weight:700; color:var(--text);">🎯 Client wants to hire you</span>
                 <span style="font-size:11px; padding:3px 8px; border-radius:20px; background:${unlocked ? 'rgba(34,197,94,0.1)' : 'rgba(252,128,25,0.1)'}; color:${unlocked ? '#22c55e' : 'var(--primary)'}; font-weight:700;">
-                  ${unlocked ? 'Unlocked' : '5 credits'}
+                  ${unlocked ? 'Unlocked' : '15 credits'}
                 </span>
               </div>
 
@@ -2007,7 +2007,7 @@ function renderMyApproaches(interests = []) {
                     ✉️ ${d.maskedEmail || 'r****@gmail.com'}
                   </div>
                   <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">
-                    🔒 Spend 5 credits to see full details
+                    🔒 Spend 15 credits to see full details
                   </div>
                 `}
               </div>
@@ -2028,7 +2028,7 @@ function renderMyApproaches(interests = []) {
               ` : `
                 <button onclick="unlockInterest('${n._id}')"
                   style="width:100%; padding:12px; background:var(--primary); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer;">
-                  🔓 Unlock for 5 Credits
+                  🔓 Unlock for 15 Credits
                 </button>
               `}
             </div>
