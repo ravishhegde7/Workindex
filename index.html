@@ -2262,7 +2262,44 @@ function showNewRequestForm() {
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="app.js"></script>
-
+<!-- BLOCK / REPORT MODAL -->
+<div id="blockReportModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1002; display:none; align-items:flex-end; justify-content:center;">
+  <div style="background:var(--bg); width:100%; max-width:500px; border-radius:20px 20px 0 0; padding:24px 20px 40px;">
+    <h3 style="font-size:18px; font-weight:700; margin-bottom:6px;" id="blockModalTitle">Block Expert</h3>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;" id="blockModalName"></p>
+    
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+      <label style="display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer;">
+        <input type="radio" name="blockType" value="block" checked style="accent-color:var(--primary);">
+        <div>
+          <div style="font-size:14px; font-weight:600;">Block only</div>
+          <div style="font-size:12px; color:var(--text-muted);">They won't appear in your searches</div>
+        </div>
+      </label>
+      <label style="display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer;">
+        <input type="radio" name="blockType" value="report" style="accent-color:var(--primary);">
+        <div>
+          <div style="font-size:14px; font-weight:600;">Block & Report</div>
+          <div style="font-size:12px; color:var(--text-muted);">Also report to admin for review</div>
+        </div>
+      </label>
+    </div>
+    
+    <div id="blockReasonBox" style="display:none; margin-bottom:16px;">
+      <textarea id="blockReason" rows="3" placeholder="Describe the issue (optional but helpful)..."
+        style="width:100%; padding:12px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-family:inherit; background:var(--bg); color:var(--text); resize:none;"></textarea>
+    </div>
+    
+    <button onclick="confirmBlock()" 
+      style="width:100%; padding:14px; background:#ef4444; color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; margin-bottom:10px;">
+      Confirm
+    </button>
+    <button onclick="closeBlockModal()"
+      style="width:100%; padding:12px; background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer;">
+      Cancel
+    </button>
+  </div>
+</div>
 </body>
 </html>
 
