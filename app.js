@@ -1602,6 +1602,11 @@ function renderAvailableRequests() {
 async function showExpertRequestDetail(requestId) {
   const req = state.availableRequests.find(r => r._id === requestId);
   if (!req) return;
+     // Track view
+  fetch(`${API_URL}/requests/${requestId}/view`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${state.token}` }
+  }).catch(() => {});
   
   // Create modal to show questionnaire details
   const modal = document.createElement('div');
