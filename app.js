@@ -2017,13 +2017,23 @@ function renderMyApproaches(interests = []) {
               </div>
 
               ${unlocked ? `
-                <div style="display:flex; gap:8px;">
+                <div style="display:flex; gap:8px; margin-bottom:8px;">
                   <a href="tel:${d.fullPhone}" style="flex:1; padding:10px; background:#22c55e; color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; text-align:center; text-decoration:none;">
                     📞 Call
                   </a>
                   <a href="mailto:${d.fullEmail}" style="flex:1; padding:10px; background:var(--primary); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; text-align:center; text-decoration:none;">
                     ✉️ Email
                   </a>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button onclick="viewClientDocumentsFromInterest('${d.clientId}')"
+                    style="flex:1; padding:10px; border:1.5px solid var(--primary); border-radius:10px; background:transparent; color:var(--primary); font-size:12px; font-weight:700; cursor:pointer;">
+                    📄 View Docs
+                  </button>
+                  <button onclick="messageClientFromInterest('${d.clientId}')"
+                    style="flex:1; padding:10px; border:1.5px solid var(--border); border-radius:10px; background:transparent; color:var(--text); font-size:12px; font-weight:700; cursor:pointer;">
+                    💬 Message
+                  </button>
                 </div>
               ` : `
                 <button onclick="unlockInterest('${n._id}')"
@@ -3949,6 +3959,54 @@ async function unlockInterest(notifId) {
     showToast('Network error', 'error');
     btn.disabled = false;
     btn.textContent = '🔓 Unlock for 5 Credits';
+  }
+}
+// ─── VIEW DOCS FROM INTEREST UNLOCK ───
+async function viewClientDocumentsFromInterest(clientId) {
+  if (!clientId) { showToast('Client info not available', 'error'); return; }
+  // We don't have a requestId here, so pass null — viewClientDocuments handles it
+  try {
+    const res = await fetch(`${API_URL}/documents/client/${clientId}/request/none`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    const data = await res.json();
+    if (!data.success) {
+      showToast('No documents found or access required', 'info');
+      return;
+    }
+    // Reuse existing viewClientDocuments modal logic
+    viewClientDocuments(clientId, null);
+  } catch (err) {
+    showToast('Could not load documents', 'error');
+  }
+}
+
+// ─── MESSAGE CLIENT FROM INTEREST UNLOCK ───
+async function messageClientFromInterest(clientId) {
+  if (!clientId) { showToast('Client info not available', 'error'); return; }
+  try {
+    // Start a direct chat without a specific request
+    const res = await fetch(`${API_URL}/chats/start`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        expertId: state.user._id,
+        clientId: clientId,
+        requestId: null
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      switchTab('chat');
+      openChat(data.chat._id);
+    } else {
+      showToast(data.message || 'Could not start chat', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
   }
 }
 // ═══ END OF JAVASCRIPT ═══
