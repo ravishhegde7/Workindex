@@ -680,6 +680,7 @@
   </div>
 <!-- Explore Tab -->
 <div id="exploreTab" class="tab-content" style="display: none; padding: 20px;">
+  <!-- Sub-tabs: All Experts / Shortlisted / Invites -->
   <div style="display:flex; gap:8px; margin-bottom:16px; overflow-x:auto;">
     <button id="exploreFilterAll" onclick="filterClientExplore('all')" 
       style="padding:8px 16px; border-radius:20px; border:1.5px solid var(--primary); background:var(--primary); color:#fff; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;">
@@ -689,19 +690,32 @@
       style="padding:8px 16px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--text); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;">
       ❤️ Shortlisted
     </button>
+    <button id="exploreFilterInvites" onclick="filterClientExplore('invites')"
+      style="padding:8px 16px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--text); font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;">
+      📨 Invites
+    </button>
   </div>
-  <div style="display:flex; gap:8px; margin-bottom:16px;">
+
+  <!-- Search (hidden on Invites view) -->
+  <div id="exploreSearchBar" style="display:flex; gap:8px; margin-bottom:16px;">
     <div style="position:relative; flex:1;">
       <input type="text" id="clientExploreSearch" placeholder="Search by name, city, service..."
         style="width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; box-sizing:border-box;"
         oninput="searchClientExperts(this.value)">
     </div>
   </div>
+
+  <!-- Experts grid (All / Shortlisted) -->
   <div id="clientExploreGrid"></div>
   <div id="clientExploreEmpty" style="display:none;" class="empty-state">
     <div class="empty-icon">🔍</div>
     <h3 class="empty-title">No experts found</h3>
     <p class="empty-text">Try adjusting your search</p>
+  </div>
+
+  <!-- Invites panel (shown when Invites filter active) -->
+  <div id="clientInvitesPanel" style="display:none;">
+    <div id="clientInvitesList"></div>
   </div>
 </div>
      
