@@ -4190,9 +4190,7 @@ async function messageClientFromInterest(clientId) {
   }
 }
 async function confirmInviteComplete(notifId, expertId, expertName) {
-  const confirmed = await showConfirmModal(
-    `Did ${expertName} complete the service for you?`
-  );
+  const confirmed = confirm(`Did ${expertName} complete the service for you?`);
   if (!confirmed) return;
 
   try {
