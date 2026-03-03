@@ -646,10 +646,11 @@
             '<th style="padding:10px 12px;text-align:left;">Date</th>' +
             '</tr></thead><tbody>' +
             invites.map(function(inv) {
-              var unlocked = inv.unlocked;
-              var statusBadge = unlocked
-                ? '<span class="badge bgr">🔓 Unlocked</span>'
-                : '<span class="badge byw">🔒 Pending</span>';
+              var statusBadge = inv.completed
+  ? '<span class="badge bgr">✅ Completed</span>'
+  : inv.unlocked
+    ? '<span class="badge bbl">🔓 Unlocked</span>'
+    : '<span class="badge byw">🔒 Pending</span>';
               return '<tr style="border-bottom:1px solid #1a1a24;">' +
                 '<td style="padding:10px 12px;color:#FC8019;font-weight:600;">' + esc(inv.expert ? inv.expert.name : '—') + '</td>' +
                 '<td style="padding:10px 12px;color:#a0a0b8;">' + esc(inv.clientName || '—') + '</td>' +
