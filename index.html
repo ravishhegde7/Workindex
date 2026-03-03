@@ -2093,11 +2093,14 @@ async function submitQuestionnaire() {
       if (qState.answers.fullAddress) locationData.fullAddress = qState.answers.fullAddress;
       if (qState.answers.clientLocation) locationData.clientLocation = qState.answers.clientLocation;
       if (Object.keys(locationData).length > 0) {
-        await fetch(`${API_URL}/users/profile`, {
+        const locRes = await fetch(`${API_URL}/users/profile`, {
           method: 'PUT',
           headers: { 'Authorization': `Bearer ${state.token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ profile: locationData })
         });
+        const locData = await locRes.json();
+        console.log('Location save result:', JSON.stringify(locData));
+        console.log('Location data sent:', JSON.stringify(locationData));
         state.user = { ...state.user, profile: { ...(state.user.profile || {}), ...locationData } };
         localStorage.setItem('user', JSON.stringify(state.user));
       }
