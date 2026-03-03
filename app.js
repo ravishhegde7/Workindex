@@ -1293,8 +1293,10 @@ async function confirmPayment() {
         'Authorization': `Bearer ${state.token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ credits })
-    });
+            body: JSON.stringify({ 
+        credits,
+        amountPaid: parseInt(selected.dataset.price)  // ← add this
+      });
     
     const data = await res.json();
     
