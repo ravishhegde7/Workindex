@@ -825,11 +825,7 @@
       var tc = { purchase:'bgr', spent:'bo', refund:'bpu', bonus:'btl' };
       setT('crTbl', txs.map(function(tx) {
         var uid = tx.user ? tx.user._id : '', un = tx.user ? esc(tx.user.name||'-') : '-', ue = tx.user ? esc(tx.user.email||'') : '';
-        var displayAmt = (tx.type === 'purchase' && tx.purchaseDetails && tx.purchaseDetails.amountPaid)
-  ? '₹' + tx.purchaseDetails.amountPaid.toLocaleString('en-IN')
-  : (tx.amount>0?'+':'') + tx.amount + ' cr';
-return '<tr><td>...<td style="color:' + (tx.amount>0?'#22c55e':'#ef4444') + '">' + displayAmt + '</td><td style="color:#f59e0b">' + (tx.balanceAfter||0) + '</td>...
-      }).join(''));
+        return '<tr><td>...<td style="color:' + (tx.amount>0?'#22c55e':'#ef4444') + '">' + (tx.amount>0?'+':'') + tx.amount + '</td><td style="color:#f59e0b">' + (tx.balanceAfter||0) + '</td>...
     }).catch(function() { setT('crTbl', ''); });
   }
 
