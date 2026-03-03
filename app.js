@@ -4213,8 +4213,12 @@ async function confirmInviteComplete(notifId, expertId, expertName) {
     state.ratingRequestId = null;
     state.ratingApproachId = null;
 
+    const ratingModal = document.getElementById('ratingModal');
     document.getElementById('ratingExpertName').textContent = expertName;
-    document.getElementById('ratingModal').style.display = 'flex';
+    ratingModal.dataset.expertId = expertId;
+    ratingModal.dataset.approachId = '';
+    ratingModal.dataset.requestId = '';
+    ratingModal.classList.add('open');
     
   } catch (err) {
     showToast('Error: ' + err.message, 'error');
