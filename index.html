@@ -2088,6 +2088,19 @@ async function submitQuestionnaire() {
   } else {
     // Create client request
     try {
+         // Save location to client profile too
+      const locationData = {};
+      if (qState.answers.fullAddress) locationData.fullAddress = qState.answers.fullAddress;
+      if (qState.answers.clientLocation) locationData.clientLocation = qState.answers.clientLocation;
+      if (Object.keys(locationData).length > 0) {
+        await fetch(`${API_URL}/users/profile`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${state.token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: locationData })
+        });
+        state.user = { ...state.user, profile: { ...(state.user.profile || {}), ...locationData } };
+        localStorage.setItem('user', JSON.stringify(state.user));
+      }
       const service = qState.answers.service;
       const serviceLabels = {
         itr: 'ITR Filing Service',
