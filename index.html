@@ -523,9 +523,25 @@
               </div>
             </div>
           </div>
-          <button id="signupSubmitBtn" class="btn-primary" style="width: 100%;" onclick="handleSignup()">
-            Send OTP
-          </button>
+          
+<div style="margin-bottom: 16px;">
+  <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+    <input type="checkbox" id="termsCheckbox"
+      style="width: 18px; height: 18px; margin-top: 1px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer;"
+      onchange="document.getElementById('signupSubmitBtn').disabled = !this.checked; document.getElementById('signupSubmitBtn').style.opacity = this.checked ? '1' : '0.5';">
+    <span>
+      I have read and agree to the
+      <button type="button" onclick="openTermsModal(selectedRole)"
+        style="background: none; border: none; color: var(--primary); font-size: 13px; font-weight: 700; cursor: pointer; padding: 0; text-decoration: underline;">
+        Terms &amp; Conditions
+      </button>
+    </span>
+  </label>
+</div>
+
+<button id="signupSubmitBtn" class="btn-primary" style="width: 100%; opacity: 0.5;" onclick="handleSignup()" disabled>
+  Send OTP
+</button>
         </div>
 
         <!-- Step 2: OTP -->
@@ -2738,6 +2754,208 @@ function showNewRequestForm() {
   </div>
 </div>
 <!-- END PART B --> 
+     
+<!-- ───────────────────────────────────────────────────────
+     PART B: Add this just before </body>
+     ─────────────────────────────────────────────────────── -->
+
+<!-- TERMS & CONDITIONS MODAL -->
+<div id="termsModal"
+  style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+         z-index:1020; align-items:flex-end; justify-content:center;">
+
+  <div style="background:var(--bg); width:100%; max-width:600px; border-radius:20px 20px 0 0;
+              max-height:88vh; display:flex; flex-direction:column; overflow:hidden;">
+
+    <!-- Header -->
+    <div style="padding:20px 24px 0; flex-shrink:0;">
+      <div style="width:40px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 16px;"></div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <h3 style="font-size:19px; font-weight:800; color:var(--text); margin:0;">Terms &amp; Conditions</h3>
+        <button onclick="closeTermsModal()"
+          style="background:var(--bg-gray); border:none; border-radius:50%; width:32px; height:32px;
+                 font-size:18px; cursor:pointer; color:var(--text-muted); display:flex; align-items:center; justify-content:center;">×</button>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex; gap:8px; margin-bottom:0;">
+        <button id="termsTabExpert" onclick="switchTermsTab('expert')"
+          style="flex:1; padding:10px; border-radius:10px 10px 0 0; border:none; font-size:14px; font-weight:700;
+                 cursor:pointer; transition:all 0.2s;">
+          ⭐ For Professionals
+        </button>
+        <button id="termsTabClient" onclick="switchTermsTab('client')"
+          style="flex:1; padding:10px; border-radius:10px 10px 0 0; border:none; font-size:14px; font-weight:700;
+                 cursor:pointer; transition:all 0.2s;">
+          👤 For Customers
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable content -->
+    <div style="overflow-y:auto; flex:1; padding:20px 24px 32px; border-top:2px solid var(--primary);">
+
+      <!-- EXPERT TERMS -->
+      <div id="termsContentExpert">
+
+        <div class="terms-section">
+          <h4 class="terms-heading">💳 Credits &amp; Payments</h4>
+          <ul class="terms-list">
+            <li>Credits are purchased upfront and are <strong>non-refundable</strong> under any circumstance.</li>
+            <li>Credits are consumed when you unlock a client's contact details and send an approach.</li>
+            <li>Purchasing credits does not guarantee you will win the client — it gives you the opportunity to pitch.</li>
+            <li>WorkIndex is a <strong>lead generation platform</strong>, not a job guarantee platform.</li>
+            <li>Credit packages are one-time purchases with <strong>no expiry date</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">📨 Approaches &amp; Leads</h4>
+          <ul class="terms-list">
+            <li>Only <strong>5 experts</strong> can send an approach on any single client request — first come, first served.</li>
+            <li>Responding early significantly increases your chances of being selected — clients tend to engage with the first few approaches they receive.</li>
+            <li>Credits spent to unlock a request are <strong>not returned</strong> even if the client is unresponsive, hires someone else, or cancels.</li>
+            <li>WorkIndex does not control or influence which expert a client chooses.</li>
+            <li>You are responsible for your own communication, pricing, and delivery after connecting with a client.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">🔍 Direct Hire via Explore</h4>
+          <ul class="terms-list">
+            <li>Clients may discover your profile through the Explore section and invite you directly to their request.</li>
+            <li>Credits are still required to respond to a direct invite and unlock the client's contact details.</li>
+            <li>A direct invite signals client interest but does <strong>not waive the credit requirement</strong>.</li>
+            <li>Direct invites are based on your profile visibility, ratings, and profile strength score.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">👤 Profile &amp; Profile Strength</h4>
+          <ul class="terms-list">
+            <li>A complete profile significantly increases your chances of being discovered and invited by clients.</li>
+            <li>Profile strength is based on: photo, bio, specialization, services, location, experience, and ratings.</li>
+            <li>Experts with higher profile strength appear higher in search results and receive more direct invites.</li>
+            <li>You must provide <strong>accurate information</strong> about your qualifications and experience.</li>
+            <li>Misrepresenting credentials is grounds for immediate account suspension with <strong>no credit refund</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">📁 Documents &amp; File Access</h4>
+          <ul class="terms-list">
+            <li>Clients may share documents with you through the platform for the purpose of completing their requested service.</li>
+            <li>You may request document access only when it is genuinely required to assess or deliver the service.</li>
+            <li>After a client grants you access, you may download and use documents <strong>solely for delivering the requested service</strong>.</li>
+            <li>Downloaded documents must not be shared with third parties, used for unrelated purposes, or retained after the engagement ends.</li>
+            <li>Misuse of client documents will result in <strong>immediate permanent ban</strong> and may be reported to relevant authorities.</li>
+            <li>Once a client revokes access, you must immediately cease use of any information obtained from those documents.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">⭐ Ratings &amp; Conduct</h4>
+          <ul class="terms-list">
+            <li>Clients can rate you after work completion and those reviews are public.</li>
+            <li>WorkIndex does not remove negative reviews unless they violate platform guidelines.</li>
+            <li>You are expected to maintain professional conduct at all times.</li>
+            <li>WorkIndex reserves the right to remove profiles with consistent negative ratings or reports.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- CLIENT TERMS -->
+      <div id="termsContentClient" style="display:none;">
+
+        <div class="terms-section">
+          <h4 class="terms-heading">📋 Posting Requests</h4>
+          <ul class="terms-list">
+            <li>You can post service requests <strong>for free</strong>.</li>
+            <li>You are responsible for providing accurate and complete information in your request.</li>
+            <li>Posting fake or misleading requests may result in account suspension.</li>
+            <li>Each request is visible to experts matching your service category and location.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">📨 How Expert Selection Works</h4>
+          <ul class="terms-list">
+            <li>A maximum of <strong>5 experts</strong> can approach you per request — ensuring only serious, relevant proposals.</li>
+            <li>Experts who respond early are more committed and available — review approaches promptly for best results.</li>
+            <li>You are under <strong>no obligation</strong> to hire any expert who approaches you.</li>
+            <li>Once you select an expert, we recommend marking your request to avoid further approaches.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">🔍 Exploring &amp; Directly Hiring Experts</h4>
+          <ul class="terms-list">
+            <li>You may browse verified expert profiles in the Explore section and shortlist or invite experts directly.</li>
+            <li>Inviting an expert directly does not cost you anything.</li>
+            <li>You are responsible for verifying an expert's credentials and suitability before hiring.</li>
+            <li>WorkIndex profiles show ratings and reviews from past clients to help you decide.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">📁 Documents &amp; File Sharing</h4>
+          <ul class="terms-list">
+            <li>You may upload documents to your account and share them with experts you are working with.</li>
+            <li>Nothing is shared without your <strong>explicit approval</strong> — you control all access.</li>
+            <li>You may grant or revoke document access to any expert at any time.</li>
+            <li>WorkIndex stores your documents securely but is <strong>not liable</strong> for misuse after you have granted access.</li>
+            <li>Do not upload documents containing passwords, bank PINs, or unrelated sensitive personal data.</li>
+            <li>Report any misuse immediately through the support ticket system.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">💰 Payments &amp; Hiring</h4>
+          <ul class="terms-list">
+            <li>All payments for services are made <strong>directly between you and the expert</strong>.</li>
+            <li>WorkIndex does not handle, hold, or guarantee any payments between clients and experts.</li>
+            <li>Any disputes over payment, quality, or delivery must be resolved between you and the expert directly.</li>
+            <li>WorkIndex is not liable for the outcome, quality, or timeliness of any service delivered.</li>
+          </ul>
+        </div>
+
+        <div class="terms-section">
+          <h4 class="terms-heading">⭐ Reviews</h4>
+          <ul class="terms-list">
+            <li>You are encouraged to leave honest ratings after work is completed.</li>
+            <li>Reviews help other clients decide and help good experts grow.</li>
+            <li>False or malicious reviews intended to harm an expert may be removed and your account suspended.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- GENERAL TERMS (always shown at bottom) -->
+      <div class="terms-section" style="background: var(--bg-gray); border-radius:12px; padding:16px; margin-top:8px;">
+        <h4 class="terms-heading" style="margin-top:0;">📌 General (Applies to Everyone)</h4>
+        <ul class="terms-list">
+          <li>WorkIndex is a marketplace that connects clients with professionals — we are not a party to any service agreement between them.</li>
+          <li>WorkIndex reserves the right to update these terms at any time.</li>
+          <li>Continued use of the platform means you accept the current terms.</li>
+          <li>Accounts found to be fraudulent or abusive will be permanently banned.</li>
+          <li>Banned expert accounts forfeit any remaining credits with no refund.</li>
+          <li>For disputes or misuse reports, raise a support ticket — our team will review within 48 hours.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:16px 24px; border-top:1px solid var(--border); flex-shrink:0;">
+      <button onclick="acceptTermsAndClose()"
+        class="btn-primary" style="width:100%; padding:14px; font-size:15px;">
+        I Understand &amp; Agree
+      </button>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>
 
