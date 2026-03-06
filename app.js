@@ -1028,15 +1028,15 @@ function sortExperts(sortBy) {
 }
 
 // ─── VIEW EXPERT PROFILE ───
-async function viewExpertProfile(expertId) {
+async function viewExpertProfile(expertId, loggedIn = false) {
   try {
     const res = await fetch(`${API_URL}/users/expert/${expertId}`, {
       headers: { 'Authorization': `Bearer ${state.token}` }
     });
-    
+
     const data = await res.json();
     if (!data.success) { showToast('Could not load profile', 'error'); return; }
-    
+
     const expert = data.expert || data.user;
     const profile = expert.profile || {};
 
@@ -1052,10 +1052,36 @@ async function viewExpertProfile(expertId) {
     const certifications = profile.certifications || expert.certifications || [];
     const city           = profile.city || expert.location?.city || '';
 
+    // ── Extra fields (logged-in view only) ──
+    const education      = profile.education || '';
+    const portfolio      = profile.portfolio || '';
+    const whyChooseMe    = expert.whyChooseMe || '';
+    const availability   = expert.availability || 'available';
+    const lastOnline     = expert.lastOnline;
+
+    const availabilityMap = {
+      available: { icon: '🟢', label: 'Available',      color: '#10b981' },
+      busy:      { icon: '🔴', label: 'Busy This Week', color: '#ef4444' },
+      away:      { icon: '🟡', label: 'Away',           color: '#f59e0b' }
+    };
+    const avail = availabilityMap[availability] || availabilityMap.available;
+
+    const lastOnlineText = (() => {
+      if (!lastOnline) return '🕐 Recently active';
+      const diff = Date.now() - new Date(lastOnline).getTime();
+      const mins = Math.floor(diff / 60000);
+      const hrs  = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      if (mins < 5)  return '🟢 Online now';
+      if (mins < 60) return `🕐 ${mins}m ago`;
+      if (hrs < 24)  return `🕐 ${hrs}h ago`;
+      return `📅 ${days}d ago`;
+    })();
+
     const locationLabels = {
       online: '💻 Online / Remote only',
-      local: '📍 Local (in-person)',
-      both: '🌐 Both online & in-person'
+      local:  '📍 Local (in-person)',
+      both:   '🌐 Both online & in-person'
     };
     const serviceLabels = {
       itr: 'ITR Filing', gst: 'GST Services',
@@ -1066,14 +1092,15 @@ async function viewExpertProfile(expertId) {
     const modal = document.createElement('div');
     modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1001; padding: 20px;';
     modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
     modal.innerHTML = `
       <div style="background: var(--bg); border-radius: 16px; max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 24px;">
-        
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <h2 style="font-size: 20px; font-weight: 700; color: var(--text);">Expert Profile</h2>
           <button onclick="this.closest('[style*=fixed]').remove()" style="border: none; background: none; font-size: 24px; cursor: pointer; color: var(--text-muted);">×</button>
         </div>
-        
+
         <!-- Avatar + Name -->
         <div style="text-align: center; margin-bottom: 24px;">
           <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 32px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; overflow: hidden;">
@@ -1089,8 +1116,15 @@ async function viewExpertProfile(expertId) {
               <span style="font-size: 13px; color: var(--text-muted);">(${expert.reviewCount || 0} reviews)</span>
             </div>
           ` : ''}
+
+          <!-- Availability badge (logged-in only) -->
+          ${loggedIn ? `
+            <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 14px;border-radius:20px;background:rgba(0,0,0,0.05);border:1.5px solid ${avail.color};font-size:13px;font-weight:700;color:${avail.color};">
+              ${avail.icon} ${avail.label}
+            </div>
+          ` : ''}
         </div>
-        
+
         <!-- Stats Row -->
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
           <div style="text-align: center; padding: 12px; background: var(--bg-gray); border-radius: 10px;">
@@ -1107,6 +1141,21 @@ async function viewExpertProfile(expertId) {
           </div>
         </div>
 
+        <!-- Last Online (logged-in only) -->
+        ${loggedIn ? `
+          <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:20px;font-size:13px;color:var(--text-muted);">
+            ${lastOnlineText}
+          </div>
+        ` : ''}
+
+        <!-- Why Choose Me (logged-in only) -->
+        ${loggedIn && whyChooseMe ? `
+          <div style="margin-bottom:20px;padding:14px 16px;background:rgba(252,128,25,0.06);border-left:3px solid var(--primary);border-radius:0 10px 10px 0;">
+            <h4 style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">💡 WHY CHOOSE ME</h4>
+            <p style="font-size:14px;color:var(--text-light);line-height:1.6;margin:0;">${whyChooseMe}</p>
+          </div>
+        ` : ''}
+
         <!-- Services -->
         ${services.length > 0 ? `
           <div style="margin-bottom: 20px;">
@@ -1122,6 +1171,22 @@ async function viewExpertProfile(expertId) {
           <div style="margin-bottom: 20px;">
             <h4 style="font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px;">ABOUT</h4>
             <p style="font-size: 14px; color: var(--text-light); line-height: 1.6;">${bio}</p>
+          </div>
+        ` : ''}
+
+        <!-- Education (logged-in only) -->
+        ${loggedIn && education ? `
+          <div style="margin-bottom: 20px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px;">🎓 EDUCATION</h4>
+            <p style="font-size: 14px; color: var(--text);">${education}</p>
+          </div>
+        ` : ''}
+
+        <!-- Portfolio (logged-in only) -->
+        ${loggedIn && portfolio ? `
+          <div style="margin-bottom: 20px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px;">🗂️ PORTFOLIO & PROOF OF WORK</h4>
+            <p style="font-size: 14px; color: var(--text-light); line-height: 1.6; white-space: pre-line;">${portfolio}</p>
           </div>
         ` : ''}
 
@@ -1152,7 +1217,7 @@ async function viewExpertProfile(expertId) {
           </div>
         ` : ''}
 
-         <!-- Customer Reviews -->
+        <!-- Customer Reviews -->
         ${data.ratings && data.ratings.length > 0 ? `
           <div style="margin-bottom: 20px;">
             <h4 style="font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px;">CUSTOMER REVIEWS</h4>
@@ -1174,18 +1239,18 @@ async function viewExpertProfile(expertId) {
             `).join('')}
           </div>
         ` : ''}
+
         <button onclick="this.closest('[style*=fixed]').remove()" style="width: 100%; padding: 14px; border: 1.5px solid var(--border); border-radius: 10px; background: transparent; color: var(--text); font-size: 15px; font-weight: 600; cursor: pointer;">Close</button>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
   } catch (error) {
     console.error('View profile error:', error);
     showToast('Failed to load profile', 'error');
   }
 }
-
 // ─── PROFILE PHOTO UPLOAD ─── 
 async function uploadProfilePhoto(event) {
   const file = event.target.files[0];
@@ -1930,7 +1995,7 @@ function showRequestApproaches(req, approaches) {
 ` : ''}
 <p style="font-size: 14px; color: var(--text-light); margin-bottom: 12px; line-height:1.6;">${app.message}</p>
         <div style="display: flex; gap: 8px;">
-          <button onclick="viewExpertProfile('${expert._id}')" style="flex: 1; padding: 10px; border: 1.5px solid var(--primary); border-radius: 8px; background: transparent; color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer;">View Profile</button>
+          <button onclick="viewExpertProfile('${expert._id}', true)" style="flex: 1; padding: 10px; border: 1.5px solid var(--primary); border-radius: 8px; background: transparent; color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer;">View Profile</button>
           <button onclick="contactExpert('${expert._id}', '${req._id}', '${state.user._id}')" 
           style="flex: 1; padding: 10px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;">Contact</button>
           <button onclick="confirmServiceReceived('${req._id}', '${expert._id}', '${expert.name}', '${app._id}')" style="width: 100%; padding: 10px; border: 1.5px solid #4CAF50; border-radius: 8px; background: transparent; color: #4CAF50; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 4px;">✓ Service Received?</button>
