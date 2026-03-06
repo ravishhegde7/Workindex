@@ -2199,6 +2199,12 @@ async function showMyApproachDetail(approachId) {
   💬 Message Client
 </button>
           
+          ${approach.quote ? `
+          <div style="margin-bottom: 12px; padding: 12px; background: rgba(252,128,25,0.08); border-radius: 8px; display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Your Quote</span>
+            <span style="font-size: 22px; font-weight: 800; color: var(--primary);">₹${approach.quote.toLocaleString('en-IN')}</span>
+          </div>
+          ` : ''}
           <div style="padding: 12px; background: var(--bg-gray); border-radius: 8px;">
             <div style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Your message:</div>
             <div style="font-size: 14px; color: var(--text);">${approach.message}</div>
