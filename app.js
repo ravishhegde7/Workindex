@@ -1038,6 +1038,7 @@ async function viewExpertProfile(expertId, loggedIn = false) {
     if (!data.success) { showToast('Could not load profile', 'error'); return; }
 
     const expert = data.expert || data.user;
+     console.log('Expert data:', JSON.stringify(expert));
     const profile = expert.profile || {};
 
     const specialization = profile.specialization || expert.specialization || 'Professional';
