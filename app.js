@@ -2707,6 +2707,41 @@ function renderExpertProfile() {
     </div>
 
     <div style="padding:0 20px 40px;">
+<!-- ── BASIC INFO (EDITABLE) ── -->
+      <div class="settings-section" style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 class="settings-section-title" style="margin:0;">👤 Basic Info</h3>
+          <button onclick="toggleBasicEditMode()" id="basicEditBtn" style="padding:6px 14px;border:1.5px solid var(--primary);border-radius:8px;background:transparent;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;">✏️ Edit</button>
+        </div>
+
+        <div style="padding:12px 0;border-bottom:1px solid var(--border);" class="basic-field-row">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Full Name</div>
+          <div id="basic_display_name" style="font-size:14px;font-weight:500;color:var(--text);">${user.name || 'Not set'}</div>
+          <input id="basic_edit_name" type="text" value="${user.name || ''}" style="display:none;width:100%;padding:10px 12px;border:1.5px solid var(--primary);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+        </div>
+
+        <div style="padding:12px 0;border-bottom:1px solid var(--border);" class="basic-field-row">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">City</div>
+          <div id="basic_display_city" style="font-size:14px;font-weight:500;color:var(--text);">${profile.city || user.location?.city || '<span style="color:var(--text-muted);font-style:italic;">Not set</span>'}</div>
+          <input id="basic_edit_city" type="text" value="${profile.city || user.location?.city || ''}" placeholder="e.g. Bengaluru" style="display:none;width:100%;padding:10px 12px;border:1.5px solid var(--primary);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+        </div>
+
+        <div style="padding:12px 0;border-bottom:1px solid var(--border);" class="basic-field-row">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Pincode</div>
+          <div id="basic_display_pincode" style="font-size:14px;font-weight:500;color:var(--text);">${profile.pincode || user.location?.pincode || '<span style="color:var(--text-muted);font-style:italic;">Not set</span>'}</div>
+          <input id="basic_edit_pincode" type="text" value="${profile.pincode || user.location?.pincode || ''}" placeholder="e.g. 560001" maxlength="6" style="display:none;width:100%;padding:10px 12px;border:1.5px solid var(--primary);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+        </div>
+
+        <div style="padding:12px 0;border-bottom:1px solid var(--border);" class="basic-field-row">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">State</div>
+          <div id="basic_display_state" style="font-size:14px;font-weight:500;color:var(--text);">${profile.state || user.location?.state || '<span style="color:var(--text-muted);font-style:italic;">Not set</span>'}</div>
+          <input id="basic_edit_state" type="text" value="${profile.state || user.location?.state || ''}" placeholder="e.g. Karnataka" style="display:none;width:100%;padding:10px 12px;border:1.5px solid var(--primary);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+        </div>
+
+        <div id="basicSaveRow" style="display:none;margin-top:16px;">
+          <button onclick="saveBasicInfo()" style="width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">💾 Save Basic Info</button>
+        </div>
+      </div>
 
       <!-- ── PROFILE STRENGTH ── -->
       ${renderStrengthMeter(user, profile)}
@@ -2937,6 +2972,81 @@ async function saveProfileEdits() {
     console.error('Save profile error:', err);
     showToast('Network error. Please try again.', 'error');
     if (btn) { btn.disabled = false; btn.textContent = '💾 Save Changes'; }
+  }
+}
+// ─── TOGGLE BASIC EDIT MODE ───
+let _basicEditMode = false;
+function toggleBasicEditMode() {
+  _basicEditMode = !_basicEditMode;
+  const btn = document.getElementById('basicEditBtn');
+  const saveRow = document.getElementById('basicSaveRow');
+
+  document.querySelectorAll('.basic-field-row').forEach(row => {
+    row.querySelectorAll('[id^="basic_display_"]').forEach(d => d.style.display = _basicEditMode ? 'none' : 'block');
+    row.querySelectorAll('[id^="basic_edit_"]').forEach(i => i.style.display = _basicEditMode ? 'block' : 'none');
+  });
+
+  if (btn) btn.textContent = _basicEditMode ? '✕ Cancel' : '✏️ Edit';
+  if (saveRow) saveRow.style.display = _basicEditMode ? 'block' : 'none';
+
+  if (!_basicEditMode) renderExpertProfile();
+}
+
+// ─── SAVE BASIC INFO ───
+async function saveBasicInfo() {
+  const nameVal    = document.getElementById('basic_edit_name')?.value.trim();
+  const cityVal    = document.getElementById('basic_edit_city')?.value.trim();
+  const pincodeVal = document.getElementById('basic_edit_pincode')?.value.trim();
+  const stateVal   = document.getElementById('basic_edit_state')?.value.trim();
+
+  if (!nameVal) { showToast('Name cannot be empty', 'error'); return; }
+
+  const btn = document.querySelector('#basicSaveRow button');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+  try {
+    const updatedProfile = {
+      ...(state.user.profile || {}),
+      city: cityVal,
+      pincode: pincodeVal,
+      state: stateVal
+    };
+
+    // Save profile (city, pincode, state)
+    const res = await fetch(`${API_URL}/users/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ profile: updatedProfile })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // Save name separately via /me
+      await fetch(`${API_URL}/users/me`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${state.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: nameVal })
+      });
+
+      state.user.name = nameVal;
+      state.user.profile = updatedProfile;
+      localStorage.setItem('user', JSON.stringify(state.user));
+      _basicEditMode = false;
+      showToast('Basic info updated!', 'success');
+      renderExpertProfile();
+    } else {
+      showToast(data.message || 'Failed to save', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Save Basic Info'; }
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = '💾 Save Basic Info'; }
   }
 }
 // ─── UPDATE AVAILABILITY ───
