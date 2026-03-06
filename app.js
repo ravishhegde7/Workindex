@@ -1920,7 +1920,14 @@ function showRequestApproaches(req, approaches) {
             </div>
           ` : ''}
         </div>
-        <p style="font-size: 14px; color: var(--text-light); margin-bottom: 12px;">${app.message}</p>
+        ${app.quote ? `
+  <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(252,128,25,0.1);
+              border-radius:20px; padding:6px 14px; margin-bottom:10px;">
+    <span style="font-size:20px; font-weight:800; color:var(--primary);">₹${app.quote.toLocaleString('en-IN')}</span>
+    <span style="font-size:12px; color:var(--text-muted); font-weight:600;">quoted</span>
+  </div>
+` : ''}
+<p style="font-size: 14px; color: var(--text-light); margin-bottom: 12px; line-height:1.6;">${app.message}</p>
         <div style="display: flex; gap: 8px;">
           <button onclick="viewExpertProfile('${expert._id}')" style="flex: 1; padding: 10px; border: 1.5px solid var(--primary); border-radius: 8px; background: transparent; color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer;">View Profile</button>
           <button onclick="contactExpert('${expert._id}', '${req._id}', '${state.user._id}')" 
