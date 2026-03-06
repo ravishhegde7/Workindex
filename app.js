@@ -1900,6 +1900,7 @@ function showRequestApproaches(req, approaches) {
   
   const approachesHTML = approaches.length > 0 ? approaches.map(app => {
     const expert = app.expert;
+     console.log('Approach data:', JSON.stringify(app));
     return `
       <div style="padding: 16px; background: var(--bg-gray); border-radius: 12px; margin-bottom: 12px;">
         <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
