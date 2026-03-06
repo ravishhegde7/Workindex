@@ -2785,6 +2785,60 @@ function renderExpertProfile() {
         </div>
       </div>
 
+      <!-- ── AVAILABILITY STATUS ── -->
+      <div class="settings-section" style="margin-bottom:20px;">
+        <h3 class="settings-section-title">Availability Status</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Clients see this on your profile — keep it updated</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${['available','busy','away'].map(status => {
+            const map = {
+              available: { icon: '🟢', label: "I'm Available",     sub: 'Open to new clients' },
+              busy:      { icon: '🔴', label: 'Busy This Week',    sub: 'Limited availability' },
+              away:      { icon: '🟡', label: 'Away',              sub: 'Temporarily unavailable' }
+            };
+            const s = map[status];
+            const isActive = (user.availability || 'available') === status;
+            return `<label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid ${isActive ? 'var(--primary)' : 'var(--border)'};border-radius:10px;cursor:pointer;background:${isActive ? 'rgba(252,128,25,0.05)' : 'var(--bg)'};">
+              <input type="radio" name="availabilityRadio" value="${status}" ${isActive ? 'checked' : ''} style="accent-color:var(--primary);" onchange="updateAvailability('${status}')">
+              <div>
+                <div style="font-size:14px;font-weight:700;color:var(--text);">${s.icon} ${s.label}</div>
+                <div style="font-size:12px;color:var(--text-muted);">${s.sub}</div>
+              </div>
+            </label>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- ── WHY CHOOSE ME ── -->
+      <div class="settings-section" style="margin-bottom:20px;">
+        <h3 class="settings-section-title">Why Choose Me</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Shown on your public profile to help clients decide</p>
+        <textarea id="whyChooseMeInput" rows="4" maxlength="500"
+          placeholder="e.g. I respond within 2 hours, offer free consultation, have 8 years experience with 100+ happy clients..."
+          style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;resize:vertical;background:var(--bg);color:var(--text);box-sizing:border-box;"
+        >${user.whyChooseMe || ''}</textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <span style="font-size:12px;color:var(--text-muted);">Max 500 characters</span>
+          <button onclick="saveWhyChooseMe()" style="padding:8px 20px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Save</button>
+        </div>
+      </div>
+
+      <!-- ── LAST ONLINE ── -->
+      <div class="settings-section" style="margin-bottom:20px;">
+        <h3 class="settings-section-title">Last Online</h3>
+        <div style="font-size:15px;font-weight:600;color:var(--text);">${(() => {
+          if (!user.lastOnline) return '🕐 Recently active';
+          const diff = Date.now() - new Date(user.lastOnline).getTime();
+          const mins = Math.floor(diff / 60000);
+          const hrs  = Math.floor(diff / 3600000);
+          const days = Math.floor(diff / 86400000);
+          if (mins < 5)       return '🟢 Online now';
+          if (mins < 60)      return `🕐 ${mins} minute${mins > 1 ? 's' : ''} ago`;
+          if (hrs < 24)       return `🕐 ${hrs} hour${hrs > 1 ? 's' : ''} ago`;
+          return `📅 ${days} day${days > 1 ? 's' : ''} ago`;
+        })()}</div>
+      </div>
+
       <!-- ── CONTACT & ACCOUNT ── -->
       <div class="settings-section" style="margin-bottom:20px;">
         <h3 class="settings-section-title">Contact Information</h3>
@@ -2885,7 +2939,54 @@ async function saveProfileEdits() {
     if (btn) { btn.disabled = false; btn.textContent = '💾 Save Changes'; }
   }
 }
+// ─── UPDATE AVAILABILITY ───
+async function updateAvailability(status) {
+  try {
+    const res = await fetch(`${API_URL}/users/availability`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ availability: status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.user.availability = status;
+      localStorage.setItem('user', JSON.stringify(state.user));
+      showToast('Availability updated!', 'success');
+    } else {
+      showToast(data.message || 'Failed to update', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
 
+// ─── SAVE WHY CHOOSE ME ───
+async function saveWhyChooseMe() {
+  const text = document.getElementById('whyChooseMeInput')?.value.trim() || '';
+  try {
+    const res = await fetch(`${API_URL}/users/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ whyChooseMe: text })
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.user.whyChooseMe = text;
+      localStorage.setItem('user', JSON.stringify(state.user));
+      showToast('Saved!', 'success');
+    } else {
+      showToast(data.message || 'Failed to save', 'error');
+    }
+  } catch (err) {
+    showToast('Network error', 'error');
+  }
+}
 // ─── KYC DOC TYPE SELECTION ───
 window._kycSelected = null;
 window._kycBase64   = null;
