@@ -1126,7 +1126,7 @@ async function viewExpertProfile(expertId, loggedIn = false) {
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <h2 style="font-size: 20px; font-weight: 700; color: var(--text);">Expert Profile</h2>
-          <button onclick="this.closest('[style*=fixed]').remove()" style="border: none; background: none; font-size: 24px; cursor: pointer; color: var(--text-muted);">×</button>
+          <button onclick="document.getElementById('expertProfileModal')?.remove()" style="border: none; background: none; font-size: 24px; cursor: pointer; color: var(--text-muted);">×</button>
         </div>
 
         <!-- Avatar + Name -->
