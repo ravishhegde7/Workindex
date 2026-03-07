@@ -2740,7 +2740,13 @@ async function submitQuestionnaire() {
       const data = await res.json();
       if (data.success) {
         showToast('Request posted successfully!', 'success');
-        showPage('clientDash');
+        const serviceLabelsConfirm = {
+          itr: 'ITR Filing', gst: 'GST Services', accounting: 'Accounting / Bookkeeping',
+          audit: 'Audit Services', photography: 'Photography', development: 'App / Web Development'
+        };
+        const confirmEl = document.getElementById('confirmServiceName');
+        if (confirmEl) confirmEl.textContent = serviceLabelsConfirm[qState.answers.service] || 'Your Service';
+        showPage('requestConfirmation');
         loadClientData();
       } else {
         showToast(data.message || 'Failed to post request', 'error');
