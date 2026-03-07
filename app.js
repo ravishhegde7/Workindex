@@ -1314,6 +1314,8 @@ function updateProfilePhoto(photoUrl) {
 
 // ─── CREDIT PURCHASE ─── 
 function openCreditModal() {
+  // Guard — already open
+  if (document.getElementById('creditModal').classList.contains('open')) return;
   document.getElementById('creditModal').classList.add('open');
 }
 
