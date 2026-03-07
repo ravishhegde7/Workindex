@@ -1019,7 +1019,7 @@ function renderExperts() {
             📍 ${expert.location.city || 'India'}
           </div>
         ` : ''}
-        <button class="btn-primary" style="padding: 8px 16px; font-size: 14px;">
+        <button class="btn-primary" style="padding: 8px 16px; font-size: 14px;" onclick="event.stopPropagation(); viewExpertProfile('${expert._id}')">
           View Profile
         </button>
       </div>
