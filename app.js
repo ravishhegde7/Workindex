@@ -93,6 +93,8 @@ function goBack() {
 }
 
 function switchTab(tabName) {
+  // Guard — don't reload same tab
+  if (state.currentTab === tabName) return;
   state.currentTab = tabName;
   
   document.querySelectorAll('.dash-tab').forEach(tab => tab.classList.remove('active'));
