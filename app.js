@@ -927,7 +927,10 @@ async function openNotifications() {
     </div>
   `;
 
-  document.body.appendChild(modal);
+  // Remove placeholder before appending real modal
+    document.getElementById('expertProfileModal')?.remove();
+    document.body.appendChild(modal);
+   
   markAllRead(); // auto mark as read when opened
 }
 
