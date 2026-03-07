@@ -1115,4 +1115,57 @@ body.dark-mode {
 .dash-tab { cursor: pointer; }
 .role-card { cursor: pointer; }
 .feature-card { cursor: pointer; }
+
 </style>
+/* ── HOW IT WORKS ── */
+.hiw-hero { text-align:center; padding:56px 24px 36px; background:var(--bg-gray); position:relative; overflow:hidden; }
+.hiw-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle,rgba(252,128,25,0.1),transparent 70%); pointer-events:none; }
+.hiw-eyebrow { display:inline-block; font-size:11px; font-weight:700; letter-spacing:2px; color:var(--primary); text-transform:uppercase; background:rgba(252,128,25,0.1); padding:5px 14px; border-radius:20px; margin-bottom:14px; }
+.hiw-title { font-size:34px; font-weight:900; color:var(--text); line-height:1.15; margin-bottom:12px; }
+.hiw-title em { font-style:italic; color:var(--primary); }
+.hiw-subtitle { font-size:15px; color:var(--text-muted); max-width:340px; margin:0 auto 28px; line-height:1.6; }
+.hiw-toggle { display:inline-flex; background:#fff; border:1.5px solid var(--border); border-radius:14px; padding:4px; gap:4px; }
+.hiw-toggle button { padding:10px 22px; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.25s; background:transparent; color:var(--text-muted); font-family:inherit; }
+.hiw-toggle button.active { background:var(--primary); color:#fff; box-shadow:0 4px 14px rgba(252,128,25,0.35); }
+.hiw-steps-wrap { padding:36px 20px 20px; max-width:540px; margin:0 auto; }
+.hiw-step { display:flex; gap:0; margin-bottom:8px; opacity:0; transform:translateY(20px); animation:hiwUp 0.5s forwards; }
+.hiw-step:nth-child(1){animation-delay:0.05s}
+.hiw-step:nth-child(2){animation-delay:0.15s}
+.hiw-step:nth-child(3){animation-delay:0.25s}
+.hiw-step:nth-child(4){animation-delay:0.35s}
+@keyframes hiwUp { to { opacity:1; transform:translateY(0); } }
+.hiw-step-left { display:flex; flex-direction:column; align-items:center; width:44px; flex-shrink:0; padding-top:2px; }
+.hiw-step-num { width:38px; height:38px; border-radius:50%; background:var(--primary); color:#fff; font-size:17px; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(252,128,25,0.4); z-index:1; flex-shrink:0; }
+.hiw-step-line { width:2px; flex:1; min-height:16px; background:linear-gradient(to bottom,rgba(252,128,25,0.35),rgba(252,128,25,0.03)); margin:5px 0; }
+.hiw-step:last-child .hiw-step-line { display:none; }
+.hiw-step-card { flex:1; margin-left:14px; margin-bottom:24px; border-radius:18px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.1); transition:transform 0.2s,box-shadow 0.2s; }
+.hiw-step-card:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,0.15); }
+.hiw-photo-strip { position:relative; height:320px; overflow:hidden; border-radius:18px; }
+.hiw-photo-strip img { width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
+.hiw-photo-strip::after { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0.35) 50%,rgba(0,0,0,0.05) 100%); pointer-events:none; }
+.hiw-photo-badge { position:absolute; top:12px; left:12px; background:rgba(255,255,255,0.92); border-radius:20px; padding:5px 11px; font-size:11px; font-weight:700; color:var(--text); box-shadow:0 2px 8px rgba(0,0,0,0.12); display:flex; align-items:center; gap:5px; backdrop-filter:blur(4px); z-index:2; }
+.hiw-photo-badge-dot { width:7px; height:7px; border-radius:50%; }
+.hiw-people-row { position:absolute; top:12px; right:12px; display:flex; z-index:2; }
+.hiw-people-row img { width:28px; height:28px; border-radius:50%; border:2px solid #fff; object-fit:cover; margin-left:-7px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+.hiw-people-row img:first-child { margin-left:0; }
+.hiw-people-count { width:28px; height:28px; border-radius:50%; border:2px solid #fff; background:var(--primary); color:#fff; font-size:9px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-left:-7px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+.hiw-overlay-text { position:absolute; bottom:0; left:0; right:0; padding:20px 18px 20px; z-index:2; }
+.hiw-step-tag { font-size:10px; font-weight:700; letter-spacing:1.8px; text-transform:uppercase; color:rgba(255,255,255,0.7); margin-bottom:5px; }
+.hiw-step-title { font-size:19px; font-weight:800; color:#fff; margin-bottom:7px; line-height:1.2; text-shadow:0 1px 6px rgba(0,0,0,0.3); }
+.hiw-step-desc { font-size:13px; color:rgba(255,255,255,0.88); line-height:1.6; }
+.hiw-step-pills { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; }
+.hiw-pill { font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,0.18); color:#fff; backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,0.2); }
+.hiw-pill.accent { background:rgba(252,128,25,0.85); color:#fff; border-color:transparent; }
+.hiw-cta { text-align:center; padding:16px 24px 60px; background:var(--bg-gray); }
+.hiw-cta-inner { max-width:420px; margin:0 auto; background:var(--text); border-radius:22px; padding:32px 28px; position:relative; overflow:hidden; }
+.hiw-cta-inner::before { content:''; position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; background:rgba(252,128,25,0.18); pointer-events:none; }
+.hiw-cta-faces { display:flex; justify-content:center; margin-bottom:16px; }
+.hiw-cta-faces img { width:44px; height:44px; border-radius:50%; border:3px solid #2a2018; object-fit:cover; margin-left:-10px; }
+.hiw-cta-faces img:first-child { margin-left:0; }
+.hiw-cta-title { font-size:26px; font-weight:900; color:#fff; margin-bottom:8px; line-height:1.2; position:relative; }
+.hiw-cta-title em { font-style:italic; color:var(--primary); }
+.hiw-cta-sub { font-size:13.5px; color:rgba(255,255,255,0.6); margin-bottom:22px; line-height:1.5; position:relative; }
+.hiw-cta-btn { width:100%; padding:15px; background:var(--primary); color:#fff; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 6px 20px rgba(252,128,25,0.45); transition:transform 0.15s,box-shadow 0.15s; position:relative; }
+.hiw-cta-btn:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(252,128,25,0.55); }
+.hiw-trust { display:flex; justify-content:center; gap:16px; margin-top:14px; flex-wrap:wrap; }
+.hiw-trust-item { font-size:11.5px; color:rgba(255,255,255,0.45); }
