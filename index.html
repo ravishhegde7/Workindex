@@ -213,81 +213,251 @@
     <button class="btn-primary" onclick="showPage('auth')">Get Started</button>
   </div>
 
-  <div style="padding: 20px; max-width: 800px; margin: 0 auto;">
-    <h1 class="section-title">How It Works</h1>
-    <p class="section-subtitle">Simple, transparent, and secure</p>
-
-    <div class="auth-toggle" style="max-width: 400px; margin: 40px auto;">
-      <button class="active" onclick="showHowItWorks('client')">For Customers</button>
-      <button onclick="showHowItWorks('expert')">For Professionals</button>
-    </div>
-
-    <div id="clientSteps" class="steps-container">
-      <div class="step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h3>Post Your Requirement</h3>
-          <p>Tell us what you need. Fill a simple form about your project or requirement. It takes less than 2 minutes.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h3>Get Expert Approaches</h3>
-          <p>Verified professionals will review your requirement and send you personalized approaches with quotes.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <div class="step-content">
-          <h3>Choose & Hire</h3>
-          <p>Review profiles, ratings, and quotes. Choose the best expert and start working together.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">4</div>
-        <div class="step-content">
-          <h3>Rate Your Experience</h3>
-          <p>After work completion, rate and review the expert to help others make informed decisions.</p>
-        </div>
-      </div>
-    </div>
-
-    <div id="expertSteps" class="steps-container" style="display: none;">
-      <div class="step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h3>Complete Your Profile</h3>
-          <p>Sign up and build your professional profile with your skills, experience, and certifications.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h3>Browse Client Requests</h3>
-          <p>See all available projects matching your expertise. Read detailed requirements and client questionnaires.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <div class="step-content">
-          <h3>Send Approaches</h3>
-          <p>Spend credits to unlock client contact details and send personalized proposals with your quote.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-number">4</div>
-        <div class="step-content">
-          <h3>Get Hired & Earn</h3>
-          <p>Build your reputation with 5-star ratings and grow your client base on WorkIndex.</p>
-        </div>
-      </div>
-    </div>
-
-    <div style="text-align: center; margin-top: 40px;">
-      <button class="hero-btn hero-btn-primary" onclick="showPage('auth')">Get Started Now</button>
+  <!-- HERO -->
+  <div class="hiw-hero">
+    <div class="hiw-eyebrow">How It Works</div>
+    <h1 class="hiw-title">Get things done,<br><em>the smarter way</em></h1>
+    <p class="hiw-subtitle">A few simple steps to find the right expert — or land your next client.</p>
+    <div class="hiw-toggle">
+      <button class="active" id="hiwToggleClient" onclick="showHowItWorks('client')">👤 For Customers</button>
+      <button id="hiwToggleExpert" onclick="showHowItWorks('expert')">💼 For Professionals</button>
     </div>
   </div>
+
+  <!-- CLIENT STEPS -->
+  <div id="clientSteps" class="hiw-steps-wrap">
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">1</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80&fit=crop" alt="Woman posting requirement">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#10b981;"></div> Free to post</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+2k</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 1</div>
+            <h3 class="hiw-step-title">Post your requirement</h3>
+            <p class="hiw-step-desc">Tell us what you need in under 2 minutes. No calls, no hassle — just a quick form and you're done.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">⚡ 2 min setup</span>
+              <span class="hiw-pill">100% free</span>
+              <span class="hiw-pill">No commitment</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">2</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=600&q=80&fit=crop" alt="Expert reviewing proposals">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#FC8019;"></div> Verified experts</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+5k</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 2</div>
+            <h3 class="hiw-step-title">Experts come to you</h3>
+            <p class="hiw-step-desc">Verified professionals send personalised approaches with custom quotes. You sit back, compare, and choose.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">✅ Verified pros only</span>
+              <span class="hiw-pill">Custom quotes</span>
+              <span class="hiw-pill">No cold calls</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">3</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80&fit=crop" alt="Client and expert connecting">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#3b82f6;"></div> Your choice, your terms</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+1k</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 3</div>
+            <h3 class="hiw-step-title">Pick the right fit & hire</h3>
+            <p class="hiw-step-desc">Browse profiles, real ratings, and quotes side by side. Chat directly and hire whoever feels right.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">⭐ Real reviews</span>
+              <span class="hiw-pill">Full profiles</span>
+              <span class="hiw-pill">Direct contact</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">4</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1654110455429-cf322b40a906?w=600&q=80&fit=crop" alt="Happy customer leaving review">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#a855f7;"></div> Help others decide</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+8k</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 4</div>
+            <h3 class="hiw-step-title">Share your experience</h3>
+            <p class="hiw-step-desc">Once the work is done, leave an honest review. Your feedback helps thousands find the right professional.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">🌟 Build trust</span>
+              <span class="hiw-pill">Help others</span>
+              <span class="hiw-pill">Grow together</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EXPERT STEPS -->
+  <div id="expertSteps" class="hiw-steps-wrap" style="display:none;">
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">1</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1619895862022-09114b41f16f?w=600&q=80&fit=crop" alt="Professional building profile">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#10b981;"></div> Free to join</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+3k</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 1</div>
+            <h3 class="hiw-step-title">Build your professional profile</h3>
+            <p class="hiw-step-desc">Showcase your skills, experience, and certifications. A complete profile builds instant client trust.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">🛡️ KYC verified badge</span>
+              <span class="hiw-pill">Free to join</span>
+              <span class="hiw-pill">50 free credits</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">2</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80&fit=crop" alt="Expert browsing client requests">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#FC8019;"></div> Live projects daily</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+200</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 2</div>
+            <h3 class="hiw-step-title">Browse real client requests</h3>
+            <p class="hiw-step-desc">See live projects matched to your expertise. Read full briefs, understand the need, and pick what fits.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">🎯 Skill-matched projects</span>
+              <span class="hiw-pill">Full brief access</span>
+              <span class="hiw-pill">Real budgets</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">3</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=600&q=80&fit=crop" alt="Expert sending proposal">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#3b82f6;"></div> Stand out instantly</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+500</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 3</div>
+            <h3 class="hiw-step-title">Send a winning approach</h3>
+            <p class="hiw-step-desc">Use credits to unlock contact details and send a personalised proposal. A great message gets you hired.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">💎 Credit-based access</span>
+              <span class="hiw-pill">Custom quotes</span>
+              <span class="hiw-pill">Direct to client</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hiw-step">
+      <div class="hiw-step-left"><div class="hiw-step-num">4</div><div class="hiw-step-line"></div></div>
+      <div class="hiw-step-card">
+        <div class="hiw-photo-strip">
+          <img src="https://images.unsplash.com/photo-1556157382-97eda2f9e2bf?w=600&q=80&fit=crop" alt="Expert growing reputation">
+          <div class="hiw-photo-badge"><div class="hiw-photo-badge-dot" style="background:#a855f7;"></div> Grow your reputation</div>
+          <div class="hiw-people-row">
+            <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face" alt="">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80&fit=crop&crop=face" alt="">
+            <div class="hiw-people-count">+10k</div>
+          </div>
+          <div class="hiw-overlay-text">
+            <div class="hiw-step-tag">Step 4</div>
+            <h3 class="hiw-step-title">Get hired & grow your reputation</h3>
+            <p class="hiw-step-desc">Deliver great work, earn 5-star reviews, and climb the rankings. More visibility means more clients finding you.</p>
+            <div class="hiw-step-pills">
+              <span class="hiw-pill accent">🚀 Organic growth</span>
+              <span class="hiw-pill">5-star ratings</span>
+              <span class="hiw-pill">Repeat clients</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CTA -->
+  <div class="hiw-cta">
+    <div class="hiw-cta-inner">
+      <div class="hiw-cta-faces">
+        <img src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=100&q=80&fit=crop&crop=face" alt="">
+        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80&fit=crop&crop=face" alt="">
+        <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80&fit=crop&crop=face" alt="">
+        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=80&fit=crop&crop=face" alt="">
+        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80&fit=crop&crop=face" alt="">
+      </div>
+      <h2 class="hiw-cta-title">Real people.<br><em>Real results.</em></h2>
+      <p class="hiw-cta-sub">Customers finding the right expert. Professionals landing great clients. Every single day.</p>
+      <button class="hiw-cta-btn" onclick="showPage('auth')">Get Started — It's Free</button>
+      <div class="hiw-trust">
+        <span class="hiw-trust-item">✅ No credit card</span>
+        <span class="hiw-trust-item">🔒 Secure & private</span>
+        <span class="hiw-trust-item">⚡ Live in minutes</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- PRICING PAGE -->
