@@ -7,6 +7,202 @@
 <meta name="description" content="WorkIndex - Find verified professionals for any service. Connect with expert CAs, GST consultants, photographers, developers and more."/>
 <title>WorkIndex - Find Verified Professionals</title>
 <link rel="stylesheet" href="styles.css">
+<style>
+/* ═══ TRENDING SERVICES ═══ */
+.trending-services-section {
+  padding: 60px 20px 40px;
+  background: #fff;
+}
+.ts-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.ts-eyebrow {
+  display: inline-block;
+  background: rgba(252,128,25,0.1);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  letter-spacing: 0.5px;
+}
+.ts-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 10px;
+}
+.ts-subtitle {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.ts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.ts-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.ts-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}
+.ts-card-img {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+}
+.ts-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.ts-card:hover .ts-card-img img {
+  transform: scale(1.04);
+}
+.ts-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.45));
+}
+.ts-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+.ts-badge-blue  { background: #3b82f6; }
+.ts-badge-green { background: #10b981; }
+.ts-badge-purple{ background: #8b5cf6; }
+.ts-card-body {
+  padding: 18px 18px 20px;
+}
+.ts-card-icon {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+.ts-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.ts-card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+.ts-card-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.ts-meta-chip {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg-gray);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.ts-cta-btn {
+  width: 100%;
+  padding: 11px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ts-cta-btn:hover { background: #e87010; }
+
+/* ═══ REQUEST CONFIRMATION PAGE ═══ */
+.req-confirm-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--bg);
+}
+.req-confirm-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(16,185,129,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+  margin: 0 auto 24px;
+}
+.req-confirm-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 12px;
+}
+.req-confirm-sub {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0 0 32px;
+  line-height: 1.6;
+  max-width: 320px;
+}
+.req-confirm-card {
+  background: var(--bg-gray);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 28px;
+  width: 100%;
+  max-width: 360px;
+  text-align: left;
+}
+.req-confirm-card-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.req-confirm-card-row:last-child { margin-bottom: 0; }
+.req-confirm-card-row span:first-child {
+  font-size: 18px;
+}
+.req-confirm-card-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.req-confirm-card-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+</style>
 </head>
 <body>
 
