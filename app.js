@@ -862,7 +862,13 @@ async function loadNotifications() {
     return [];
   }
 }
-
+// ─── MODAL GUARD UTILITY ───
+function isModalOpen(id) {
+  return !!document.getElementById(id);
+}
+function removeModal(id) {
+  document.getElementById(id)?.remove();
+}
 async function openNotifications() {
   // Guard — prevent stacking
   if (document.getElementById('notificationsModal')) return;
