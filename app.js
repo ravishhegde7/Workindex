@@ -309,7 +309,7 @@ async function loadDocuments() {
   }
 }
 // ─── PAGINATION UTILITY ───
-const PAGE_SIZE = window.innerWidth <= 768 ? 5 : 8;
+var PAGE_SIZE = window.innerWidth <= 768 ? 5 : 8;
 
 function renderPagination(containerId, totalItems, currentPage, onPageChange) {
   const totalPages = Math.ceil(totalItems / PAGE_SIZE);
