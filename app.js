@@ -4552,4 +4552,123 @@ async function confirmInviteComplete(notifId, expertId, expertName) {
     showToast('Error: ' + err.message, 'error');
   }
 }
+// ═══════════════════════════════════════════════════════════
+//  PAGINATION SYSTEM v1.0
+//  Sections: clientRequests, expertBrowse, expertApproaches, findExperts
+//  Style: Numbered pages only | 8 per page
+// ═══════════════════════════════════════════════════════════
+
+const PAGINATION = {
+  clientRequests:   { page: 1, perPage: 8 },
+  expertBrowse:     { page: 1, perPage: 8 },
+  expertApproaches: { page: 1, perPage: 8 },
+  findExperts:      { page: 1, perPage: 8 },
+};
+
+function paginate(items, section) {
+  const { page, perPage } = PAGINATION[section];
+  const start = (page - 1) * perPage;
+  return items.slice(start, start + perPage);
+}
+
+function paginationControlsHTML(items, section) {
+  const { page, perPage } = PAGINATION[section];
+  const totalPages = Math.ceil(items.length / perPage);
+  if (totalPages <= 1) return '';
+
+  const start = (page - 1) * perPage + 1;
+  const end   = Math.min(page * perPage, items.length);
+
+  // Smart ellipsis: always show first, last, and ±2 around current
+  const delta = 2;
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - delta && i <= page + delta)) {
+      range.push(i);
+    }
+  }
+
+  for (let i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1); // fill single gap
+      } else if (i - l > 2) {
+        rangeWithDots.push('…');
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  }
+
+  const buttons = rangeWithDots.map(i => {
+    if (i === '…') {
+      return `<span style="padding:0 6px;color:var(--text-muted);line-height:36px;">…</span>`;
+    }
+    const isActive = i === page;
+    return `
+      <button
+        onclick="changePage('${section}', ${i})"
+        style="
+          width:36px;height:36px;
+          border:1.5px solid ${isActive ? 'var(--primary)' : 'var(--border)'};
+          border-radius:8px;
+          background:${isActive ? 'var(--primary)' : 'var(--bg)'};
+          color:${isActive ? '#fff' : 'var(--text)'};
+          font-size:14px;
+          font-weight:${isActive ? '700' : '500'};
+          cursor:pointer;
+          transition:all 0.15s;
+        ">
+        ${i}
+      </button>`;
+  }).join('');
+
+  return `
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);">
+      <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:10px;">
+        Showing <strong>${start}–${end}</strong> of <strong>${items.length}</strong>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;">
+        ${buttons}
+      </div>
+    </div>`;
+}
+
+function changePage(section, newPage) {
+  const items = getItemsForSection(section);
+  const totalPages = Math.ceil(items.length / PAGINATION[section].perPage);
+  if (newPage < 1 || newPage > totalPages) return;
+
+  PAGINATION[section].page = newPage;
+
+  const renderers = {
+    clientRequests:   renderClientRequests,
+    expertBrowse:     renderAvailableRequests,
+    expertApproaches: () => renderMyApproaches([]),
+    findExperts:      renderExperts,
+  };
+  if (renderers[section]) renderers[section]();
+
+  const scrollTargets = {
+    clientRequests:   'requestsList',
+    expertBrowse:     'browseTab',
+    expertApproaches: 'approachesList',
+    findExperts:      'expertGrid',
+  };
+  const el = document.getElementById(scrollTargets[section]);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function getItemsForSection(section) {
+  const map = {
+    clientRequests:   () => state.requests || [],
+    expertBrowse:     () => state.availableRequests || [],
+    expertApproaches: () => state.myApproaches || [],
+    findExperts:      () => state.experts || [],
+  };
+  return (map[section] || (() => []))();
+}
 // ═══ END OF JAVASCRIPT ═══
