@@ -4615,4 +4615,8 @@ async function confirmInviteComplete(notifId, expertId, expertName) {
     showToast('Error: ' + err.message, 'error');
   }
 }
+// ─── EXPOSE PAGINATION FUNCTIONS TO WINDOW ───
+window.renderClientRequests = renderClientRequests;
+window.renderExperts = renderExperts;
+window.changeApproachesPage = changeApproachesPage;
 // ═══ END OF JAVASCRIPT ═══
