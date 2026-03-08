@@ -2210,11 +2210,45 @@ function renderMyApproaches(interests = []) {
     rejected: 'badge-danger'
   };
 
+  const total = state.myApproaches.length;
+  const start = (approachesPage - 1) * PAGE_SIZE;
+  const pageItems = state.myApproaches.slice(start, start + PAGE_SIZE);
+
+  const statusColors = {
+    pending: 'badge-warning', accepted: 'badge-success', rejected: 'badge-danger'
+  };
+
   container.innerHTML = interestHTML + `
-    <h3 style="font-size:16px; font-weight:700; color:var(--text); margin-bottom:12px;">
-      📨 My Approaches (${state.myApproaches.length})
+    <h3 style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:12px;">
+      📨 My Approaches (${total})
     </h3>
-  ` + state.myApproaches.map(app => {
+  ` + pageItems.map(app => {
+    const req = app.request;
+    if (!req) return '';
+    return `
+      <div class="request-card" style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;cursor:pointer;" onclick="showMyApproachDetail('${app._id}')">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+          <div style="flex:1;">
+            <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">${req.title || 'Request'}</h3>
+            <p style="font-size:14px;color:var(--text-muted);">${(req.service || '').toUpperCase()}</p>
+          </div>
+          <span class="badge ${statusColors[app.status] || 'badge-warning'}">${(app.status || 'pending').toUpperCase()}</span>
+        </div>
+        <p style="font-size:14px;color:var(--text-light);margin-bottom:12px;">${req.description || ''}</p>
+        <div style="display:flex;gap:20px;font-size:13px;color:var(--text-muted);">
+          <span>💰 ${app.creditsSpent || 0} credits spent</span>
+          <span>📅 ${new Date(app.createdAt).toLocaleDateString()}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.innerHTML += renderPagination('approachesList', total, approachesPage, 'changeApproachesPage');
+}
+
+function changeApproachesPage(page) {
+  approachesPage = page;
+  renderMyApproaches();
+}
     const req = app.request;
     if (!req) return '';
     return `
