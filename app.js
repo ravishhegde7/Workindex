@@ -2172,7 +2172,7 @@ function renderMyApproaches(interests = []) {
         </div>
       </div>
     `;
-  }).join('');
+  }).join('') + paginationControlsHTML(allApproaches, 'expertApproaches');
 }
 // ─── SHOW APPROACH DETAIL WITH CONTACT INFO ───
 async function showMyApproachDetail(approachId) {
