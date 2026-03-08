@@ -21,6 +21,12 @@ const state = {
   myApproaches: []  // ← NEW: Store expert's approaches
 };
 
+// ─── PAGINATION STATE ───
+const PAGE_SIZE = window.innerWidth <= 768 ? 5 : 8;
+let clientRequestsPage = 1;
+let expertsPage = 1;
+let approachesPage = 1;
+
 // ─── DARK MODE ─── 
 function initDarkMode() {
   const isDark = localStorage.getItem('darkMode') === 'true';
