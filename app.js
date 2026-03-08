@@ -964,57 +964,42 @@ async function loadExperts(filters = {}) {
 
 function renderExperts() {
   const grid = document.getElementById('expertGrid');
-  
-  grid.innerHTML = state.experts.map(expert => `
+  if (!grid) return;
+
+  const allExperts = state.experts || [];
+  const items = paginate(allExperts, 'findExperts');
+
+  grid.innerHTML = items.map(expert => `
     <div class="expert-card" onclick="viewExpertProfile('${expert._id}')">
       <div class="expert-card-header">
         <div class="avatar avatar-lg">
-          ${expert.profilePhoto ? 
-            `<img src="${expert.profilePhoto}" alt="${expert.name}">` : 
-            expert.name.substring(0, 2).toUpperCase()
-          }
+          ${expert.profilePhoto
+            ? `<img src="${expert.profilePhoto}" alt="${expert.name}">`
+            : expert.name.substring(0, 2).toUpperCase()}
         </div>
         <div class="expert-card-info">
           <div class="expert-card-name">${expert.name}</div>
           <div class="expert-card-specialty">${expert.specialization || 'Professional'}</div>
         </div>
       </div>
-      
       <div class="expert-card-rating">
-        <div class="rating-stars">
-          ${renderStars(Math.floor(expert.rating || 0))}
-        </div>
-        <span style="font-size: 14px; color: var(--text-muted);">
+        <div class="rating-stars">${renderStars(Math.floor(expert.rating || 0))}</div>
+        <span style="font-size:14px;color:var(--text-muted);">
           ${expert.rating || '0.0'} (${expert.reviewCount || 0} reviews)
         </span>
       </div>
-      
-      ${expert.bio ? `
-        <div class="expert-card-bio">${expert.bio}</div>
-      ` : ''}
-      
-      ${expert.servicesOffered && expert.servicesOffered.length > 0 ? `
+      ${expert.bio ? `<div class="expert-card-bio">${expert.bio}</div>` : ''}
+      ${expert.servicesOffered?.length ? `
         <div class="expert-card-tags">
-          ${expert.servicesOffered.slice(0, 3).map(service => 
-            `<span class="badge badge-primary">${service}</span>`
-          ).join('')}
-        </div>
-      ` : ''}
-      
+          ${expert.servicesOffered.slice(0, 3).map(s => `<span class="badge badge-primary">${s}</span>`).join('')}
+        </div>` : ''}
       <div class="expert-card-footer">
-        ${expert.location ? `
-          <div class="expert-location">
-            📍 ${expert.location.city || 'India'}
-          </div>
-        ` : ''}
-        <button class="btn-primary" style="padding: 8px 16px; font-size: 14px;">
-          View Profile
-        </button>
+        ${expert.location ? `<div class="expert-location">📍 ${expert.location.city || 'India'}</div>` : ''}
+        <button class="btn-primary" style="padding:8px 16px;font-size:14px;">View Profile</button>
       </div>
     </div>
-  `).join('');
+  `).join('') + paginationControlsHTML(allExperts, 'findExperts');
 }
-
 function filterExperts(service) {
   // Update active filter chip
   document.querySelectorAll('.filter-chip').forEach(chip => {
