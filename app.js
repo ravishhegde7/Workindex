@@ -299,6 +299,43 @@ async function loadDocuments() {
     console.error('Load documents error:', error);
   }
 }
+// ─── PAGINATION UTILITY ───
+const PAGE_SIZE = window.innerWidth <= 768 ? 5 : 8;
+
+function renderPagination(containerId, totalItems, currentPage, onPageChange) {
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  if (totalPages <= 1) return '';
+
+  let buttons = '';
+  for (let i = 1; i <= totalPages; i++) {
+    const isActive = i === currentPage;
+    buttons += `
+      <button onclick="${onPageChange}(${i})"
+        style="width:36px;height:36px;border-radius:8px;border:1.5px solid ${isActive ? 'var(--primary)' : 'var(--border)'};
+        background:${isActive ? 'var(--primary)' : 'var(--bg)'};color:${isActive ? '#fff' : 'var(--text)'};
+        font-size:14px;font-weight:${isActive ? '700' : '400'};cursor:pointer;">
+        ${i}
+      </button>`;
+  }
+
+  return `
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:20px 0;flex-wrap:wrap;">
+      <button onclick="${onPageChange}(${Math.max(1, currentPage - 1)})"
+        style="padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);
+        color:var(--text);font-size:13px;font-weight:600;cursor:pointer;${currentPage === 1 ? 'opacity:0.4;pointer-events:none;' : ''}">
+        ← Prev
+      </button>
+      ${buttons}
+      <button onclick="${onPageChange}(${Math.min(totalPages, currentPage + 1)})"
+        style="padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);
+        color:var(--text);font-size:13px;font-weight:600;cursor:pointer;${currentPage === totalPages ? 'opacity:0.4;pointer-events:none;' : ''}">
+        Next →
+      </button>
+    </div>
+    <div style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:-12px;padding-bottom:8px;">
+      Showing ${Math.min((currentPage-1)*PAGE_SIZE+1, totalItems)}–${Math.min(currentPage*PAGE_SIZE, totalItems)} of ${totalItems}
+    </div>`;
+}
 
 function renderDocuments() {
   const container = document.getElementById('documentsList');
