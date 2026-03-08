@@ -2209,11 +2209,6 @@ function renderMyApproaches(interests = []) {
     return;
   }
 
-  let statusColors = {
-    pending: 'badge-warning',
-    accepted: 'badge-success',
-    rejected: 'badge-danger'
-  };
 
   const total = state.myApproaches.length;
   const start = (approachesPage - 1) * PAGE_SIZE;
