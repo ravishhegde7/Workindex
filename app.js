@@ -1502,70 +1502,61 @@ async function loadClientData() {
 }
 
 // ─── RENDER CLIENT REQUESTS ───
-function renderClientRequests() {
+function renderClientRequests(page = clientRequestsPage) {
+  clientRequestsPage = page;
   const container = document.getElementById('requestsList');
   if (!container) return;
-  
+
   if (!state.requests || state.requests.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">📋</div>
         <h3 class="empty-title">No requests yet</h3>
         <p class="empty-text">Click "+ New Request" above to post your first request</p>
-      </div>
-    `;
+      </div>`;
     return;
   }
-  
-  container.innerHTML = state.requests.map(req => {
-    const statusColors = {
-      pending: 'badge-warning',
-      active: 'badge-primary',
-      completed: 'badge-success',
-      cancelled: 'badge-danger'
-    };
-    
-    const statusLabels = {
-      pending: 'Pending',
-      active: 'Active',
-      completed: 'Completed',
-      cancelled: 'Cancelled'
-    };
-    
-    // ✅ NEW: Get client name
+
+  const total = state.requests.length;
+  const start = (page - 1) * PAGE_SIZE;
+  const pageItems = state.requests.slice(start, start + PAGE_SIZE);
+
+  const statusColors = {
+    pending: 'badge-warning', active: 'badge-primary',
+    completed: 'badge-success', cancelled: 'badge-danger'
+  };
+  const statusLabels = {
+    pending: 'Pending', active: 'Active',
+    completed: 'Completed', cancelled: 'Cancelled'
+  };
+
+  container.innerHTML = pageItems.map(req => {
     const clientName = req.client?.name || state.user?.name || 'You';
-    
     return `
-      <div class="request-card" style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; cursor: pointer;" onclick="showRequestDetail('${req._id}')">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-          <div style="flex: 1;">
-            <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${req.title}</h3>
-            <p style="font-size: 14px; color: var(--text-muted);">${req.service.toUpperCase()}</p>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
-              Posted by: <strong>${clientName}</strong>
-            </p>
+      <div class="request-card" style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;cursor:pointer;" onclick="showRequestDetail('${req._id}')">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+          <div style="flex:1;">
+            <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">${req.title}</h3>
+            <p style="font-size:14px;color:var(--text-muted);">${req.service.toUpperCase()}</p>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">Posted by: <strong>${clientName}</strong></p>
           </div>
           <span class="badge ${statusColors[req.status] || 'badge-warning'}">${statusLabels[req.status] || 'Pending'}</span>
         </div>
-        
-        <p style="font-size: 14px; color: var(--text-light); margin-bottom: 16px; line-height: 1.5;">${req.description || 'No description'}</p>
-        
-        <div style="display: flex; gap: 20px; font-size: 13px; color: var(--text-muted);">
+        <p style="font-size:14px;color:var(--text-light);margin-bottom:16px;line-height:1.5;">${req.description || 'No description'}</p>
+        <div style="display:flex;gap:20px;font-size:13px;color:var(--text-muted);">
           <span>📍 ${req.location || 'Not specified'}</span>
           <span>💰 ₹${req.budget ? req.budget.toLocaleString('en-IN') : 'Not set'}</span>
           <span>👁️ ${req.viewCount || 0} views</span>
         </div>
-        
         ${(req.approachCount && req.approachCount > 0) ? `
-          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
-            <span style="font-size: 13px; font-weight: 600; color: var(--primary);">${req.approachCount} professional${req.approachCount > 1 ? 's' : ''} approached</span>
-          </div>
-        ` : ''}
-      </div>
-    `;
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            <span style="font-size:13px;font-weight:600;color:var(--primary);">${req.approachCount} professional${req.approachCount > 1 ? 's' : ''} approached</span>
+          </div>` : ''}
+      </div>`;
   }).join('');
-}
 
+  container.innerHTML += renderPagination('requestsList', total, page, 'renderClientRequests');
+}
 // ─── UPDATE CLIENT PROFILE ───
 function updateClientProfile() {
   const user = state.user;
