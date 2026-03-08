@@ -1594,81 +1594,69 @@ async function loadExpertData() {
 function renderAvailableRequests() {
   const container = document.getElementById('browseTab');
   if (!container) return;
-  
-  if (!state.availableRequests || state.availableRequests.length === 0) {
+
+  const allRequests = state.availableRequests || [];
+
+  if (!allRequests.length) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">🔍</div>
         <h3 class="empty-title">No requests available</h3>
         <p class="empty-text">New requests will appear here</p>
-      </div>
-    `;
+      </div>`;
     return;
   }
-  
-  container.innerHTML = state.availableRequests.map(req => {
-    // ✅ NEW: Calculate approach progress
-    const currentApproaches = req.currentApproaches || 0;
-    const maxApproaches = req.maxApproaches || 5;
-    const progressPercent = (currentApproaches / maxApproaches) * 100;
-    const spotsLeft = maxApproaches - currentApproaches;
-    
-    // Color based on how full it is
-    const progressColor = currentApproaches >= 4 ? '#f39c12' : 
-                          currentApproaches >= 3 ? '#3498db' : 
-                          'var(--primary)';
-    
-    return `
-      <div class="request-card" style="background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-          <div style="flex: 1;">
-            <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${req.title}</h3>
-<p style="font-size: 14px; color: var(--text-muted);">${req.service.toUpperCase()}</p>
-<p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">👤 <strong>${req.client?.name || 'Client'}</strong></p>
-          </div>
-          <span class="badge badge-primary">${req.credits || 20} credits</span>
-        </div>
-        
-        <p style="font-size: 14px; color: var(--text-light); margin-bottom: 16px; line-height: 1.5;">${req.description}</p>
-        
-        <div style="display: flex; gap: 20px; font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-          <span>📍 ${req.location || 'Online'}</span>
-          <span>💰 ₹${req.budget ? req.budget.toLocaleString('en-IN') : 'Budget negotiable'}</span>
-          <span>⏱️ ${req.timeline || 'Flexible'}</span>
-        </div>
-        
-        <div style="margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">
-              👥 Approaches
-            </span>
-            <span style="font-size: 14px; font-weight: 700; color: ${progressColor};">
-              ${currentApproaches}/${maxApproaches}
-            </span>
-          </div>
-          <div style="height: 8px; background: var(--bg-gray); border-radius: 4px; overflow: hidden; margin-bottom: 4px;">
-            <div style="height: 100%; width: ${progressPercent}%; background: ${progressColor}; transition: width 0.3s;"></div>
-          </div>
-          ${currentApproaches >= 4 ? `
-            <div style="font-size: 12px; color: #e74c3c; font-weight: 600;">
-              ⚠️ Only ${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left!
-            </div>
-          ` : currentApproaches >= 3 ? `
-            <div style="font-size: 12px; color: #f39c12;">
-              ${spotsLeft} spots remaining
-            </div>
-          ` : ''}
-        </div>
-        
-        <div style="display: flex; gap: 12px;">
-          <button onclick="showExpertRequestDetail('${req._id}')" style="flex: 1; padding: 12px; border: 1.5px solid var(--primary); border-radius: 10px; background: transparent; color: var(--primary); font-size: 14px; font-weight: 600; cursor: pointer;">View Details</button>
-          <button onclick="approachClient('${req._id}')" style="flex: 1; padding: 12px; border: none; border-radius: 10px; background: var(--primary); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;">Approach Client</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
 
+  const items = paginate(allRequests, 'expertBrowse');
+
+  container.innerHTML = '<h2 style="margin-bottom:20px;">Available Requests</h2>' +
+    items.map(req => {
+      const cur  = req.currentApproaches || 0;
+      const max  = req.maxApproaches || 5;
+      const pct  = (cur / max) * 100;
+      const left = max - cur;
+      const col  = cur >= 4 ? '#f39c12' : cur >= 3 ? '#3498db' : 'var(--primary)';
+
+      return `
+        <div class="request-card" style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+            <div style="flex:1;">
+              <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">${req.title}</h3>
+              <p style="font-size:14px;color:var(--text-muted);">${req.service.toUpperCase()}</p>
+              <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">👤 <strong>${req.client?.name || 'Client'}</strong></p>
+            </div>
+            <span class="badge badge-primary">${req.credits || 20} credits</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-light);margin-bottom:16px;line-height:1.5;">${req.description}</p>
+          <div style="display:flex;gap:20px;font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+            <span>📍 ${req.location || 'Online'}</span>
+            <span>💰 ₹${req.budget ? req.budget.toLocaleString('en-IN') : 'Budget negotiable'}</span>
+            <span>⏱️ ${req.timeline || 'Flexible'}</span>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:13px;font-weight:600;color:var(--text-muted);">👥 Approaches</span>
+              <span style="font-size:14px;font-weight:700;color:${col};">${cur}/${max}</span>
+            </div>
+            <div style="height:8px;background:var(--bg-gray);border-radius:4px;overflow:hidden;margin-bottom:4px;">
+              <div style="height:100%;width:${pct}%;background:${col};transition:width 0.3s;"></div>
+            </div>
+            ${cur >= 4 ? `<div style="font-size:12px;color:#e74c3c;font-weight:600;">⚠️ Only ${left} spot${left === 1 ? '' : 's'} left!</div>`
+                       : cur >= 3 ? `<div style="font-size:12px;color:#f39c12;">${left} spots remaining</div>` : ''}
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button onclick="showExpertRequestDetail('${req._id}')"
+              style="flex:1;padding:12px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;cursor:pointer;">
+              View Details
+            </button>
+            <button onclick="approachClient('${req._id}')"
+              style="flex:1;padding:12px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
+              Approach Client
+            </button>
+          </div>
+        </div>`;
+    }).join('') + paginationControlsHTML(allRequests, 'expertBrowse');
+}
 // ─── SHOW REQUEST DETAIL FOR EXPERT ───
 async function showExpertRequestDetail(requestId) {
   const req = state.availableRequests.find(r => r._id === requestId);
