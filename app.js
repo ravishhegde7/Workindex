@@ -971,6 +971,7 @@ async function markAllRead() {
 
 // ─── FIND PROFESSIONALS ─── 
 async function loadExperts(filters = {}) {
+     expertsPage = 1; // ← add this line
   const loading = document.getElementById('expertsLoading');
   const grid = document.getElementById('expertGrid');
   const empty = document.getElementById('expertsEmpty');
