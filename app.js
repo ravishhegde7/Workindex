@@ -961,7 +961,6 @@ async function loadExperts(filters = {}) {
     empty.style.display = 'block';
   }
 }
-PAGINATION.findExperts.page = 1;
 function renderExperts() {
   const grid = document.getElementById('expertGrid');
   if (!grid) return;
@@ -1576,7 +1575,6 @@ async function loadExpertData() {
 }
 
 // ─── RENDER AVAILABLE REQUESTS FOR EXPERTS ───
-PAGINATION.expertBrowse.page = 1;
 function renderAvailableRequests() {
   const container = document.getElementById('browseTab');
   if (!container) return;
