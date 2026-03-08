@@ -1422,7 +1422,6 @@ function formatFileSize(bytes) {
 }
 
 // ─── LOAD CLIENT DATA ─── 
-PAGINATION.clientRequests.page = 1;
 async function loadClientData() {
   // Load client requests
   try {
