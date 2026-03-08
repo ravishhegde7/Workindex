@@ -2245,10 +2245,6 @@ function renderMyApproaches(interests = []) {
   container.innerHTML += renderPagination('approachesList', total, approachesPage, 'changeApproachesPage');
 }
 
-function changeApproachesPage(page) {
-  approachesPage = page;
-  renderMyApproaches();
-}
     const req = app.request;
     if (!req) return '';
     return `
@@ -4605,6 +4601,10 @@ async function confirmInviteComplete(notifId, expertId, expertName) {
   } catch (err) {
     showToast('Error: ' + err.message, 'error');
   }
+}
+function changeApproachesPage(page) {
+  approachesPage = page;
+  renderMyApproaches();
 }
 // ─── EXPOSE PAGINATION FUNCTIONS TO WINDOW ───
 window.renderClientRequests = renderClientRequests;
