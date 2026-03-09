@@ -38,38 +38,54 @@ function toggleDarkMode() {
 }
 
 // ─── NAVIGATION ─── 
-function showPage(pageId) {
-  // Hide all pages
+function showPage(pageId, pushState = true) {
   document.querySelectorAll('.page').forEach(page => {
     page.classList.remove('active');
   });
-  
-  // Show selected page
+
   const page = document.getElementById(pageId);
   if (page) {
     page.classList.add('active');
     state.currentPage = pageId;
-   if (pageId === 'myTickets') {
-    loadMyTickets();
-  }   
-    // Load data for specific pages
+
+    // ── URL mapping ──
+    const pageToPath = {
+      landing:           '/',
+      findProfessionals: '/find-professionals',
+      howItWorks:        '/how-it-works',
+      pricing:           '/pricing',
+      clientDash:        '/dashboard',
+      expertDash:        '/dashboard',
+      settings:          '/settings',
+      myTickets:         '/my-tickets',
+    };
+
+    const path = pageToPath[pageId] || '/';
+    if (pushState && window.location.pathname !== path) {
+      history.pushState({ pageId }, '', path);
+    }
+
+    // ── Existing page load logic ──
+    if (pageId === 'myTickets') {
+      loadMyTickets();
+    }
     if (pageId === 'findProfessionals') {
-  const pending = state.pendingSearch || {};
-  state.pendingSearch = null;
-  if (pending.service) {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    document.querySelector(`[data-service="${pending.service}"]`)?.classList.add('active');
-  }
-  if (pending.location) {
-    setTimeout(() => {
-      const input = document.getElementById('expertSearchInput');
-      if (input) input.value = pending.location;
-    }, 100);
-  }
-  loadExperts({ 
-    service: pending.service || undefined, 
-    location: pending.location || undefined 
-  });
+      const pending = state.pendingSearch || {};
+      state.pendingSearch = null;
+      if (pending.service) {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        document.querySelector(`[data-service="${pending.service}"]`)?.classList.add('active');
+      }
+      if (pending.location) {
+        setTimeout(() => {
+          const input = document.getElementById('expertSearchInput');
+          if (input) input.value = pending.location;
+        }, 100);
+      }
+      loadExperts({
+        service: pending.service || undefined,
+        location: pending.location || undefined
+      });
     } else if (pageId === 'clientDash' && state.user?.role === 'client') {
       loadClientData();
     } else if (pageId === 'expertDash' && state.user?.role === 'expert') {
@@ -79,7 +95,6 @@ function showPage(pageId) {
     }
   }
 }
-
 function goBack() {
   if (state.user) {
     const dashPage = state.user.role === 'client' ? 'clientDash' : 'expertDash';
