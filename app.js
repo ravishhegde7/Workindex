@@ -96,9 +96,10 @@ function showPage(pageId, pushState = true) {
   }
 }
 function goBack() {
-  if (state.user) {
-    const dashPage = state.user.role === 'client' ? 'clientDash' : 'expertDash';
-    showPage(dashPage);
+  if (window.history.length > 1) {
+    window.history.back();
+  } else if (state.user) {
+    showPage(state.user.role === 'client' ? 'clientDash' : 'expertDash');
   } else {
     showPage('landing');
   }
