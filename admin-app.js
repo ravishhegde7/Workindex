@@ -749,8 +749,10 @@
         apTblEl.onclick = function(ev) {
           var ab = ev.target.closest('[data-ap-act]');
           var db = ev.target.closest('[data-ap-del]');
+          var rm = ev.target.closest('[data-full-msg]');
           if (ab) { updateApproach(ab.dataset.apId, ab.dataset.apAct); }
           if (db) { if (confirm('Delete this approach?')) deleteApproach(db.dataset.apDel); }
+          if (rm) { showMsgModal(rm.dataset.fullMsg); }
         };
       }
     }).catch(function() { setT('apTbl', ''); });
