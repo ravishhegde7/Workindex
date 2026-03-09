@@ -1027,10 +1027,16 @@ async function loadExperts(filters = {}) {
   loading.style.display = 'block';
   grid.innerHTML = '';
   empty.style.display = 'none';
-  
+
+  // Cancel any previous experts fetch
+  if (expertsAbortController) expertsAbortController.abort();
+  expertsAbortController = new AbortController();
+
   try {
     const params = new URLSearchParams(filters);
-    const res = await fetch(`${API_URL}/users/experts?${params}`);
+    const res = await fetch(`${API_URL}/users/experts?${params}`, {
+      signal: expertsAbortController.signal
+    });
     const data = await res.json();
     
     loading.style.display = 'none';
@@ -1042,6 +1048,7 @@ async function loadExperts(filters = {}) {
       empty.style.display = 'block';
     }
   } catch (error) {
+    if (error.name === 'AbortError') return; // navigation cancelled this — ignore
     console.error('Load experts error:', error);
     loading.style.display = 'none';
     empty.style.display = 'block';
