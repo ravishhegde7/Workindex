@@ -4223,6 +4223,7 @@ function filterClientExplore(filter) {
     if (grid) grid.style.display = 'block';
     if (invPanel) invPanel.style.display = 'none';
 
+    PAGINATION.clientExplore.page = 1;
     if (filter === 'shortlisted') {
       const shortlisted = _clientExploreAll.filter(e => _clientShortlisted.includes(e._id));
       renderClientExploreGrid(shortlisted);
