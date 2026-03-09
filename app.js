@@ -276,9 +276,18 @@ function enterDashboard() {
   if (notificationInterval) clearInterval(notificationInterval);
   notificationInterval = setInterval(loadNotifications, 30000);
   startInactivityWatcher();
-   
-  // Show service filter modal for new experts
-  setTimeout(() => showWarningPopupIfNeeded(), 600);
+
+  // Always refresh user status from server (warnings, restrictions may have changed)
+  fetch(`${API_URL}/auth/me`, {
+    headers: { 'Authorization': `Bearer ${state.token}` }
+  }).then(r => r.json()).then(data => {
+    if (data.success && data.user) {
+      state.user = { ...state.user, ...data.user };
+      localStorage.setItem('user', JSON.stringify(state.user));
+    }
+  }).catch(() => {}).finally(() => {
+    setTimeout(() => showWarningPopupIfNeeded(), 600);
+  });
 
   // Show service filter modal for new experts
   if (state.user.role === 'expert') {
