@@ -1101,15 +1101,18 @@ function renderExperts() {
   `).join('') + paginationControlsHTML(allExperts, 'findExperts');
 }
 function filterExperts(service) {
-  // Update active filter chip
+  // Update active filter chip immediately (instant UI feedback)
   document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.classList.remove('active');
   });
   document.querySelector(`[data-service="${service}"]`)?.classList.add('active');
-  
-  // Load experts with filter
-  const filters = service !== 'all' ? { service } : {};
-  loadExperts(filters);
+
+  // Debounce the API call — prevents rapid chip clicks firing multiple requests
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    const filters = service !== 'all' ? { service } : {};
+    loadExperts(filters);
+  }, 300);
 }
 
 function sortExperts(sortBy) {
@@ -3862,11 +3865,16 @@ let searchTimeout = null;
 
 function handleExpertSearch(value) {
   clearTimeout(searchTimeout);
-  if (!value || value.length < 2) {
-    hideSearchSuggestions();
-    if (!value) loadExperts();
+  hideSearchSuggestions();
+
+  if (!value) {
+    // User cleared the box — debounce the reload too
+    searchTimeout = setTimeout(() => loadExperts(), 300);
     return;
   }
+
+  if (value.length < 2) return; // wait for at least 2 chars
+
   showSearchSuggestions(value);
   searchTimeout = setTimeout(() => {
     loadExperts({ location: value });
