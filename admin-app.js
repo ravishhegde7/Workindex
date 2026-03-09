@@ -706,9 +706,16 @@
         var uid = 'ap_' + a._id;
 
         // Quote + message preview
-        var quote   = a.quote   ? '₹' + Number(a.quote).toLocaleString('en-IN') : '—';
-        var message = a.message ? esc(a.message.substring(0, 60)) + (a.message.length > 60 ? '…' : '') : '—';
+        var quote = a.quote ? '₹' + Number(a.quote).toLocaleString('en-IN') : '—';
+        var fullMsg = esc(a.message || '');
+        var shortMsg = a.message
+          ? (a.message.length > 60
+              ? esc(a.message.substring(0, 60)) + '… <span data-full-msg="' + fullMsg + '" style="color:#FC8019;cursor:pointer;font-size:12px;white-space:nowrap;">read more</span>'
+              : fullMsg)
+          : '—';
+        var message = '<div style="max-width:200px;">' + shortMsg + '</div>';
 
+         
         // Actions dropdown
         var actions = '<div style="position:relative;display:inline-block;">' +
           '<button class="btn bgho" onclick="document.getElementById(\'' + uid + '\').style.display = document.getElementById(\'' + uid + '\').style.display===\'block\'?\'none\':\'block\'; event.stopPropagation();">Actions ▾</button>' +
