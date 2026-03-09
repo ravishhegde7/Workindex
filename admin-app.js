@@ -736,15 +736,15 @@
           '<td>' + actions + '</td></tr>';
       }).join(''));
        
-      // Delegated events for approach actions
+      // Delegated events for approach actions — no {once} so it keeps working
       var apTblEl = document.getElementById('apTbl');
       if (apTblEl) {
-        apTblEl.addEventListener('click', function(ev) {
+        apTblEl.onclick = function(ev) {
           var ab = ev.target.closest('[data-ap-act]');
           var db = ev.target.closest('[data-ap-del]');
           if (ab) { updateApproach(ab.dataset.apId, ab.dataset.apAct); }
-          if (db) { if(confirm('Delete this approach?')) deleteApproach(db.dataset.apDel); }
-        }, {once: true});
+          if (db) { if (confirm('Delete this approach?')) deleteApproach(db.dataset.apDel); }
+        };
       }
     }).catch(function() { setT('apTbl', ''); });
   }
