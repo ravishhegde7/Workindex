@@ -20,6 +20,42 @@ const state = {
   approachedRequests: [],
   myApproaches: []  // ← NEW: Store expert's approaches
 };
+// ─── INACTIVITY LOGOUT (30 minutes) ───
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000;
+let inactivityTimer = null;
+
+function resetInactivityTimer() {
+  if (!state.token || !state.user) return;
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    handleSessionExpired();
+  }, INACTIVITY_TIMEOUT);
+}
+
+function startInactivityWatcher() {
+  const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
+  events.forEach(event => {
+    window.addEventListener(event, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
+}
+
+function stopInactivityWatcher() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = null;
+}
+
+function handleSessionExpired() {
+  stopInactivityWatcher();
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  state.token = null;
+  state.user  = null;
+  showToast('Session expired due to inactivity. Please log in again.', 'error');
+  setTimeout(() => {
+    showPage('landing');
+  }, 1500);
+}
 
 // ─── DARK MODE ─── 
 function initDarkMode() {
