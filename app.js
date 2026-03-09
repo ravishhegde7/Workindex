@@ -256,6 +256,7 @@ function enterDashboard() {
   showPage(dashPage);
   loadNotifications();
   setInterval(loadNotifications, 30000);
+  startInactivityWatcher();
 
   // Show service filter modal for new experts
   if (state.user.role === 'expert') {
@@ -270,6 +271,7 @@ function enterDashboard() {
     }
   }
 }
+
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
