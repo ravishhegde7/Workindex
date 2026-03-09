@@ -4330,7 +4330,7 @@ function renderClientExploreGrid(experts) {
         </div>
       </div>
     `;
-  }).join('');
+  }).join('') + paginationControlsHTML(experts, 'clientExplore');
 }
 
 // ─── HIRE EXPERT ───
@@ -4799,7 +4799,9 @@ function changePage(section, newPage) {
     expertBrowse:     renderAvailableRequests,
     expertApproaches: () => renderMyApproaches([]),
     findExperts:      renderExperts,
+    clientExplore:    () => renderClientExploreGrid(renderClientExploreGrid._currentList || []),
   };
+   
   if (renderers[section]) renderers[section]();
 
   const scrollTargets = {
@@ -4807,6 +4809,7 @@ function changePage(section, newPage) {
     expertBrowse:     'browseTab',
     expertApproaches: 'approachesList',
     findExperts:      'expertGrid',
+    clientExplore:    'clientExploreGrid',
   };
   const el = document.getElementById(scrollTargets[section]);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -4818,6 +4821,7 @@ function getItemsForSection(section) {
     expertBrowse:     () => state.availableRequests || [],
     expertApproaches: () => state.myApproaches || [],
     findExperts:      () => state.experts || [],
+    clientExplore:    () => renderClientExploreGrid._currentList || [],
   };
   return (map[section] || (() => []))();
 }
