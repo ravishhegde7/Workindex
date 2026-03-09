@@ -2021,7 +2021,7 @@ async function submitRequestReport(requestId) {
     const data = await res.json();
     document.getElementById('reportRequestModal')?.remove();
     if (data.success) {
-      showToast(data.message || 'Report submitted. Thank you.', 'success');
+      showToast('Report submitted. Thank you for keeping the platform safe.', 'success');
     } else {
       showToast(data.message || 'Failed to submit report', 'error');
     }
