@@ -1875,7 +1875,7 @@ function renderAvailableRequests() {
               style="flex:2;min-width:140px;padding:12px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
               Approach Client
             </button>
-            <button onclick="reportRequest('${req._id}', '${(req.title||'').replace(/'/g,'\\'')}')"
+            <button onclick="reportRequest('${req._id}', '${(req.title||'').replace(/'/g, '')}')"
               style="padding:10px 14px;border:1px solid #ef444466;border-radius:10px;background:transparent;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
               🚩 Report
             </button>
