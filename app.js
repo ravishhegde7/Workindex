@@ -1977,6 +1977,7 @@ function approachClient(requestId) {
 }
 
 async function submitApproach() {
+  if (isUserRestricted()) { showRestrictedToast(); return; }
   const modal    = document.getElementById('approachModal');
   const requestId = modal.dataset.requestId;
   const message  = document.getElementById('approachMessage').value.trim();
