@@ -1634,9 +1634,14 @@ async function loadExpertData() {
     console.error('Load user data error:', error);
   }
   
+  // Cancel any previous browse fetch
+  if (browseAbortController) browseAbortController.abort();
+  browseAbortController = new AbortController();
+
   // Load available requests for experts
   try {
     const res = await fetch(`${API_URL}/requests/available`, {
+      signal: browseAbortController.signal,
       headers: {
         'Authorization': `Bearer ${state.token}`,
         'Content-Type': 'application/json'
@@ -1654,6 +1659,7 @@ async function loadExpertData() {
       // ✅ REMOVE renderExpertProfile() from here
     }
   } catch (error) {
+    if (error.name === 'AbortError') return; // navigation cancelled this — ignore
     console.error('Load expert data error:', error);
   }
   
