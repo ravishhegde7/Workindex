@@ -893,10 +893,21 @@ function showMsgModal(msg) {
    
   /* ═══ CHATS ══════════════════════════════════════════════════════════════ */
   function loadChats() {
+    _pages['chats'] = 1;
     setT('chTbl', spin());
     api('chats' + qs({})).then(function(d) {
       var chats = d.chats || [];
-      setT('chTbl', chats.map(function(c) {
+      pagSlice('chats', chats);
+      renderChatsPage(chats);
+    }).catch(function() { setT('chTbl', ''); });
+  }
+
+  function renderChatsPage(arr) {
+    if (arr) pagSlice('chats', arr);
+    var page = pagSlice('chats', _pageData['chats'] || []);
+    var existing = document.getElementById('pag-chats');
+    if (existing) existing.remove();
+    setT('chTbl', page.map(function(c) {
         var en = c.expert ? esc(c.expert.name||'-') : '-', eid = c.expert ? c.expert._id : '';
         var cn = c.client ? esc(c.client.name||'-') : '-', cid2 = c.client ? c.client._id : '';
         var rt = c.request ? esc(c.request.title||'-') : (c.requestTitle ? esc(c.requestTitle) : '-');
