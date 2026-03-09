@@ -4829,4 +4829,19 @@ function updateBrowseFilterChips(selected) {
       ? 'var(--primary)' : 'var(--border)';
   });
 }
+// ─── BROWSE TAB SERVICE FILTER ───
+function setBrowseFilter(service) {
+  // Update chip styles
+  document.querySelectorAll('.browse-filter-chip').forEach(chip => {
+    const isActive = chip.dataset.service === service;
+    chip.style.background = isActive ? 'var(--primary)' : 'transparent';
+    chip.style.color = isActive ? '#fff' : 'var(--text)';
+    chip.style.borderColor = isActive ? 'var(--primary)' : 'var(--border)';
+  });
+
+  // Set filter — 'all' means no filter
+  state.browseServiceFilter = service === 'all' ? [] : [service];
+  PAGINATION.expertBrowse.page = 1;
+  renderAvailableRequests();
+}
 // ═══ END OF JAVASCRIPT ═══
