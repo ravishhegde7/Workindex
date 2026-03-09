@@ -423,7 +423,8 @@
       payments: loadPayments,
       communication: function() { loadCommHistory(); },
       invoices: function() { loadInvExperts(); },
-      settings: function() { loadSettingsTab(); }
+      settings: function() { loadSettingsTab(); },
+       suspReq: loadSuspendedRequests
     };
   }
 
