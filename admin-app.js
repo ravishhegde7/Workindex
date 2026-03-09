@@ -520,11 +520,12 @@
   /* ═══ USERS ══════════════════════════════════════════════════════════════ */
   function loadUsers(role) {
     var si = role === 'expert' ? 'eSrch' : 'cSrch', ti = role === 'expert' ? 'eTbl' : 'cTbl';
+    var key = role === 'expert' ? 'experts' : 'clients';
     var srch = g(si) ? g(si).value : '';
+    _pages[key] = 1;
     setT(ti, spin());
     api('users' + qs({ role: role, search: srch })).then(function(d) {
       if (!d.success) { setT(ti, ''); return; }
-      /* export button */
       var card = document.querySelector('#sec-' + (role==='expert'?'experts':'clients') + ' .ch');
       if (card && !card.querySelector('.exp-btn')) {
         var eb = document.createElement('button');
@@ -536,16 +537,27 @@
         };
         card.appendChild(eb);
       }
-      if (role === 'expert') {
-        setT('eTbl', (d.users || []).map(function(u) {
-          return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td style="color:#f59e0b">' + (u.credits||0) + '</td><td>' + (u.rating||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
-        }).join(''));
-      } else {
-        setT('cTbl', (d.users || []).map(function(u) {
-          return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
-        }).join(''));
-      }
+      pagSlice(key, d.users || []);
+      renderUsersPage(role);
     }).catch(function() { setT(ti, ''); });
+  }
+
+  function renderUsersPage(role) {
+    var key = role === 'expert' ? 'experts' : 'clients';
+    var ti = role === 'expert' ? 'eTbl' : 'cTbl';
+    var page = pagSlice(key, _pageData[key] || []);
+    var existing = document.getElementById('pag-' + key);
+    if (existing) existing.remove();
+    if (role === 'expert') {
+      setT('eTbl', page.map(function(u) {
+        return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td style="color:#f59e0b">' + (u.credits||0) + '</td><td>' + (u.rating||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
+      }).join(''));
+    } else {
+      setT('cTbl', page.map(function(u) {
+        return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
+      }).join(''));
+    }
+    pagHTML(key, ti);
   }
 
   /* ═══ USER DRAWER ════════════════════════════════════════════════════════ */
