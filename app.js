@@ -293,6 +293,8 @@ function logout() {
   notificationInterval = null;
   chatPollingInterval = null;
   currentChatId = null;
+   if (browseAbortController) browseAbortController.abort();
+  if (expertsAbortController) expertsAbortController.abort();
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   state.token = null;
