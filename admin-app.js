@@ -921,16 +921,15 @@ function showMsgModal(msg) {
           '<td><button class="btn bgho chat-view-btn" data-chat-id="' + c._id + '" data-en="' + en + '" data-cn="' + cn + '" data-rt="' + rt + '">View Chat</button></td>' +
           '</tr>';
       }).join(''));
-      // Wire up view chat buttons - use delegation on table
-      var tbl = document.getElementById('chTbl');
-      if (tbl) {
-        tbl.addEventListener('click', function(ev) {
-          var btn = ev.target.closest('.chat-view-btn');
-          if (!btn) return;
-          viewChat(btn.dataset.chatId, btn.dataset.en, btn.dataset.cn, btn.dataset.rt);
-        });
-      }
-    }).catch(function() { setT('chTbl', ''); });
+    pagHTML('chats', 'chTbl');
+    var tbl = document.getElementById('chTbl');
+    if (tbl) {
+      tbl.onclick = function(ev) {
+        var btn = ev.target.closest('.chat-view-btn');
+        if (!btn) return;
+        viewChat(btn.dataset.chatId, btn.dataset.en, btn.dataset.cn, btn.dataset.rt);
+      };
+    }
   }
 
   function viewChat(cid, en, cn, rt) {
