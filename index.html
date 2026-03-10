@@ -2747,23 +2747,22 @@ async function submitQuestionnaire() {
     // Update expert profile
     try {
       const res = await fetch(`${API_URL}/users/profile`, {
-  method: 'PUT',
-  headers: {
-    'Authorization': `Bearer ${state.token}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ profile: qState.answers })  // ✅ Wrap in { profile: ... }
-});
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${state.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ profile: qState.answers })
+      });
       
       const data = await res.json();
       if (data.success) {
-  // ✅ Save under profile key, not spread flat
-  state.user = { ...state.user, profile: qState.answers };
-  localStorage.setItem('user', JSON.stringify(state.user));
-  showToast('Profile completed successfully!', 'success');
-  showPage('expertDash');
-  loadExpertData();
-} else {
+        state.user = { ...state.user, profile: qState.answers };
+        localStorage.setItem('user', JSON.stringify(state.user));
+        showToast('Profile completed successfully!', 'success');
+        showPage('expertDash');
+        loadExpertData();
+      } else {
         showToast(data.message || 'Failed to update profile', 'error');
       }
     } catch (error) {
@@ -2771,9 +2770,10 @@ async function submitQuestionnaire() {
       showToast('Network error. Please try again.', 'error');
     }
   } else {
+    if (isUserRestricted()) { showRestrictedToast(); return; } // ← ADDED
     // Create client request
     try {
-         // Save location to client profile too
+      // Save location to client profile too
       const locationData = {};
       if (qState.answers.fullAddress) locationData.fullAddress = qState.answers.fullAddress;
       if (qState.answers.clientLocation) locationData.clientLocation = qState.answers.clientLocation;
@@ -2841,7 +2841,7 @@ async function submitQuestionnaire() {
     }
   }
 }
-
+  
 </script>
 
 
