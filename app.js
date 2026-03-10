@@ -319,9 +319,12 @@ function showWarningPopupIfNeeded() {
   const u = state.user;
   if (!u) return;
   if (!u.warnings && !u.isRestricted) return;
-  // For restricted users — show every login until admin clears
+
+  // ✅ Restricted users: always show, no suppression ever
   if (u.isRestricted) {
-    // Always show restriction popup, no "seen" suppression
+    // Also clear any stale seenKey for warning 3 so it never suppresses
+    localStorage.removeItem('warnSeen_' + u._id + '_3');
+    localStorage.removeItem('warnSeen_' + u._id + '_' + (u.warnings || 0));
   } else {
     const seenKey = 'warnSeen_' + u._id + '_' + (u.warnings || 0);
     if (localStorage.getItem(seenKey)) return;
