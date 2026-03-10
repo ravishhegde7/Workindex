@@ -4574,7 +4574,8 @@ function renderClientExploreGrid(experts) {
 
 // ─── HIRE EXPERT ───
 async function hireExpert(expertId, expertName) {
-  // Show confirmation
+  if (isUserRestricted()) { showRestrictedToast(); return; } // ← ADD THIS
+  
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1002;padding:20px;';
   modal.onclick = e => { if (e.target === modal) modal.remove(); };
@@ -4607,6 +4608,8 @@ async function hireExpert(expertId, expertName) {
 }
 
 async function confirmHireExpert(expertId) {
+  if (isUserRestricted()) { showRestrictedToast(); return; } // ← ADD THIS
+  
   try {
     const res = await fetch(`${API_URL}/users/${expertId}/interest`, {
       method: 'POST',
