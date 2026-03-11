@@ -425,7 +425,8 @@
       invoices: function() { loadInvExperts(); },
       settings: function() { loadSettingsTab(); },
        suspReq: loadSuspendedRequests,
-       reports: loadReports
+       reports: loadReports,
+emailNotifications: loadEmailNotifications
     };
   }
 
@@ -2655,7 +2656,7 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
   }
 
    
-})();
+
 // ═══════════════════════════════════════════════════════════
 // ADD TO: admin-app.js
 // 1. Add 'emailNotifications' to sectionLoaders()
@@ -2877,3 +2878,5 @@ function buildEmailNotificationsUI(settings, logs, total) {
 
   return '<div style="max-width:860px;">' + togglesHTML + logsHTML + '</div>';
 }
+   
+})();
