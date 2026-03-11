@@ -2691,6 +2691,13 @@ function loadEmailNotifications() {
         var key = this.dataset.key;
         var val = this.checked;
         _emailSettings[key] = val;
+        // Update visual slider
+        var span = this.nextElementSibling;
+        if (span) {
+          span.style.background = val ? '#FC8019' : '#2a2a38';
+          var thumb = span.querySelector('span');
+          if (thumb) thumb.style.left = val ? '23px' : '3px';
+        }
         api('email-settings', 'PUT', { [key]: val }).then(function(d) {
           if (d.success) {
             toast((val ? '✅ Enabled: ' : '🔕 Disabled: ') + key.replace(/_/g, ' '));
