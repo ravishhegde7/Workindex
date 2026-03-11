@@ -2463,6 +2463,12 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
   function loadSettingsTab() {
     // Show API URL
     if (g('settApiUrl')) g('settApiUrl').value = API;
+    // Wire download report buttons
+    if (g('dlExperts'))  g('dlExperts').onclick  = function() { downloadReport('experts'); };
+    if (g('dlClients'))  g('dlClients').onclick  = function() { downloadReport('clients'); };
+    if (g('dlApproaches')) g('dlApproaches').onclick = function() { downloadReport('approaches'); };
+    if (g('dlPosts'))    g('dlPosts').onclick    = function() { downloadReport('posts'); };
+    if (g('dlCredits'))  g('dlCredits').onclick  = function() { downloadReport('credits'); };
     // Show admin info
     if (g('settAdminInfo')) {
       g('settAdminInfo').innerHTML =
