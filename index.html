@@ -2712,9 +2712,373 @@ function sanitizeAndUpdateTextInput(key, textarea) {
 function updateSliderValue(key, value, format) {
   qState.answers[key] = parseInt(value);
   document.getElementById('sliderValue').textContent = format.replace('{value}', parseInt(value).toLocaleString('en-IN'));
+  // Live-update the budget guide as user drags slider
+  var guideEl = document.getElementById('budgetGuideBox');
+  if (guideEl) {
+    var newGuide = getBudgetGuide(qState.answers);
+    var tmp = document.createElement('div');
+    tmp.innerHTML = newGuide;
+    var newBox = tmp.firstElementChild;
+    if (newBox) guideEl.replaceWith(newBox);
+  }
   checkCanProceed();
 }
 
+// ─── BUDGET GUIDE ENGINE ────────────────────────────────────────────────────
+// Returns HTML string for the contextual budget guide card.
+// Reads qState.answers to pick the most specific guide available.
+function getBudgetGuide(answers) {
+  if (!answers) return '';
+  var service = answers.service;
+  if (!service) return '';
+
+  // ── ITR Filing ──────────────────────────────────────────────────────────
+  if (service === 'itr') {
+    var income    = answers.itrAnnualIncome;
+    var taxpayer  = answers.itrTaxpayerType;
+    var sources   = answers.itrIncomeSources || [];
+    var hasCapGains  = sources.includes('capital');
+    var hasForeign   = sources.includes('foreign');
+    var hasBusiness  = sources.includes('business') || taxpayer === 'business';
+
+    if (hasForeign) {
+      return guide('ITR Filing — Foreign Income / DTAA', '₹3,000 – ₹15,000', 'High complexity — foreign income, DTAA claims, and Form 67 significantly increase CA effort.', [
+        '🌍 Foreign income disclosures are highly complex',
+        '📋 DTAA relief claims need specialist CAs',
+        '💡 Budget on the higher end for quality work'
+      ]);
+    }
+    if (hasCapGains) {
+      return guide('ITR Filing — Capital Gains (Stocks / Property)', '₹2,000 – ₹15,000', 'Capital gains calculation, LTCG/STCG, and property sales add significant time for the CA.', [
+        '📈 Equity/MF capital gains: ₹2,000 – ₹6,000',
+        '🏠 Property sale capital gains: ₹5,000 – ₹15,000',
+        '💡 Keep all sale/purchase deeds and statements ready'
+      ]);
+    }
+    if (hasBusiness || taxpayer === 'freelancer') {
+      if (income === 'above20') {
+        return guide('ITR Filing — Business / Freelancer (High Income)', '₹3,000 – ₹10,000', 'Complex business returns with high turnover, P&L, balance sheet, and tax audit may apply.', [
+          '📊 P&L and Balance Sheet preparation needed',
+          '⚠️ Tax audit mandatory if turnover > ₹1 Cr (business) or ₹50L (professional)',
+          '💡 Audit + filing combined: ₹15,000 – ₹30,000'
+        ]);
+      }
+      return guide('ITR Filing — Business / Freelancer', '₹3,000 – ₹10,000', 'Business returns require P&L statement, balance sheet, and expense documentation.', [
+        '📁 Keep all invoices and expense proofs ready',
+        '📊 Tally/accounting data speeds up the process',
+        '💡 Freelancers: ₹3,000 – ₹5,000 | Businesses: ₹5,000 – ₹10,000'
+      ]);
+    }
+    if (income === 'above20') {
+      return guide('ITR Filing — High Income Salaried (> ₹20L)', '₹2,500 – ₹8,000', 'Multiple Form 16s, perquisites, stock options, or NPS deductions increase complexity.', [
+        '💼 Multiple employers? Each Form 16 adds complexity',
+        '📈 ESOPs / RSUs need specialist handling',
+        '💡 Typical salaried HNI: ₹3,500 – ₹6,000'
+      ]);
+    }
+    if (income === '15-20') {
+      return guide('ITR Filing — Salaried (₹15L – ₹20L)', '₹1,500 – ₹4,000', 'Standard salaried return with investments, HRA, and 80C deductions.', [
+        '📋 Form 16 + AIS is all you need to share',
+        '🏠 HRA / home loan interest adds minor complexity',
+        '💡 Most CAs complete this in 1–2 days'
+      ]);
+    }
+    if (income === '10-15') {
+      return guide('ITR Filing — Salaried (₹10L – ₹15L)', '₹1,000 – ₹2,500', 'Straightforward salaried filing with standard deductions.', [
+        '📋 Prepare: Form 16, AIS, investment proofs',
+        '⚡ Usually completed within 24 hours',
+        '💡 New tax regime vs old regime comparison included'
+      ]);
+    }
+    // Default ITR
+    return guide('ITR Filing — Salaried (< ₹10L)', '₹1,000 – ₹1,500', 'Simple salaried return with one employer and standard deductions.', [
+      '⚡ Fastest and most affordable filing',
+      '📋 Just Form 16 required in most cases',
+      '💡 Many CAs offer fixed-price packages at ₹999 – ₹1999'
+    ]);
+  }
+
+  // ── GST Services ────────────────────────────────────────────────────────
+  if (service === 'gst') {
+    var gstType     = answers.gstServiceType;
+    var bizType     = answers.gstBusinessType;
+    var turnover    = answers.gstTurnover;
+    var hasExisting = answers.gstExisting === 'yes';
+
+    if (gstType === 'registration') {
+      return guide('GST New Registration', '₹1,000 – ₹5,000', 'One-time registration fee — straightforward process handled online.', [
+        '📋 Needs PAN, Aadhaar, business address proof',
+        '⚡ Typically done in 3–7 working days',
+        '💡 Most professionals charge ₹1,500 flat for basic registration'
+      ]);
+    }
+    if (gstType === 'notice' || gstType === 'amendment') {
+      return guide('GST Notice / Amendment Handling', '₹3,000 – ₹15,000', 'Depends on complexity of the notice — SCNs and scrutiny notices cost more.', [
+        '⚠️ Show Cause Notices (SCN): ₹5,000 – ₹15,000',
+        '📝 Amendments (address, category): ₹1,000 – ₹2,500',
+        '💡 Always engage a CA/tax lawyer for notices'
+      ]);
+    }
+    if (gstType === 'cancellation') {
+      return guide('GST Cancellation', '₹1,500 – ₹4,000', 'Includes filing final return (GSTR-10) and closure compliance.', [
+        '📋 Final return GSTR-10 must be filed before cancellation',
+        '⚡ Takes 15–30 days typically',
+        '💡 Ensure all pending returns are filed first'
+      ]);
+    }
+    // Filing (monthly/quarterly) based on turnover
+    if (turnover === 'above50') {
+      return guide('GST Return Filing — High Turnover (> ₹50L/month)', '₹5,000 – ₹15,000 /month', 'High volume transactions require detailed reconciliation and expert handling.', [
+        '📊 GSTR-1, GSTR-3B, annual GSTR-9 all required',
+        '🔍 ITC reconciliation is critical at this scale',
+        '💡 Consider retaining a CA firm on monthly contract'
+      ]);
+    }
+    if (turnover === '20-50') {
+      return guide('GST Return Filing — Medium Turnover (₹20L – ₹50L/month)', '₹3,000 – ₹6,000 /month', 'Regular monthly filings with moderate reconciliation effort.', [
+        '📋 GSTR-1 + GSTR-3B monthly filing',
+        '📊 Quarterly GSTR-9 reconciliation',
+        '💡 Annual contract saves 20–30% vs per-filing charges'
+      ]);
+    }
+    if (turnover === '5-20') {
+      return guide('GST Return Filing — Small Business (₹5L – ₹20L/month)', '₹1,500 – ₹3,000 /month', 'Standard monthly GST filing for growing businesses.', [
+        '⚡ QRMP scheme may allow quarterly filing — ask your CA',
+        '📋 Keep purchase/sales registers updated',
+        '💡 Many CAs bundle GST + accounting at ₹3,000 – ₹5,000/month'
+      ]);
+    }
+    return guide('GST Return Filing — Micro Business (< ₹5L/month)', '₹500 – ₹1,500 /month', 'Simple quarterly or monthly filings for small businesses.', [
+      '⚡ QRMP scheme: file quarterly, pay monthly',
+      '💡 Composition scheme may be better — ask your CA',
+      '📋 Nil returns: often ₹200 – ₹500 per filing'
+    ]);
+  }
+
+  // ── Accounting / Bookkeeping ─────────────────────────────────────────────
+  if (service === 'accounting') {
+    var freq  = answers.accountingFrequency;
+    var txns  = answers.accountingTransactions;
+    var sw    = answers.accountingSoftware;
+    var biz   = answers.accountingBusinessType;
+
+    if (freq === 'one-time') {
+      return guide('One-Time Accounting Setup', '₹5,000 – ₹20,000', 'One-time cleanup, chart of accounts setup, and historical data entry.', [
+        '📁 Backlog data entry is priced per year of records',
+        '💻 Tally/Zoho setup: ₹3,000 – ₹8,000 one-time',
+        '💡 Bundle with monthly retainer for best value'
+      ]);
+    }
+    if (txns === 'above2000') {
+      return guide('Bookkeeping — High Volume (> 2000 txns/month)', '₹10,000 – ₹25,000 /month', 'Dedicated accountant or firm needed for enterprise-level bookkeeping.', [
+        '👥 Usually requires a dedicated part-time accountant',
+        '🔍 Month-end closing, MIS reports included',
+        '💡 Consider hiring in-house if volume is consistently this high'
+      ]);
+    }
+    if (txns === '500-2000') {
+      return guide('Bookkeeping — Medium Volume (500 – 2000 txns/month)', '₹5,000 – ₹12,000 /month', 'Regular bookkeeping with monthly P&L and balance sheet.', [
+        '📊 Monthly P&L + Balance Sheet included',
+        '🔍 Bank reconciliation and ledger management',
+        '💡 Most SMEs fall in this range'
+      ]);
+    }
+    if (txns === '100-500') {
+      return guide('Bookkeeping — Small Business (100 – 500 txns/month)', '₹2,500 – ₹5,000 /month', 'Standard small business bookkeeping with monthly reports.', [
+        '📋 Monthly P&L statement included',
+        '⚡ Usually completed within 3–5 days of month end',
+        '💡 Tally is most commonly used — share access to save cost'
+      ]);
+    }
+    return guide('Bookkeeping — Micro Business (< 100 txns/month)', '₹1,000 – ₹2,500 /month', 'Basic bookkeeping for freelancers and micro businesses.', [
+      '⚡ Simple entry-level bookkeeping',
+      '💡 Many accountants offer ₹999/month plans for this',
+      '📋 Cash book + bank statement is all you need to share'
+    ]);
+  }
+
+  // ── Audit Services ──────────────────────────────────────────────────────
+  if (service === 'audit') {
+    var auditType = answers.auditType;
+    var orgTov    = answers.auditTurnover;
+    var orgType   = answers.auditOrgType;
+
+    if (auditType === 'diligence') {
+      return guide('Due Diligence Audit', '₹25,000 – ₹2,00,000+', 'Highly variable — depends on size of business being assessed.', [
+        '🏢 Startup due diligence: ₹25,000 – ₹75,000',
+        '🏭 SME acquisition DD: ₹75,000 – ₹2,00,000',
+        '💡 Always get fixed-fee quotes from multiple CA firms'
+      ]);
+    }
+    if (auditType === 'tax') {
+      if (orgTov === 'above20cr') return guide('Tax Audit (Turnover > ₹20 Cr)', '₹75,000 – ₹3,00,000', 'Large-scale statutory + tax audit by a qualified CA firm.', ['📋 Form 3CA/3CB + 3CD mandatory', '🏢 CA firm engagement recommended', '💡 Negotiate fixed annual fee with the firm']);
+      if (orgTov === '5-20cr')   return guide('Tax Audit (₹5 Cr – ₹20 Cr)', '₹30,000 – ₹80,000', 'Detailed tax audit with Form 3CA/3CD filing.', ['📋 Maintain all books of accounts properly', '⚡ Complete by Sept 30 deadline', '💡 Bundle with annual returns for discount']);
+      if (orgTov === '1-5cr')    return guide('Tax Audit (₹1 Cr – ₹5 Cr)', '₹15,000 – ₹35,000', 'Mandatory if turnover exceeds threshold. CA certification required.', ['📋 Books must be tax-audit ready', '⚡ Typically 2–3 weeks for completion', '💡 Share Tally data for faster turnaround']);
+      return guide('Tax Audit (< ₹1 Cr)', '₹8,000 – ₹18,000', 'If applicable — professional audit with Form 3CB + 3CD.', ['📋 Applies if turnover > ₹1 Cr (business) or ₹50L (professional)', '💡 Verify if you actually need a tax audit first']);
+    }
+    if (auditType === 'internal') {
+      return guide('Internal Audit', '₹15,000 – ₹1,00,000+ /quarter', 'Scope-driven — depends on departments, locations, and risk areas.', [
+        '📋 Define audit scope clearly before engaging',
+        '🏢 Small cos: ₹15,000 – ₹30,000/quarter',
+        '🏭 Mid-size: ₹40,000 – ₹1,00,000/quarter'
+      ]);
+    }
+    // Statutory audit by size
+    if (orgTov === 'above20cr') return guide('Statutory Audit — Large Company (> ₹20 Cr)', '₹1,00,000 – ₹5,00,000+', 'Complex audit with multiple locations, subsidiaries, or listed entity.', ['🏢 Engage a reputed CA firm with audit experience', '📋 CARO 2020 reporting applicable', '💡 Fees highly negotiable — get 3 quotes']);
+    if (orgTov === '5-20cr')    return guide('Statutory Audit — Mid-Size (₹5 Cr – ₹20 Cr)', '₹40,000 – ₹1,20,000', 'Full statutory audit with Companies Act compliance.', ['📋 Maintain board minutes, registers up to date', '⚡ Plan 4–6 weeks for completion', '💡 Combine with tax audit for bundle discount']);
+    if (orgTov === '1-5cr')     return guide('Statutory Audit — Small Company (₹1 Cr – ₹5 Cr)', '₹15,000 – ₹45,000', 'Annual statutory audit for private limited companies.', ['📋 Ensure ROC filings are up to date', '⚡ 2–4 weeks timeline typically', '💡 Ask about small company exemptions under Companies Act']);
+    return guide('Statutory / Compliance Audit — Small Org', '₹5,000 – ₹18,000', 'Basic statutory audit for small businesses and proprietorships.', ['📋 Simple audit with limited scope', '⚡ Usually done in 1–2 weeks', '💡 Often bundled with annual ITR filing']);
+  }
+
+  // ── Photography ─────────────────────────────────────────────────────────
+  if (service === 'photography') {
+    var pType  = answers.photographyType;
+    var pDur   = answers.photographyDuration;
+    var pVideo = answers.photographyVideography === 'yes';
+
+    if (pType === 'wedding') {
+      if (pDur === 'multiple') {
+        var label = pVideo ? 'Wedding Photography + Videography (Multi-Day)' : 'Wedding Photography (Multi-Day)';
+        var range = pVideo ? '₹50,000 – ₹3,00,000+' : '₹40,000 – ₹2,00,000';
+        return guide(label, range, 'Complete wedding coverage with pre-wedding, functions, and reception.', [
+          '📸 Top photographers book 6–12 months in advance',
+          '🎥 Cinematic video + drone coverage adds ₹20,000 – ₹80,000',
+          '💡 Always review full portfolio and client testimonials',
+          '📋 Confirm: raw files, edited count, delivery timeline'
+        ]);
+      }
+      var wRange = pVideo ? '₹40,000 – ₹1,50,000' : '₹20,000 – ₹80,000';
+      return guide('Wedding Photography' + (pVideo ? ' + Videography' : '') + ' — Single Day', wRange, 'Single-day wedding or reception coverage.', [
+        '📸 Coverage: getting ready → reception exit',
+        pVideo ? '🎥 Video package adds ₹20,000 – ₹50,000 typically' : '💡 Photo-only packages are more affordable',
+        '📋 Ask about: edited photo count, album, delivery days'
+      ]);
+    }
+    if (pType === 'pre-wedding') {
+      return guide('Pre-Wedding Shoot', pVideo ? '₹25,000 – ₹80,000' : '₹10,000 – ₹40,000', 'Outdoor or studio pre-wedding shoot — 2–4 hours typically.', [
+        '📍 Location matters — outdoor shoots may have travel costs',
+        pVideo ? '🎥 With video reel: add ₹10,000 – ₹30,000' : '📸 Studio setups: ₹8,000 – ₹15,000',
+        '💡 Weekday shoots are 15–25% cheaper'
+      ]);
+    }
+    if (pType === 'product') {
+      return guide('Product Photography', '₹3,000 – ₹25,000', 'Depends on number of products, styling, and usage (ecommerce vs print).', [
+        '📦 Per-product pricing: ₹100 – ₹500/product',
+        '🎨 Styled shoots with props: higher cost',
+        '💡 White-background ecommerce shots are cheapest',
+        '🛍️ Amazon/Flipkart ready images: ₹200 – ₹400/product'
+      ]);
+    }
+    if (pType === 'commercial') {
+      return guide('Commercial Photography', '₹15,000 – ₹1,00,000+', 'Advertising, brand, or corporate photography for business use.', [
+        '🏢 Corporate headshots: ₹5,000 – ₹15,000/half day',
+        '📸 Brand campaigns: ₹25,000 – ₹1,00,000+',
+        '💡 Usage rights (print/digital/exclusive) affect pricing significantly'
+      ]);
+    }
+    if (pType === 'event') {
+      if (pDur === 'full-day') return guide('Event Photography — Full Day', pVideo ? '₹25,000 – ₹60,000' : '₹12,000 – ₹30,000', 'Corporate events, conferences, or large parties — full day coverage.', ['📸 Multiple setups and locations in one day', pVideo ? '🎥 Highlight reel included in some packages' : '💡 Ask for same-day previews for social media', '📋 Confirm deliverable count and turnaround time']);
+      return guide('Event Photography', pVideo ? '₹12,000 – ₹35,000' : '₹5,000 – ₹18,000', 'Corporate events, birthdays, seminars, and social gatherings.', ['📸 Half-day (4 hrs) is most common booking', pVideo ? '🎥 Short highlight video: add ₹8,000 – ₹15,000' : '💡 Tell them: venue, expected guests, key moments', '⚡ Quick turnaround (24–48 hrs) may cost extra']);
+    }
+    // Portrait / default
+    return guide('Portrait Photography', pVideo ? '₹8,000 – ₹25,000' : '₹3,000 – ₹12,000', 'Professional portraits for LinkedIn, family, or personal branding.', [
+      '📸 1–2 hour studio session typical',
+      '💡 Includes: 10–20 edited images usually',
+      pVideo ? '🎥 Personal brand video reel: ₹8,000 – ₹20,000' : '📍 Outdoor locations may add travel charges'
+    ]);
+  }
+
+  // ── App / Web Development ────────────────────────────────────────────────
+  if (service === 'development') {
+    var devType  = answers.devProjectType;
+    var devStage = answers.devProjectStage;
+    var platform = answers.devPlatform || [];
+    var timeline = answers.devTimeline;
+    var needsMaint = answers.devMaintenance === 'yes';
+    var isASAP   = timeline === 'asap';
+
+    if (devType === 'mobile-app') {
+      var bothPlatforms = platform.includes('android') && platform.includes('ios');
+      var crossPlat     = platform.includes('cross-platform');
+      if (bothPlatforms || crossPlat) {
+        return guide('Mobile App — Android + iOS (Cross-Platform)', isASAP ? '₹20,000 – ₹3,00,000+' : '₹15,000 – ₹2,00,000', 'Flutter or React Native for both platforms from single codebase.', [
+          '📱 Flutter/RN: more cost-effective than native',
+          isASAP ? '⚡ Rush projects: add 30–50% premium' : '⏱️ Timeline: 2–6 months typically',
+          needsMaint ? '🔧 Monthly maintenance: ₹5,000 – ₹15,000/month' : '💡 Ask about post-launch bug fix warranty',
+          '🏪 App Store + Play Store submission included in most quotes'
+        ]);
+      }
+      return guide('Mobile App — Single Platform (Android or iOS)', isASAP ? '₹20,000 – ₹1,50,000' : '₹15,000 – ₹1,20,000', 'Native or cross-platform development for one OS.', [
+        '📱 Android: Flutter/Kotlin | iOS: Flutter/Swift',
+        isASAP ? '⚡ Rush delivery adds 30–50% to cost' : '⏱️ Timeline: 6 weeks – 4 months',
+        needsMaint ? '🔧 Maintenance retainer: ₹4,000 – ₹12,000/month' : '💡 Clarify: backend API included or frontend only?',
+        '💡 Get milestone-based payment agreements'
+      ]);
+    }
+    if (devType === 'web-app') {
+      return guide('Web Application / SaaS', isASAP ? '₹40,000 – ₹5,00,000+' : '₹30,000 – ₹3,00,000', 'Custom web applications with user auth, dashboards, and business logic.', [
+        '🔐 Auth + admin panel + API: core scope',
+        isASAP ? '⚡ Rush deadline: expect 40–60% premium' : '⏱️ MVP in 2–4 months | Full product: 4–12 months',
+        needsMaint ? '🔧 Server + maintenance: ₹8,000 – ₹25,000/month' : '💡 Hosting is separate — budget ₹2,000 – ₹10,000/month',
+        '📋 Always get detailed scope document before paying'
+      ]);
+    }
+    if (devType === 'ecommerce') {
+      return guide('E-Commerce Store', isASAP ? '₹25,000 – ₹1,50,000' : '₹15,000 – ₹1,00,000', 'Online store with product catalog, cart, payments, and order management.', [
+        '🛒 Shopify/WooCommerce: ₹15,000 – ₹40,000 (faster)',
+        '🏗️ Custom-built: ₹40,000 – ₹1,50,000+',
+        needsMaint ? '🔧 Monthly AMC: ₹3,000 – ₹8,000' : '💡 Payment gateway setup (Razorpay/PayU) is separate',
+        '📦 Product uploads: ₹10 – ₹30 per product if many SKUs'
+      ]);
+    }
+    if (devType === 'website') {
+      return guide('Website Development', isASAP ? '₹15,000 – ₹80,000' : '₹8,000 – ₹60,000', 'Business website, landing page, or portfolio — varies by complexity.', [
+        '📄 5-page static site: ₹8,000 – ₹20,000',
+        '🏢 Business site with CMS (WordPress): ₹15,000 – ₹40,000',
+        isASAP ? '⚡ Rush (< 1 week): expect 30–50% premium' : '⏱️ Typically 1–3 weeks',
+        needsMaint ? '🔧 Yearly AMC: ₹5,000 – ₹15,000' : '💡 Domain (₹800/yr) + hosting (₹3,000 – ₹6,000/yr) are extra'
+      ]);
+    }
+    if (devType === 'custom') {
+      return guide('Custom Software Development', '₹50,000 – ₹10,00,000+', 'ERP, CRM, automation tools, or bespoke enterprise solutions.', [
+        '📋 Detailed requirement document is essential first',
+        '🏢 Enterprise projects: always fixed-cost with milestones',
+        needsMaint ? '🔧 Annual support contract: 15–20% of project cost/year' : '💡 Open-source base (Laravel/Django) reduces cost significantly',
+        '⚠️ Avoid full upfront payment — use 30/40/30 milestone structure'
+      ]);
+    }
+    // Default development
+    return guide('Software / App Development', '₹25,000 – ₹3,00,000+', 'Wide range depending on complexity, platforms, and tech stack.', [
+      '📋 Define scope clearly — vague projects get expensive quotes',
+      '💡 MVP first approach saves 40–60% of initial budget',
+      needsMaint ? '🔧 Budget for ongoing maintenance from day one' : '⏱️ Realistic timelines prevent cost overruns',
+      '⚠️ Always use milestone-based payment — never pay 100% upfront'
+    ]);
+  }
+
+  return '';
+}
+
+// ─── GUIDE CARD BUILDER ──────────────────────────────────────────────────────
+function guide(title, range, note, tips) {
+  var tipsHtml = tips.map(function(t) {
+    return '<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">' +
+           '<span style="flex-shrink:0;margin-top:1px;">' + t.charAt(0) + '</span>' +
+           '<span style="font-size:13px;color:var(--text);line-height:1.5;">' + t.slice(1) + '</span></div>';
+  }).join('');
+  return '<div id="budgetGuideBox" style="margin-top:16px;border-radius:14px;overflow:hidden;border:1.5px solid rgba(252,128,25,0.3);">' +
+    '<div style="background:rgba(252,128,25,0.1);padding:14px 16px;border-bottom:1px solid rgba(252,128,25,0.15);">' +
+      '<div style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;">💡 Typical Market Rate in India</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">' + title + '</div>' +
+      '<div style="font-size:22px;font-weight:800;color:var(--primary);">' + range + '</div>' +
+      '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">' + note + '</div>' +
+    '</div>' +
+    '<div style="background:var(--bg);padding:14px 16px;">' +
+      '<div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:10px;">What to know</div>' +
+      tipsHtml +
+    '</div>' +
+  '</div>';
+}
 function updateAddressField(key, fieldKey, value) {
   if (!qState.answers[key]) qState.answers[key] = {};
   qState.answers[key][fieldKey] = value;
