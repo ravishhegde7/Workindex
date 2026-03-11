@@ -2664,16 +2664,6 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
 // 3. Add the full loadEmailNotifications function below
 // ═══════════════════════════════════════════════════════════
 
-// ── STEP 1: In sectionLoaders(), add this line inside the return { ... } object:
-      emailNotifications: loadEmailNotifications,
-
-// ── STEP 2: In PT object, add:
-//   emailNotifications: 'Email Notifications'
-// In PS object, add:
-//   emailNotifications: 'Email logs and notification settings'
-
-// ── STEP 3: Add this entire function block ──
-
 /* ═══ EMAIL NOTIFICATIONS TAB ════════════════════════════ */
 var _emailSettings = {};
 
