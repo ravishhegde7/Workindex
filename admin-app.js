@@ -591,8 +591,27 @@ emailNotifications: loadEmailNotifications
     var pr = u.profile || {};
     var av = u.profilePhoto ? '<img src="' + esc(u.profilePhoto) + '" alt="">' : esc((u.name||'?').charAt(0).toUpperCase());
     var p0 = '<div class="uhero"><div class="uav">' + av + '</div><div class="uhi"><h3>' + esc(u.name) + '</h3><p>' + esc(u.email) + ' / ' + esc(u.phone||'No phone') + '</p><div style="display:flex;gap:5px;flex-wrap:wrap">' + bdg(u.role) + ust(u) + (u.warnings ? '<span class="badge bo">' + u.warnings + ' warns</span>' : '') + '</div></div></div>';
-    p0 += '<div class="igrid"><div class="ic"><label>Credits</label><span style="color:#f59e0b">' + (u.credits||0) + '</span></div><div class="ic"><label>Joined</label><span>' + fmt(u.createdAt) + '</span></div><div class="ic"><label>Last Login</label><span>' + fmt(u.lastLogin) + '</span></div><div class="ic"><label>Rating</label><span>' + (u.rating||'-') + ' (' + (u.reviewCount||0) + ')</span></div>' + (pr.specialization ? '<div class="ic"><label>Specialization</label><span>' + esc(pr.specialization) + '</span></div>' : '') + '</div>';
-    /* Action buttons */
+    var loc = u.location || {};
+    var locStr = [loc.city, loc.state, loc.pincode].filter(Boolean).join(', ') || (pr.city ? [pr.city, pr.state, pr.pincode].filter(Boolean).join(', ') : '') || '-';
+    p0 += '<div class="igrid">' +
+      '<div class="ic"><label>Credits</label><span style="color:#f59e0b">' + (u.credits||0) + '</span></div>' +
+      '<div class="ic"><label>Joined</label><span>' + fmt(u.createdAt) + '</span></div>' +
+      '<div class="ic"><label>Last Login</label><span>' + fmt(u.lastLogin) + '</span></div>' +
+      '<div class="ic"><label>Rating</label><span>' + (u.rating||'-') + ' (' + (u.reviewCount||0) + ')</span></div>' +
+      (u.role==='expert' ? '<div class="ic"><label>Specialization</label><span>' + esc(u.specialization||pr.specialization||'-') + '</span></div>' : '') +
+      (u.role==='expert' ? '<div class="ic"><label>Company</label><span>' + esc(u.companyName||pr.companyName||'-') + '</span></div>' : '') +
+      (u.role==='expert' ? '<div class="ic"><label>Experience</label><span>' + esc(String(u.yearsOfExperience||pr.yearsOfExperience||'-')) + ' yrs</span></div>' : '') +
+      '<div class="ic"><label>Location</label><span>' + esc(locStr) + '</span></div>' +
+      (u.role==='expert' && (u.servicesOffered||pr.servicesOffered||[]).length ? '<div class="ic" style="grid-column:1/-1"><label>Services</label><span>' + esc((u.servicesOffered||pr.servicesOffered||[]).join(', ')) + '</span></div>' : '') +
+      (u.bio ? '<div class="ic" style="grid-column:1/-1"><label>Bio</label><span style="font-size:12px;color:#a0a0b8">' + esc(u.bio.substring(0,200)) + '</span></div>' : '') +
+      (u.role==='expert' && u.whyChooseMe ? '<div class="ic" style="grid-column:1/-1"><label>Why Choose Me</label><span style="font-size:12px;color:#a0a0b8">' + esc(u.whyChooseMe.substring(0,200)) + '</span></div>' : '') +
+      (u.role==='expert' ? '<div class="ic"><label>Availability</label><span>' + esc(u.availability||'-') + '</span></div>' : '') +
+      (u.role==='expert' && u.hasWebsite ? '<div class="ic"><label>Website</label><span style="font-size:12px">' + esc(u.websiteUrl||'-') + '</span></div>' : '') +
+      (u.kyc ? '<div class="ic"><label>KYC</label><span>' + esc(u.kyc.status||'not_submitted') + '</span></div>' : '') +
+      '<div class="ic"><label>Warnings</label><span style="color:' + ((u.warnings||0)>=3?'#ef4444':'#f59e0b') + '">' + (u.warnings||0) + '/3</span></div>' +
+      '<div class="ic"><label>Total Approaches</label><span>' + (u.totalApproaches||0) + '</span></div>' +
+    '</div>';
+     /* Action buttons */
     var actionRow = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
     actionRow += '<button class="btn bgho" style="justify-content:center" data-ledger-uid="' + u._id + '">Credit Ledger</button>';
     actionRow += '<button class="btn bywn" style="justify-content:center" data-credit-uid="' + u._id + '" data-credit-name="' + esc(u.name) + '" data-credit-bal="' + (u.credits||0) + '">Adjust Credits</button>';
