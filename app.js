@@ -1668,6 +1668,8 @@ function renderClientRequests() {
   if (!allRequests.length) {
     const isFiltered = (state.browseServiceFilter || []).length > 0 || state.browseSearch;
     container.innerHTML = `
+      <h2 style="margin-bottom:16px;">Available Requests</h2>
+      ${renderBrowseToolbar()}
       <div class="empty-state">
         <div class="empty-icon">🔍</div>
         <h3 class="empty-title">${isFiltered ? 'No requests match your filters' : 'No requests available'}</h3>
@@ -1679,7 +1681,7 @@ function renderClientRequests() {
       </div>`;
     return;
   }
-
+   
   const items = paginate(allRequests, 'clientRequests');
   const statusColors = { pending: 'badge-warning', active: 'badge-primary', completed: 'badge-success', cancelled: 'badge-danger' };
   const statusLabels = { pending: 'Pending', active: 'Active', completed: 'Completed', cancelled: 'Cancelled' };
