@@ -1764,7 +1764,11 @@ async function loadExpertData() {
 
   // Load available requests for experts
   try {
-    const res = await fetch(`${API_URL}/requests/available`, {
+    const browseParams = new URLSearchParams();
+    if (state.browseServiceFilter?.length === 1) browseParams.set('service', state.browseServiceFilter[0]);
+    if (state.browseSearch) browseParams.set('search', state.browseSearch);
+    if (state.browseSort) browseParams.set('sort', state.browseSort);
+    const res = await fetch(`${API_URL}/requests/available?${browseParams}`, {
       signal: browseAbortController.signal,
       headers: {
         'Authorization': `Bearer ${state.token}`,
