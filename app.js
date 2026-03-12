@@ -946,6 +946,141 @@ function renderRatingBars(ratings) {
   
   document.getElementById('ratingBars').innerHTML = barsHTML;
 }
+async function openPublicProfile(expertId) {
+  const url = `${window.location.origin}/expert/${expertId}`;
+  if (navigator.share) {
+    navigator.share({ title: 'Check out this expert on WorkIndex', url });
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast('Profile link copied!', 'success'));
+  }
+}
+
+async function loadPublicExpertPage() {
+  const match = window.location.pathname.match(/^\/expert\/([a-f0-9]{24})$/i);
+  if (!match) return;
+  const expertId = match[1];
+
+  document.body.innerHTML = `<div style="min-height:100vh;background:#0f0f13;display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Inter',sans-serif;">
+    <div id="pubCard" style="color:#f0f0f4;font-size:15px;">Loading...</div>
+  </div>`;
+
+  try {
+    const res = await fetch(`${API_URL}/users/public/${expertId}`);
+    const data = await res.json();
+    if (!data.success) { document.getElementById('pubCard').textContent = 'Expert not found.'; return; }
+    const e = data.expert, pr = e.profile || {};
+    const spec = e.specialization || pr.specialization || 'Professional';
+    const bio = e.bio || pr.bio || '';
+    const exp = e.yearsOfExperience || pr.yearsOfExperience || pr.experience || '';
+    const services = e.servicesOffered || pr.servicesOffered || [];
+    const city = (e.location?.city || pr.city || '');
+    const state2 = (e.location?.state || pr.state || '');
+    const loc = [city, state2].filter(Boolean).join(', ');
+    const kycVerified = e.kyc?.status === 'approved';
+    const serviceLabels = { itr:'ITR Filing', gst:'GST', accounting:'Accounting', audit:'Audit', photography:'Photography', development:'Development' };
+    const initials = (e.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+
+    document.body.innerHTML = `
+    <div style="min-height:100vh;background:linear-gradient(135deg,#0f0f13 0%,#1a1a24 100%);padding:24px 16px;font-family:'Inter',sans-serif;">
+      <div style="max-width:520px;margin:0 auto;">
+
+        <!-- Header branding -->
+        <div style="text-align:center;margin-bottom:20px;">
+          <span style="font-size:13px;color:#606078;font-weight:600;letter-spacing:.08em;">WORKINDEX</span>
+        </div>
+
+        <!-- Main card -->
+        <div style="background:#18181d;border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.5);border:1px solid #222230;">
+
+          <!-- Top gradient banner -->
+          <div style="height:80px;background:linear-gradient(135deg,#FC8019,#e5610a);"></div>
+
+          <!-- Avatar overlapping banner -->
+          <div style="padding:0 24px 24px;margin-top:-44px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;">
+              <div style="width:80px;height:80px;border-radius:50%;border:4px solid #18181d;overflow:hidden;background:#FC8019;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;flex-shrink:0;">
+                ${e.profilePhoto ? `<img src="${e.profilePhoto}" style="width:100%;height:100%;object-fit:cover;">` : initials}
+              </div>
+              <div style="display:flex;gap:8px;margin-bottom:6px;">
+                ${kycVerified ? `<span style="background:rgba(34,197,94,0.12);color:#22c55e;border:1px solid rgba(34,197,94,0.25);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;">✅ KYC Verified</span>` : ''}
+                ${e.emailVerified ? `<span style="background:rgba(252,128,25,0.12);color:#FC8019;border:1px solid rgba(252,128,25,0.25);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;">✉️ Email Verified</span>` : ''}
+              </div>
+            </div>
+
+            <h1 style="font-size:24px;font-weight:800;color:#f0f0f4;margin:0 0 4px;">${e.name}</h1>
+            <p style="font-size:15px;color:#FC8019;font-weight:600;margin:0 0 6px;">${spec}</p>
+            ${loc ? `<p style="font-size:13px;color:#606078;margin:0 0 14px;">📍 ${loc}</p>` : ''}
+
+            <!-- Stats row -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+              <div style="background:#111116;border-radius:12px;padding:12px;text-align:center;">
+                <div style="font-size:20px;font-weight:800;color:#f59e0b;">${e.rating ? Number(e.rating).toFixed(1) : '—'}</div>
+                <div style="font-size:11px;color:#606078;margin-top:2px;">Rating</div>
+              </div>
+              <div style="background:#111116;border-radius:12px;padding:12px;text-align:center;">
+                <div style="font-size:20px;font-weight:800;color:#f0f0f4;">${e.reviewCount || 0}</div>
+                <div style="font-size:11px;color:#606078;margin-top:2px;">Reviews</div>
+              </div>
+              <div style="background:#111116;border-radius:12px;padding:12px;text-align:center;">
+                <div style="font-size:18px;font-weight:800;color:#f0f0f4;">${exp ? exp+'yr' : '—'}</div>
+                <div style="font-size:11px;color:#606078;margin-top:2px;">Experience</div>
+              </div>
+            </div>
+
+            ${services.length ? `
+            <div style="margin-bottom:20px;">
+              <div style="font-size:11px;color:#606078;font-weight:700;letter-spacing:.06em;margin-bottom:8px;">SERVICES</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                ${services.map(s=>`<span style="background:rgba(252,128,25,0.12);color:#FC8019;border:1px solid rgba(252,128,25,0.25);border-radius:8px;padding:5px 12px;font-size:13px;font-weight:600;">${serviceLabels[s]||s}</span>`).join('')}
+              </div>
+            </div>` : ''}
+
+            ${bio ? `
+            <div style="margin-bottom:20px;">
+              <div style="font-size:11px;color:#606078;font-weight:700;letter-spacing:.06em;margin-bottom:8px;">ABOUT</div>
+              <p style="font-size:14px;color:#c0c0d8;line-height:1.7;margin:0;">${bio}</p>
+            </div>` : ''}
+
+            ${e.whyChooseMe ? `
+            <div style="margin-bottom:20px;padding:14px 16px;background:rgba(252,128,25,0.06);border-left:3px solid #FC8019;border-radius:0 10px 10px 0;">
+              <div style="font-size:11px;color:#FC8019;font-weight:700;letter-spacing:.06em;margin-bottom:6px;">💡 WHY CHOOSE ME</div>
+              <p style="font-size:14px;color:#c0c0d8;line-height:1.7;margin:0;">${e.whyChooseMe}</p>
+            </div>` : ''}
+
+            ${data.ratings?.length ? `
+            <div style="margin-bottom:20px;">
+              <div style="font-size:11px;color:#606078;font-weight:700;letter-spacing:.06em;margin-bottom:10px;">RECENT REVIEWS</div>
+              ${data.ratings.map(r=>`
+              <div style="background:#111116;border-radius:12px;padding:14px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <span style="font-size:14px;font-weight:600;color:#f0f0f4;">${r.client?.name||'Client'}</span>
+                  <span style="color:#f59e0b;font-size:14px;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+                </div>
+                <p style="font-size:13px;color:#a0a0b8;margin:0;line-height:1.5;">${r.review}</p>
+              </div>`).join('')}
+            </div>` : ''}
+
+            <!-- CTA -->
+            <a href="/" style="display:block;text-align:center;padding:15px;background:#FC8019;color:#fff;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;margin-bottom:10px;">
+              Post a Request → Get Quotes
+            </a>
+            <p style="text-align:center;font-size:12px;color:#606078;margin:0;">Connect with ${e.name.split(' ')[0]} on WorkIndex</p>
+          </div>
+        </div>
+
+        <!-- Share button -->
+        <div style="text-align:center;margin-top:16px;">
+          <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>this.textContent='✅ Link Copied!')"
+            style="background:transparent;border:1px solid #333;color:#606078;padding:8px 20px;border-radius:20px;font-size:13px;cursor:pointer;">
+            🔗 Copy Profile Link
+          </button>
+        </div>
+      </div>
+    </div>`;
+  } catch(err) {
+    document.getElementById('pubCard').textContent = 'Failed to load profile.';
+  }
+}
 
 async function respondToReview(ratingId) {
   const response = prompt('Your response to this review:');
