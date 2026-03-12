@@ -5237,28 +5237,17 @@ function updateBrowseFilterChips(selected) {
 // ─── BROWSE TAB SERVICE FILTER ───
 function setBrowseFilter(service) {
   let activeFilter = state.browseServiceFilter || [];
-
   if (service === 'all') {
-    // Clear all filters — show everything
     activeFilter = [];
   } else {
-    if (activeFilter.includes(service)) {
-      // Deselect it
-      activeFilter = activeFilter.filter(s => s !== service);
-    } else {
-      // Add it
-      activeFilter = [...activeFilter, service];
-    }
+    activeFilter = activeFilter.includes(service)
+      ? activeFilter.filter(s => s !== service)
+      : [...activeFilter, service];
   }
-
   state.browseServiceFilter = activeFilter;
-  PAGINATION.expertBrowse.page = 1;
-
-  // Re-render chips and requests
-  const filterBar = document.getElementById('browseFilterBar');
-  if (filterBar) filterBar.innerHTML = renderBrowseFilterChips();
-  renderAvailableRequests();
+  applyBrowseFilters();
 }
+
 function clearAuthForms() {
   // All auth field IDs
   ['loginEmail', 'loginPassword',
