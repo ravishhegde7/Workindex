@@ -2959,7 +2959,7 @@ function loadSettings() {
 // ─── INIT ON PAGE LOAD ─── 
 document.addEventListener('DOMContentLoaded', () => {
   if (window.location.pathname.startsWith('/expert/')) {
-    loadPublicExpertPage();
+        setTimeout(loadPublicExpertPage, 0);
     return;
   }
   initDarkMode();
