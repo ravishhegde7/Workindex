@@ -2958,12 +2958,12 @@ function loadSettings() {
 
 // ─── INIT ON PAGE LOAD ─── 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[init] pathname:', window.location.pathname);
+  // ── Public routes — bypass auth entirely ──
   if (window.location.pathname.startsWith('/expert/')) {
-    console.log('[init] launching public profile page');
-    setTimeout(loadPublicExpertPage, 0);
+    loadPublicExpertPage();
     return;
   }
+
   initDarkMode();
    
   // ── Handle back/forward browser buttons ──
