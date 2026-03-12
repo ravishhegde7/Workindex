@@ -1853,7 +1853,7 @@ function renderBrowseToolbar() {
                color:var(--text);font-size:13px;font-weight:600;cursor:pointer;">
         ${sortOpts.map(o => `<option value="${o.value}" ${cur === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
       </select>
-      ${hasSearch ? `<button onclick="state.browseSearch='';document.getElementById('browseSearchInput').value='';applyBrowseFilters();"
+      ${hasSearch ? `<button onclick="state.browseSearch='';state.browseServiceFilter=[];document.getElementById('browseSearchInput').value='';applyBrowseFilters();"
         style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;background:transparent;
                color:var(--text-muted);font-size:13px;cursor:pointer;white-space:nowrap;">✕ Clear</button>` : ''}
     </div>`;
