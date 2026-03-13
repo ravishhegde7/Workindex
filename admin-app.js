@@ -2871,8 +2871,9 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
     var period = (g('revPeriod') || {}).value || 'month';
     g('revSummary').innerHTML = '<div style="color:#a0a0b8;font-size:13px;padding:8px;">Loading...</div>';
 
-    api('revenue?period=' + period).then(function(d) {
-      if (!d.success) return;
+    var svcPeriod = (g('revSvcPeriod') || {}).value || 'all';
+    api('revenue?period=' + period + '&svcPeriod=' + svcPeriod).then(function(d) {
+       if (!d.success) return;
       var s = d.summary || {};
 
       // ── Summary cards ──
