@@ -2952,30 +2952,30 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
         });
       }
 
-      // ── Service table ──
-      var total = svcData.reduce(function(a,b){return a+b;},0)||1;
+   // ── Service table ──
+      var totalReqs = bs.reduce(function(a,r){return a+r.count;},0)||1;
       g('revSvcTable').innerHTML = '<table style="width:100%;font-size:13px;border-collapse:collapse;">' +
         '<thead><tr>' +
           '<th style="text-align:left;padding:8px 6px;color:#a0a0b8;border-bottom:1px solid rgba(255,255,255,.07);">Service</th>' +
-          '<th style="text-align:right;padding:8px 6px;color:#a0a0b8;border-bottom:1px solid rgba(255,255,255,.07);">Credits</th>' +
+          '<th style="text-align:right;padding:8px 6px;color:#a0a0b8;border-bottom:1px solid rgba(255,255,255,.07);">Experts</th>' +
           '<th style="text-align:right;padding:8px 6px;color:#a0a0b8;border-bottom:1px solid rgba(255,255,255,.07);">Requests</th>' +
           '<th style="text-align:right;padding:8px 6px;color:#a0a0b8;border-bottom:1px solid rgba(255,255,255,.07);">Share</th>' +
         '</tr></thead><tbody>' +
         bs.map(function(r,i) {
-          var pct = Math.round((r.totalCredits/total)*100);
+          var pct = r.share !== undefined ? r.share : Math.round((r.count/totalReqs)*100);
           return '<tr>' +
             '<td style="padding:8px 6px;color:#f0f0f4;font-weight:600;">' +
               '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + svcColors[i%svcColors.length] + ';margin-right:6px;"></span>' +
               (r._id||'Other').toUpperCase() +
             '</td>' +
-            '<td style="padding:8px 6px;text-align:right;color:#FC8019;">' + (r.totalCredits||0) + '</td>' +
+            '<td style="padding:8px 6px;text-align:right;color:#22c55e;font-weight:600;">' + (r.expertCount||0) + '</td>' +
             '<td style="padding:8px 6px;text-align:right;color:#a0a0b8;">' + (r.count||0) + '</td>' +
             '<td style="padding:8px 6px;text-align:right;">' +
               '<div style="display:flex;align-items:center;justify-content:flex-end;gap:6px;">' +
-                '<div style="width:50px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;">' +
+                '<div style="width:60px;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;">' +
                   '<div style="width:' + pct + '%;height:100%;background:' + svcColors[i%svcColors.length] + ';border-radius:3px;"></div>' +
                 '</div>' +
-                '<span style="color:#a0a0b8;min-width:30px;">' + pct + '%</span>' +
+                '<span style="color:#f0f0f4;font-weight:600;min-width:32px;">' + pct + '%</span>' +
               '</div>' +
             '</td>' +
           '</tr>';
