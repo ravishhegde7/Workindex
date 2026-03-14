@@ -1628,10 +1628,9 @@ g('invAmt').value = inrAmt > 0 ? inrAmt : '';
       setT('acTbl', spin());
       api('users' + qs({ search: uid.slice(-8) })).then(function(d) {
         if (!d.success || !(d.users||[]).length) {
-          // fallback: load all
-          return api('users' + qs({})).then(function(d2) { renderActTbl(d2.users||[]); });
+          return api('users' + qs({})).then(function(d2) { _pageData['actions'] = d2.users||[]; renderActTblPage(); });
         }
-        renderActTbl(d.users||[]);
+        _pageData['actions'] = d.users||[]; renderActTblPage();
       }).catch(function() { setT('acTbl', ''); });
     }, 200);
   }
