@@ -1588,12 +1588,26 @@ g('invAmt').value = inrAmt > 0 ? inrAmt : '';
   }
 
   /* ═══ ACTIONS ════════════════════════════════════════════════════════════ */
-  function searchActions() {
+  function loadAllActions() {
     var srch = g('acSrch').value, role = g('acRole').value;
+    _pages['actions'] = 1;
     setT('acTbl', spin());
-    api('users' + qs({ role: role, search: srch })).then(function(d) {
-      renderActTbl(d.users||[]);
+    api('users' + qs({ role: role || 'all', search: srch })).then(function(d) {
+      _pageData['actions'] = d.users || [];
+      renderActTblPage();
     }).catch(function() { setT('acTbl', ''); });
+  }
+
+  function searchActions() {
+    loadAllActions();
+  }
+
+  function renderActTblPage() {
+    var existing = document.getElementById('pag-actions');
+    if (existing) existing.remove();
+    var page = pagSlice('actions', _pageData['actions'] || []);
+    renderActTbl(page);
+    pagHTML('actions', 'acTbl');
   }
 
   function doAct(uid, act, reason) {
