@@ -2561,7 +2561,8 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
       approach_accepted:'#22c55e', approach_rejected:'#ef4444',
       service_completed:'#a855f7', ticket_followup:'#f59e0b',
       ticket_canned_response:'#06b6d4', expert_profile_viewed:'#3b82f6',
-      service_received:'#22c55e'
+      service_received:'#22c55e', client_hired_expert:'#f59e0b',
+      expert_accepted_hire:'#22c55e'
     };
     tbody.innerHTML = page.map(function(l) {
       var rc = roleColors[l.actorRole]  || '#a0a0b8';
