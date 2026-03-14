@@ -2508,7 +2508,7 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
     var search = g('auditSearch') ? g('auditSearch').value : '';
     var from   = g('auditFrom')   ? g('auditFrom').value   : '';
     var to     = g('auditTo')     ? g('auditTo').value     : '';
-    var qp = 'audit?limit=100' +
+    var qp = 'audit?limit=200' +
       (action && action !== 'all' ? '&action=' + encodeURIComponent(action) : '') +
       (role   && role   !== 'all' ? '&role='   + encodeURIComponent(role)   : '') +
       (search ? '&search=' + encodeURIComponent(search) : '') +
@@ -2520,40 +2520,50 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
       var logs  = d.logs  || [];
       var total = d.total || logs.length;
       var tc = g('auditTotal'); if (tc) tc.textContent = total + ' events';
-      if (!tbody) return;
-      if (!logs.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#606078">No audit events found</td></tr>';
-        return;
-      }
-      var roleColors = { admin:'#a855f7', expert:'#FC8019', client:'#3b82f6' };
-      var actionColors = {
-        login:'#22c55e', request_created:'#3b82f6', approach_submitted:'#FC8019',
-        approach_accepted:'#22c55e', approach_rejected:'#ef4444',
-        service_completed:'#a855f7', ticket_followup:'#f59e0b',
-        ticket_canned_response:'#06b6d4'
-      };
-      tbody.innerHTML = logs.map(function(l) {
-        var rc = roleColors[l.actorRole]  || '#a0a0b8';
-        var ac = actionColors[l.action]   || '#a0a0b8';
-        var meta = '';
-        if (l.targetName) meta = l.targetName;
-        return '<tr>' +
-          '<td style="font-size:12px;font-weight:600;color:#f0f0f4">' + esc(l.actorName||'-') +
-            '<br><span class="badge" style="background:' + rc + '20;color:' + rc + ';font-size:10px">' + (l.actorRole||'-') + '</span></td>' +
-          '<td><span style="font-size:12px;font-weight:600;color:' + ac + '">' + esc((l.action||'-').replace(/_/g,' ')) + '</span></td>' +
-          '<td style="font-size:12px;color:#a0a0b8">' + esc(l.targetType||'-') + '</td>' +
-          '<td style="font-size:12px;color:#a0a0b8;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(meta) + '</td>' +
-          '<td style="font-size:12px;color:#606078">' + fmtT(l.createdAt) + '</td>' +
-          '<td><button class="btn bgho" style="font-size:11px;padding:4px 8px" onclick="showAuditMeta(' + "'" + l._id + "'" + ')">Details</button></td>' +
-        '</tr>';
-      }).join('');
-      // store logs for details modal
       window._auditLogs = logs;
+      _pages['audit'] = 1;
+      _pageData['audit'] = logs;
+      renderAuditPage();
     }).catch(function() {
       if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#ef4444">Error loading audit log</td></tr>';
     });
   }
 
+  function renderAuditPage() {
+    var tbody = g('auditTbody');
+    if (!tbody) return;
+    var existing = document.getElementById('pag-audit');
+    if (existing) existing.remove();
+    var page = pagSlice('audit', _pageData['audit'] || []);
+    if (!page.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#606078">No audit events found</td></tr>';
+      return;
+    }
+    var roleColors = { admin:'#a855f7', expert:'#FC8019', client:'#3b82f6' };
+    var actionColors = {
+      login:'#22c55e', request_created:'#3b82f6', approach_submitted:'#FC8019',
+      approach_accepted:'#22c55e', approach_rejected:'#ef4444',
+      service_completed:'#a855f7', ticket_followup:'#f59e0b',
+      ticket_canned_response:'#06b6d4', expert_profile_viewed:'#3b82f6',
+      service_received:'#22c55e'
+    };
+    tbody.innerHTML = page.map(function(l) {
+      var rc = roleColors[l.actorRole]  || '#a0a0b8';
+      var ac = actionColors[l.action]   || '#a0a0b8';
+      var meta = l.targetName || '';
+      return '<tr>' +
+        '<td style="font-size:12px;font-weight:600;color:#f0f0f4">' + esc(l.actorName||'-') +
+          '<br><span class="badge" style="background:' + rc + '20;color:' + rc + ';font-size:10px">' + (l.actorRole||'-') + '</span></td>' +
+        '<td><span style="font-size:12px;font-weight:600;color:' + ac + '">' + esc((l.action||'-').replace(/_/g,' ')) + '</span></td>' +
+        '<td style="font-size:12px;color:#a0a0b8">' + esc(l.targetType||'-') + '</td>' +
+        '<td style="font-size:12px;color:#a0a0b8;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(meta) + '</td>' +
+        '<td style="font-size:12px;color:#606078">' + fmtT(l.createdAt) + '</td>' +
+        '<td><button class="btn bgho" style="font-size:11px;padding:4px 8px" onclick="showAuditMeta(\'' + l._id + '\')">Details</button></td>' +
+      '</tr>';
+    }).join('');
+    pagHTML('audit', 'auditTbody');
+  }
+   
   window.showAuditMeta = function(id) {
     var logs = window._auditLogs || [];
     var l = logs.filter(function(x){ return x._id === id; })[0];
