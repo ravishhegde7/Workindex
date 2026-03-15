@@ -6,9 +6,6 @@
 <meta name="theme-color" content="#FC8019"/>
 <meta name="description" content="WorkIndex - Find verified professionals for any service. Connect with expert CAs, GST consultants, photographers, developers and more."/>
 <title>WorkIndex - Find Verified Professionals</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/styles.css">
 <style>
 /* ═══ TRENDING SERVICES ═══ */
@@ -3400,31 +3397,15 @@ async function resendSignupOTP(email) {
 }
 
 // ─── LOGIN ───────────────────────────────────────────────
-async function login(email, password, role) {
-  try {
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, role: role })
-    });
-    
-    const data = await res.json();
-    
-    if (data.success) {
-      state.token = data.token;
-      state.user = data.user;
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      enterDashboard();
-    } else {
-      showToast(data.message || 'Login failed', 'error');
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-    showToast('Login failed. Please try again.', 'error');
+function handleLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) {
+    showToast('Please fill all fields', 'error'); return;
   }
+  login(email, password, selectedLoginRole);
 }
-  
+
 // ─── FORGOT PASSWORD ─────────────────────────────────────
 let _fpResetToken = null;
 
