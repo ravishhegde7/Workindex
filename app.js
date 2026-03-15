@@ -2061,58 +2061,163 @@ function renderAvailableRequests() {
 
   const items = paginate(allRequests, 'expertBrowse');
 
-  container.innerHTML = '<h2 style="margin-bottom:16px;">Available Requests</h2>' +
+  container.innerHTML = '<h2 style="margin-bottom:16px;font-size:20px;font-weight:800;letter-spacing:-0.3px;">Available Requests</h2>' +
     renderBrowseToolbar() +
+    '<div class="req-grid">' +
     items.map(req => {
       const cur  = req.currentApproaches || 0;
       const max  = req.maxApproaches || 5;
       const pct  = (cur / max) * 100;
       const left = max - cur;
-      const col  = cur >= 4 ? '#f39c12' : cur >= 3 ? '#3498db' : 'var(--primary)';
+      const col  = cur >= 4 ? '#ef4444' : cur >= 3 ? '#f59e0b' : 'var(--primary)';
+
+      // Time posted
+      const postedAgo = (() => {
+        if (!req.createdAt) return 'Recently';
+        const diff = Date.now() - new Date(req.createdAt).getTime();
+        const mins = Math.floor(diff / 60000);
+        const hrs  = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+        if (mins < 60) return mins + 'm ago';
+        if (hrs < 24)  return hrs + 'h ago';
+        return days + 'd ago';
+      })();
+
+      // Urgency
+      const urgencyMap = {
+        immediate: { label: '🔴 Urgent',      color: '#ef4444', bg: 'rgba(239,68,68,0.1)'   },
+        '2-3days':  { label: '🟠 2-3 Days',   color: '#f97316', bg: 'rgba(249,115,22,0.1)'  },
+        week:       { label: '🟡 This Week',  color: '#f59e0b', bg: 'rgba(245,158,11,0.1)'  },
+        month:      { label: '🟢 This Month', color: '#22c55e', bg: 'rgba(34,197,94,0.1)'   },
+        flexible:   { label: '🔵 Flexible',   color: '#6b7280', bg: 'rgba(107,114,128,0.1)' }
+      };
+      const urgencyKey = (req.answers && req.answers.urgency) || req.timeline || 'flexible';
+      const urgency = urgencyMap[urgencyKey] || urgencyMap.flexible;
+
+      // Service color
+      const svcColors = { itr:'#8b5cf6', gst:'#3b82f6', accounting:'#10b981', audit:'#f59e0b', photography:'#ec4899', development:'#06b6d4' };
+      const svcColor = svcColors[req.service] || '#FC8019';
+
+      // Answer tags — show relevant questionnaire answers as pills
+      const answerTags = [];
+      const a = req.answers || {};
+      if (a.itrAnnualIncome)        answerTags.push('Income: ' + a.itrAnnualIncome.replace('above','> ').replace('below','< '));
+      if (a.itrTaxpayerType)        answerTags.push(a.itrTaxpayerType.charAt(0).toUpperCase() + a.itrTaxpayerType.slice(1));
+      if (a.gstTurnover)            answerTags.push('Turnover: ' + a.gstTurnover);
+      if (a.gstServiceType)         answerTags.push(a.gstServiceType.replace(/_/g,' '));
+      if (a.accountingFrequency)    answerTags.push(a.accountingFrequency.replace(/-/g,' '));
+      if (a.accountingTransactions) answerTags.push(a.accountingTransactions + ' txns/mo');
+      if (a.photographyType)        answerTags.push(a.photographyType.charAt(0).toUpperCase() + a.photographyType.slice(1));
+      if (a.photographyDuration)    answerTags.push(a.photographyDuration.replace(/-/g,' '));
+      if (a.devProjectType)         answerTags.push(a.devProjectType.replace(/-/g,' '));
+      if (a.devTimeline)            answerTags.push(a.devTimeline.replace(/-/g,' '));
+      if (a.auditType)              answerTags.push(a.auditType.replace(/_/g,' ') + ' audit');
+      if (a.auditTurnover)          answerTags.push('Turnover: ' + a.auditTurnover);
+
+      // Location from answers
+      const location = (() => {
+        if (a.fullAddress && a.fullAddress.city) return a.fullAddress.city + (a.fullAddress.state ? ', ' + a.fullAddress.state : '');
+        if (a.clientLocation && a.clientLocation.city) return a.clientLocation.city;
+        return req.location || 'Online';
+      })();
+
+      // Service location type
+      const locType = a.serviceLocationType || '';
+      const locLabel = locType === 'my-location' ? '🏠 At client' : locType === 'professional-office' ? '🏢 At office' : '💻 Online';
 
       return `
-        <div class="request-card" style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
-            <div style="flex:1;">
-              <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">${req.title}</h3>
-              <p style="font-size:14px;color:var(--text-muted);">${req.service.toUpperCase()}</p>
-              <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">👤 <strong>${req.client?.name || 'Client'}</strong>${req.client?.emailVerified ? ' <span style="font-size:11px;color:#22c55e;font-weight:600;">✉️ verified</span>' : ''}</p>
+        <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;transition:all 0.2s;margin-bottom:0;"
+          onmouseover="this.style.borderColor='rgba(252,128,25,0.5)';this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.1)'"
+          onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)';this.style.boxShadow='none'">
+
+          <!-- TOP STRIP: service + urgency + time + credits -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg-gray);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:6px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:${svcColor}18;color:${svcColor};letter-spacing:.04em;text-transform:uppercase;">${req.service}</span>
+              <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${urgency.bg};color:${urgency.color};">${urgency.label}</span>
             </div>
-            <span class="badge badge-primary">${req.credits || 20} credits</span>
-          </div>
-          <p style="font-size:14px;color:var(--text-light);margin-bottom:16px;line-height:1.5;">${req.description}</p>
-          <div style="display:flex;gap:20px;font-size:13px;color:var(--text-muted);margin-bottom:12px;align-items:center;flex-wrap:wrap;">
-            <span>📍 ${req.location || 'Online'}</span>
-            <span style="background:rgba(252,128,25,0.12);border:1px solid var(--primary);border-radius:8px;padding:4px 10px;color:var(--primary);font-weight:700;font-size:14px;">💰 ₹${req.budget ? req.budget.toLocaleString('en-IN') : 'Negotiable'}</span>
-            <span>⏱️ ${req.timeline || 'Flexible'}</span>
-          </div>
-          <div style="margin-bottom:16px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <span style="font-size:13px;font-weight:600;color:var(--text-muted);">👥 Approaches</span>
-              <span style="font-size:14px;font-weight:700;color:${col};">${cur}/${max}</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;color:var(--text-muted);">🕐 ${postedAgo}</span>
+              <span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(252,128,25,0.12);color:var(--primary);">💎 ${req.credits || 20} credits</span>
             </div>
-            <div style="height:8px;background:var(--bg-gray);border-radius:4px;overflow:hidden;margin-bottom:4px;">
-              <div style="height:100%;width:${pct}%;background:${col};transition:width 0.3s;"></div>
-            </div>
-            ${cur >= 4 ? `<div style="font-size:12px;color:#e74c3c;font-weight:600;">⚠️ Only ${left} spot${left === 1 ? '' : 's'} left!</div>`
-                       : cur >= 3 ? `<div style="font-size:12px;color:#f39c12;">${left} spots remaining</div>` : ''}
           </div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <button onclick="showExpertRequestDetail('${req._id}')"
-              style="flex:1;min-width:120px;padding:12px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;cursor:pointer;">
-              View Details
-            </button>
-            <button onclick="approachClient('${req._id}')"
-              style="flex:2;min-width:140px;padding:12px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
-              Approach Client
-            </button>
-            <button onclick="reportRequest('${req._id}', '${(req.title||'').replace(/'/g, '')}')"
-              style="padding:10px 14px;border:1px solid #ef444466;border-radius:10px;background:transparent;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
-              🚩 Report
-            </button>
+
+          <!-- MAIN BODY -->
+          <div style="padding:18px;">
+
+            <!-- Title row + budget hero -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:12px;">
+              <div style="flex:1;">
+                <h3 style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.25;letter-spacing:-0.2px;">${req.title}</h3>
+                <!-- Client trust signal -->
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <div style="width:24px;height:24px;border-radius:50%;background:${svcColor};color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${(req.client?.name || 'C').charAt(0).toUpperCase()}</div>
+                  <span style="font-size:13px;font-weight:600;color:var(--text);">${req.client?.name || 'Client'}</span>
+                  ${req.client?.emailVerified ? '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(34,197,94,0.1);color:#16a34a;border:1px solid rgba(34,197,94,0.2);">✓ Verified</span>' : '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--bg-gray);color:var(--text-muted);">Unverified</span>'}
+                  <span style="font-size:11px;color:var(--text-muted);">· ${location}</span>
+                </div>
+              </div>
+              <!-- Budget hero number -->
+              <div style="text-align:right;flex-shrink:0;background:rgba(252,128,25,0.06);border:1.5px solid rgba(252,128,25,0.2);border-radius:12px;padding:10px 14px;">
+                <div style="font-size:22px;font-weight:800;color:var(--primary);line-height:1;">₹${req.budget ? Number(req.budget).toLocaleString('en-IN') : '—'}</div>
+                <div style="font-size:10px;color:var(--text-muted);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Budget</div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <p style="font-size:13.5px;color:var(--text-light);line-height:1.65;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${req.description}</p>
+
+            <!-- Answer tags (scope pills) -->
+            ${answerTags.length ? `
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
+              ${answerTags.map(t => `<span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--bg-gray);color:var(--text-muted);border:1px solid var(--border);">${t}</span>`).join('')}
+              <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--bg-gray);color:var(--text-muted);border:1px solid var(--border);">${locLabel}</span>
+            </div>` : `
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;">
+              <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--bg-gray);color:var(--text-muted);border:1px solid var(--border);">${locLabel}</span>
+              <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--bg-gray);color:var(--text-muted);border:1px solid var(--border);">⏱ ${req.timeline || 'Flexible'}</span>
+            </div>`}
+
+            <!-- Approaches progress -->
+            <div style="margin-bottom:16px;padding:10px 12px;background:var(--bg-gray);border-radius:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:12px;font-weight:600;color:var(--text-muted);">👥 Responses</span>
+                <span style="font-size:12px;font-weight:700;color:${col};">${cur}/${max} slots filled</span>
+              </div>
+              <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:${pct}%;background:${col};border-radius:3px;transition:width 0.4s;"></div>
+              </div>
+              ${cur >= 4 ? `<div style="font-size:11px;color:#ef4444;font-weight:700;margin-top:5px;">⚠️ Only ${left} spot left — respond now!</div>`
+                         : cur === 0 ? `<div style="font-size:11px;color:#22c55e;font-weight:600;margin-top:5px;">✨ Be the first to respond</div>`
+                         : `<div style="font-size:11px;color:var(--text-muted);margin-top:5px;">${left} spots remaining</div>`}
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:grid;grid-template-columns:1fr 2fr 44px;gap:8px;">
+              <button onclick="showExpertRequestDetail('${req._id}')"
+                style="padding:12px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;"
+                onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'"
+                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">
+                View Details
+              </button>
+              <button onclick="approachClient('${req._id}')"
+                style="padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,#FC8019,#e87010);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(252,128,25,0.3);transition:all 0.2s;letter-spacing:0.01em;"
+                onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 20px rgba(252,128,25,0.42)'"
+                onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 14px rgba(252,128,25,0.3)'">
+                Approach Client →
+              </button>
+              <button onclick="reportRequest('${req._id}', '${(req.title||'').replace(/'/g, '')}')"
+                style="width:44px;padding:12px 0;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--text-muted);font-size:14px;cursor:pointer;transition:all 0.2s;"
+                title="Report this request"
+                onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444';this.style.background='rgba(239,68,68,0.06)'"
+                onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)';this.style.background='transparent'">
+                🚩
+              </button>
+            </div>
+
           </div>
         </div>`;
-    }).join('') + paginationControlsHTML(allRequests, 'expertBrowse');
+    }).join('') + '</div>' + paginationControlsHTML(allRequests, 'expertBrowse');
 }
 
 // ─── SHOW REQUEST DETAIL FOR EXPERT ───
