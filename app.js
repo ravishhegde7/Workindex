@@ -3448,25 +3448,38 @@ function renderExpertProfile() {
   ).join('');
 
   profileTab.innerHTML = `
-    <!-- ── AVATAR SECTION ── -->
-    <div style="text-align:center;padding:24px 20px 0;">
-      <div class="avatar-upload" style="display:inline-block;position:relative;margin-bottom:12px;">
-        <div class="avatar avatar-xl" id="expertProfileAvatar" style="width:88px;height:88px;font-size:32px;">
-          ${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="${user.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : (user.name || 'E').substring(0,2).toUpperCase()}
+    <!-- ── PROFILE HERO ── -->
+    <div style="background:linear-gradient(135deg,rgba(252,128,25,0.08),rgba(252,128,25,0.02));border-bottom:1px solid var(--border);padding:28px 20px 20px;text-align:center;">
+      <!-- Avatar -->
+      <div style="position:relative;display:inline-block;margin-bottom:14px;">
+        <div id="expertProfileAvatar" style="width:88px;height:88px;border-radius:50%;background:var(--primary);color:#fff;font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 4px 16px rgba(252,128,25,0.25);overflow:hidden;margin:0 auto;">
+          ${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="${user.name}" style="width:100%;height:100%;object-fit:cover;">` : (user.name || 'E').substring(0,2).toUpperCase()}
         </div>
-        <button class="avatar-upload-btn" onclick="document.getElementById('expertPhotoInput').click()" style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;border:2px solid var(--bg);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">📷</button>
+        <button onclick="document.getElementById('expertPhotoInput').click()"
+          style="position:absolute;bottom:2px;right:2px;width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;border:2px solid var(--bg);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);">📷</button>
         <input type="file" id="expertPhotoInput" style="display:none;" accept="image/*" onchange="uploadProfilePhoto(event)">
+        <!-- Online indicator -->
+        <span style="position:absolute;top:4px;right:4px;width:14px;height:14px;border-radius:50%;background:#22c55e;border:2px solid var(--bg);"></span>
       </div>
-      <h2 style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px;" id="expertProfileName">${user.name || 'Expert'}</h2>
-      <p style="color:var(--text-muted);font-size:14px;margin-bottom:4px;" id="expertProfileEmail">${user.email || ''}</p>
-      ${profile.specialization ? `<p style="color:var(--primary);font-size:14px;font-weight:600;">${profile.specialization}</p>` : ''}
-      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:12px;margin-bottom:16px;flex-wrap:wrap;">
-        <span style="font-size:14px;color:var(--text-muted);">⭐ ${user.rating || '0.0'} (${user.reviewCount || 0} reviews)</span>
-        <span style="font-size:14px;color:var(--text-muted);">💎 ${user.credits || 0} credits</span>
-        ${profile.city ? `<span style="font-size:14px;color:var(--text-muted);">📍 ${profile.city}</span>` : ''}
+
+      <!-- Name + role -->
+      <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 3px;" id="expertProfileName">${user.name || 'Expert'}</h2>
+      ${profile.specialization ? `<p style="font-size:14px;font-weight:600;color:var(--primary);margin:0 0 3px;">${profile.specialization}</p>` : ''}
+      <p style="font-size:13px;color:var(--text-muted);margin:0 0 14px;" id="expertProfileEmail">${user.email || ''}</p>
+
+      <!-- Stat pills row -->
+      <div style="display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;">
+        ${user.rating ? `<span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(245,158,11,0.1);color:#b45309;">⭐ ${Number(user.rating).toFixed(1)} (${user.reviewCount || 0})</span>` : ''}
+        <span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(252,128,25,0.1);color:var(--primary);">💎 ${user.credits || 0} credits</span>
+        ${profile.city ? `<span style="font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;background:var(--bg-gray);color:var(--text-muted);">📍 ${profile.city}</span>` : ''}
+        ${(user.kyc && user.kyc.status === 'approved') ? `<span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;background:rgba(22,163,74,0.1);color:#16a34a;">✅ KYC Verified</span>` : ''}
       </div>
+
+      <!-- Share button -->
       <button onclick="openPublicProfile('${user._id}')"
-        style="margin:0 20px 20px;width:calc(100% - 40px);padding:12px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:14px;font-weight:700;cursor:pointer;">
+        style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;"
+        onmouseover="this.style.background='rgba(252,128,25,0.06)'"
+        onmouseout="this.style.background='transparent'">
         🔗 Share My Profile
       </button>
     </div>
@@ -3527,17 +3540,21 @@ function renderExpertProfile() {
           </div>
         ` : `
           <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Upload one government ID to get a verified badge on your profile. Verified experts get 3× more client trust.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-            ${['Aadhaar Card','PAN Card','Voter ID','Driving License'].map(doc => `
-              <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s;"
-                id="kyc_label_${doc.replace(/\s/g,'_')}"
-                onmouseover="this.style.borderColor='var(--primary)'"
-                onmouseout="if(window._kycSelected!==this.querySelector('input').value)this.style.borderColor='var(--border)'">
-                <input type="radio" name="kycDocType" value="${doc}" onchange="selectKycDocType('${doc}')" style="accent-color:var(--primary);">
-                ${doc}
-              </label>`).join('')}
+          <!-- Step 1: Pick doc type -->
+          <div id="kycStep1">
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Select document type to upload:</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;">
+              ${['Aadhaar Card','PAN Card','Voter ID','Driving License'].map(doc => `
+                <label id="kyc_label_${doc.replace(/\s/g,'_')}"
+                  style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.2s;"
+                  onmouseover="this.style.borderColor='var(--primary)'"
+                  onmouseout="if(window._kycSelected!=='${doc}')this.style.borderColor='var(--border)'">
+                  <input type="radio" name="kycDocType" value="${doc}" onchange="selectKycDocType('${doc}')" style="accent-color:var(--primary);">
+                  ${doc}
+                </label>`).join('')}
+            </div>
           </div>
-          <div id="kycUploadArea" style="display:none;">
+          <div id="kycUploadArea" style="display:none;margin-top:12px;">
             <div id="kycPreview" style="display:none;margin-bottom:10px;"></div>
             <label style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;border:2px dashed var(--border);border-radius:12px;cursor:pointer;background:var(--bg-gray);" onclick="document.getElementById('kycFileInput').click()">
               <span style="font-size:32px;">📄</span>
@@ -3587,28 +3604,45 @@ function renderExpertProfile() {
 
       <!-- ── AVAILABILITY STATUS ── -->
       <div class="settings-section" style="margin-bottom:20px;">
-        <h3 class="settings-section-title">Availability Status</h3>
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Clients see this on your profile — keep it updated</p>
-        <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div>
+            <h3 class="settings-section-title" style="margin:0;">Availability Status</h3>
+            <p style="font-size:12px;color:var(--text-muted);margin:3px 0 0;">Shown on your public profile</p>
+          </div>
+          <!-- Current status pill -->
+          ${(() => {
+            const cur = user.availability || 'available';
+            const pillMap = {
+              available: { label: "Available",  color: '#16a34a', bg: 'rgba(22,163,74,0.1)',  dot: '#22c55e' },
+              busy:      { label: "Busy",       color: '#dc2626', bg: 'rgba(220,38,38,0.1)',  dot: '#ef4444' },
+              away:      { label: "Away",       color: '#d97706', bg: 'rgba(217,119,6,0.1)',  dot: '#f59e0b' }
+            };
+            const p = pillMap[cur];
+            return `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;background:${p.bg};color:${p.color};font-size:12px;font-weight:700;">
+              <span style="width:7px;height:7px;border-radius:50%;background:${p.dot};display:inline-block;"></span>
+              ${p.label}
+            </span>`;
+          })()}
+        </div>
+        <!-- Compact 3-button selector -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
           ${['available','busy','away'].map(status => {
             const map = {
-              available: { icon: '🟢', label: "I'm Available",     sub: 'Open to new clients' },
-              busy:      { icon: '🔴', label: 'Busy This Week',    sub: 'Limited availability' },
-              away:      { icon: '🟡', label: 'Away',              sub: 'Temporarily unavailable' }
+              available: { icon: '🟢', label: "Available" },
+              busy:      { icon: '🔴', label: "Busy"      },
+              away:      { icon: '🟡', label: "Away"      }
             };
             const s = map[status];
             const isActive = (user.availability || 'available') === status;
-            return `<label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid ${isActive ? 'var(--primary)' : 'var(--border)'};border-radius:10px;cursor:pointer;background:${isActive ? 'rgba(252,128,25,0.05)' : 'var(--bg)'};">
-              <input type="radio" name="availabilityRadio" value="${status}" ${isActive ? 'checked' : ''} style="accent-color:var(--primary);" onchange="updateAvailability('${status}')">
-              <div>
-                <div style="font-size:14px;font-weight:700;color:var(--text);">${s.icon} ${s.label}</div>
-                <div style="font-size:12px;color:var(--text-muted);">${s.sub}</div>
-              </div>
+            return `<label style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;border:2px solid ${isActive ? 'var(--primary)' : 'var(--border)'};border-radius:10px;cursor:pointer;background:${isActive ? 'rgba(252,128,25,0.06)' : 'var(--bg)'};text-align:center;">
+              <input type="radio" name="availabilityRadio" value="${status}" ${isActive ? 'checked' : ''} style="display:none;" onchange="updateAvailability('${status}')">
+              <span style="font-size:20px;">${s.icon}</span>
+              <span style="font-size:12px;font-weight:700;color:${isActive ? 'var(--primary)' : 'var(--text)'};">${s.label}</span>
             </label>`;
           }).join('')}
         </div>
       </div>
-
+      
       <!-- ── WHY CHOOSE ME ── -->
       <div class="settings-section" style="margin-bottom:20px;">
         <h3 class="settings-section-title">Why Choose Me</h3>
