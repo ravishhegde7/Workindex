@@ -2157,7 +2157,32 @@ function renderAvailableRequests() {
 
   const container = document.getElementById('browseRequestsContainer');
   if (!container) return;
-
+/* ─── CLIENT STAT HERO CARDS ─── */
+#clientStatHero > div:nth-child(1) {
+  background: linear-gradient(135deg,#fff8f3,#fff3e8) !important;
+  border-color: rgba(252,128,25,0.25) !important;
+}
+#clientStatHero > div:nth-child(2) {
+  background: linear-gradient(135deg,#f0f7ff,#e8f2ff) !important;
+  border-color: rgba(59,130,246,0.25) !important;
+}
+#clientStatHero > div:nth-child(3) {
+  background: linear-gradient(135deg,#f0fdf4,#dcfce7) !important;
+  border-color: rgba(34,197,94,0.25) !important;
+}
+body.dark-mode #clientStatHero > div:nth-child(1) {
+  background: linear-gradient(135deg,rgba(252,128,25,0.12),rgba(252,128,25,0.06)) !important;
+  border-color: rgba(252,128,25,0.3) !important;
+}
+body.dark-mode #clientStatHero > div:nth-child(2) {
+  background: linear-gradient(135deg,rgba(59,130,246,0.12),rgba(59,130,246,0.06)) !important;
+  border-color: rgba(59,130,246,0.3) !important;
+}
+body.dark-mode #clientStatHero > div:nth-child(3) {
+  background: linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.06)) !important;
+  border-color: rgba(34,197,94,0.3) !important;
+}
+   
   // ── Expert stat hero (inject once, refresh credits on re-render) ──
   const existingHero = document.getElementById('expertStatHero');
   if (!existingHero && state.user) {
