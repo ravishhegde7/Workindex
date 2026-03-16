@@ -331,7 +331,30 @@
                 <button class="btn brdn" style="justify-content:flex-start;width:100%;padding:10px 14px" onclick="dangerAction('clearLogs')">&#128465; Clear Communication Logs (older than 90 days)</button>
                 <button class="btn brdn" style="justify-content:flex-start;width:100%;padding:10px 14px" onclick="dangerAction('clearFailedPayments')">&#128465; Clear Failed Payment Logs</button>
               </div>
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(239,68,68,.15);">
+                <div style="font-size:12px;color:#606078;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Delete by Category</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                  <select id="deleteCategorySelect" style="flex:1;min-width:180px;padding:10px 12px;background:#18181d;border:1px solid #2a2a38;border-radius:8px;color:#f0f0f4;font-size:13px;">
+                    <option value="">-- Select category --</option>
+                    <option value="approaches">Approaches</option>
+                    <option value="posts">Posts / Requests</option>
+                    <option value="experts">Experts (users)</option>
+                    <option value="clients">Clients (users)</option>
+                    <option value="ratings">Ratings & Reviews</option>
+                    <option value="chats">Chats</option>
+                    <option value="tickets">Support Tickets</option>
+                    <option value="notifications">Notifications</option>
+                    <option value="credits">Credit Transactions</option>
+                  </select>
+                  <button onclick="deleteCategoryData()" style="padding:10px 18px;background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;white-space:nowrap;">🗑 Delete Selected</button>
+                </div>
+              </div>
             </div>
+          </div>
+          <!-- Platform Stats (visit count) -->
+          <div class="card">
+            <div class="ch"><h3>&#128200; Platform Overview</h3></div>
+            <div style="padding:16px" id="settVisitStats"><div class="spin"></div></div>
           </div>
           <!-- Download Reports -->
           <div class="card">
