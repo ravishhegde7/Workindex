@@ -2071,7 +2071,6 @@ async function loadExpertData() {
       renderAvailableRequests();
       updateExpertProfile();
       loadExpertCredits();
-      loadMyApproaches();
       // ✅ REMOVE renderExpertProfile() from here
     }
   } catch (error) {
