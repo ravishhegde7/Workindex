@@ -986,6 +986,16 @@ body.dark-mode {
   .req-grid { grid-template-columns: 1fr; gap: 12px; }
 }
 
+/* ─── EXPERT GRID — 2 col on desktop, 1 col on mobile ─── */
+#expertGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+@media (max-width: 768px) {
+  #expertGrid { grid-template-columns: 1fr; gap: 10px; }
+}
+
 /* ─── EXPERT STAT HERO CARDS ─── */
 #expertStatHero > div:nth-child(1) {
   background: linear-gradient(135deg,#fff8f3,#fff3e8) !important;
