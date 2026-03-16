@@ -1357,14 +1357,7 @@ function renderExperts() {
               onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
               View Profile
             </button>
-            <button onclick="toggleShortlist('${expert._id}', this)"
-              title="${isShortlisted ? 'Remove from shortlist' : 'Save expert'}"
-              style="width:40px;padding:10px 0;border:1.5px solid var(--border);border-radius:10px;background:${isShortlisted ? 'rgba(239,68,68,0.08)' : 'transparent'};color:${isShortlisted ? '#ef4444' : 'var(--text-muted)'};font-size:16px;cursor:pointer;transition:all 0.2s;"
-              onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'"
-              onmouseout="this.style.borderColor='var(--border)';this.style.color='${isShortlisted ? '#ef4444' : 'var(--text-muted)'}'">
-              ${isShortlisted ? '❤️' : '🤍'}
-            </button>
-          </div>
+            </div>
         </div>
       </div>`;
   }).join('') + paginationControlsHTML(allExperts, 'findExperts');
