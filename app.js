@@ -2974,7 +2974,20 @@ async function submitApproachReport() {
     var data = await res.json();
     document.getElementById('approachReportModal')?.remove();
     if (data.success) {
-      showToast('Report submitted. Thank you for keeping WorkIndex safe.', 'success');
+      // Add to local blocked list + remove from explore grid (same as openBlockModal flow)
+      if (_blockTargetId) {
+        _clientBlocked = _clientBlocked || [];
+        if (!_clientBlocked.includes(_blockTargetId)) {
+          _clientBlocked.push(_blockTargetId);
+          localStorage.setItem('blockedExperts_' + state.user._id, JSON.stringify(_clientBlocked));
+        }
+        // Remove from explore grid if currently on that view
+        if (_clientExploreAll && _clientExploreAll.length) {
+          _clientExploreAll = _clientExploreAll.filter(function(e) { return e._id !== _blockTargetId; });
+          filterClientExplore(_exploreFilter);
+        }
+      }
+      showToast('Report submitted. Expert has been blocked.', 'success');
     } else {
       showToast(data.message || 'Failed to submit report', 'error');
     }
