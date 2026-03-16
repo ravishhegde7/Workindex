@@ -2730,6 +2730,7 @@ function showRequestApproaches(req, approaches) {
 
   var approachesHTML = approaches.length > 0 ? approaches.map(function(app) {
     var expert = app.expert;
+    if (!expert) return '';
     var kycVerified = expert.kyc && expert.kyc.status === 'approved';
     var primarySvc = (expert.servicesOffered || (expert.profile && expert.profile.servicesOffered) || [])[0];
     var svcColor = svcColors[primarySvc] || '#FC8019';
