@@ -2877,11 +2877,109 @@ function toggleCompare(appId, expertId, checkbox) {
 function showBlockFromApproaches(expertId, expertName) {
   _blockTargetId   = expertId;
   _blockTargetName = expertName;
-  var modal = document.getElementById('blockReportModal');
-  if (modal) {
-    var nameEl = document.getElementById('blockModalName');
-    if (nameEl) nameEl.textContent = expertName;
-    modal.style.display = 'flex';
+
+  // Remove any existing report modal
+  var old = document.getElementById('approachReportModal');
+  if (old) old.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'approachReportModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1010;padding:20px;';
+  modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+
+  var reasons = [
+    { value: 'unprofessional',  label: '😤 Unprofessional behaviour' },
+    { value: 'spam',            label: '🚫 Spam or irrelevant message' },
+    { value: 'fake',            label: '🎭 Fake profile / credentials' },
+    { value: 'harassment',      label: '⚠️ Harassment or rude language' },
+    { value: 'overcharging',    label: '💸 Misleading quote / overcharging' },
+    { value: 'other',           label: '📝 Other reason' },
+  ];
+
+  modal.innerHTML =
+    '<div style="background:var(--bg);border-radius:20px;max-width:400px;width:100%;padding:24px;">' +
+
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">' +
+        '<div style="width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🚩</div>' +
+        '<div>' +
+          '<h2 style="font-size:17px;font-weight:800;color:var(--text);margin:0 0 2px;">Report Expert</h2>' +
+          '<p style="font-size:13px;color:var(--text-muted);margin:0;">Reporting <strong>' + expertName + '</strong></p>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'approachReportModal\').remove()" style="margin-left:auto;width:32px;height:32px;border:none;background:var(--bg-gray);border-radius:50%;font-size:18px;cursor:pointer;color:var(--text-muted);">×</button>' +
+      '</div>' +
+
+      '<p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;">Why are you reporting this expert?</p>' +
+
+      '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;" id="reportReasonList">' +
+        reasons.map(function(r) {
+          return '<label style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.15s;" ' +
+            'onmouseover="this.style.borderColor=\'#ef4444\';this.style.background=\'rgba(239,68,68,0.04)\'" ' +
+            'onmouseout="this.querySelector(\'input\').checked||(this.style.borderColor=\'var(--border)\',this.style.background=\'transparent\')">' +
+            '<input type="radio" name="approachReportReason" value="' + r.value + '" style="accent-color:#ef4444;width:16px;height:16px;" ' +
+            'onchange="document.querySelectorAll(\'#reportReasonList label\').forEach(function(l){l.style.borderColor=\'var(--border)\';l.style.background=\'transparent\'});this.closest(\'label\').style.borderColor=\'#ef4444\';this.closest(\'label\').style.background=\'rgba(239,68,68,0.06)\';document.getElementById(\'reportOtherBox\').style.display=\'' + (r.value === 'other' ? 'block' : 'none') + '\'">' +
+            '<span style="font-size:14px;color:var(--text);">' + r.label + '</span>' +
+          '</label>';
+        }).join('') +
+      '</div>' +
+
+      '<div id="reportOtherBox" style="display:none;margin-bottom:16px;">' +
+        '<textarea id="reportOtherText" rows="3" placeholder="Please describe the issue..." ' +
+          'style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;color:var(--text);background:var(--bg);resize:none;box-sizing:border-box;"></textarea>' +
+      '</div>' +
+
+      '<div id="reportErrorMsg" style="display:none;color:#ef4444;font-size:13px;margin-bottom:10px;"></div>' +
+
+      '<div style="display:flex;gap:10px;">' +
+        '<button onclick="document.getElementById(\'approachReportModal\').remove()" ' +
+          'style="flex:1;padding:13px;border:1.5px solid var(--border);border-radius:12px;background:transparent;color:var(--text);font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>' +
+        '<button onclick="submitApproachReport()" ' +
+          'style="flex:1;padding:13px;border:none;border-radius:12px;background:#ef4444;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">🚩 Submit Report</button>' +
+      '</div>' +
+
+    '</div>';
+
+  document.body.appendChild(modal);
+}
+
+async function submitApproachReport() {
+  var selected = document.querySelector('input[name="approachReportReason"]:checked');
+  var errEl = document.getElementById('reportErrorMsg');
+  if (!selected) {
+    errEl.textContent = 'Please select a reason before submitting.';
+    errEl.style.display = 'block';
+    return;
+  }
+  var reason = selected.value;
+  var detail = reason === 'other' ? (document.getElementById('reportOtherText')?.value?.trim() || '') : '';
+  if (reason === 'other' && !detail) {
+    errEl.textContent = 'Please describe the issue.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  var btn = document.querySelector('#approachReportModal button[onclick="submitApproachReport()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting...'; }
+
+  try {
+    var res = await fetch(API_URL + '/users/' + _blockTargetId + '/block', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + state.token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ report: true, reason: reason + (detail ? ': ' + detail : '') })
+    });
+    var data = await res.json();
+    document.getElementById('approachReportModal')?.remove();
+    if (data.success) {
+      showToast('Report submitted. Thank you for keeping WorkIndex safe.', 'success');
+    } else {
+      showToast(data.message || 'Failed to submit report', 'error');
+    }
+  } catch (err) {
+    document.getElementById('approachReportModal')?.remove();
+    showToast('Network error — please try again', 'error');
   }
 }
 
