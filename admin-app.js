@@ -2807,6 +2807,7 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
       };
     }
     if (g('settRefreshStats')) g('settRefreshStats').onclick = loadSettingsStats;
+     loadVisitStats();
   }
 
   function loadSettingsStats() {
@@ -2830,6 +2831,35 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
         }).join('') + '</div>';
     }).catch(function() { g('settStats').innerHTML = '<p style="color:#606078;text-align:center">Could not load stats</p>'; });
   }
+function loadVisitStats() {
+    var el = g('settVisitStats');
+    if (!el) return;
+    el.innerHTML = '<div class="spin"></div>';
+    api('stats').then(function(d) {
+      if (!d.success) { el.innerHTML = '<p style="color:#606078">Could not load</p>'; return; }
+      var s = d.stats || {};
+      el.innerHTML =
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
+          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
+            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Total Clients</div>' +
+            '<div style="font-size:22px;font-weight:800;color:#3b82f6;">' + (s.totalClients||0) + '</div>' +
+          '</div>' +
+          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
+            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Total Experts</div>' +
+            '<div style="font-size:22px;font-weight:800;color:#FC8019;">' + (s.totalExperts||0) + '</div>' +
+          '</div>' +
+          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
+            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Total Requests</div>' +
+            '<div style="font-size:22px;font-weight:800;color:#f0f0f4;">' + (s.totalRequests||0) + '</div>' +
+          '</div>' +
+          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
+            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Amount Paid (₹)</div>' +
+            '<div style="font-size:22px;font-weight:800;color:#22c55e;">₹' + ((s.credits&&s.credits.totalAmountPaid)||0).toLocaleString('en-IN') + '</div>' +
+          '</div>' +
+        '</div>';
+    }).catch(function() { el.innerHTML = '<p style="color:#606078">Error</p>'; });
+  }
+   
 /* ═══ DOWNLOAD REPORTS ══════════════════════════════════════════════════ */
   function downloadReport(type) {
     var btn = g('dl' + type.charAt(0).toUpperCase() + type.slice(1));
