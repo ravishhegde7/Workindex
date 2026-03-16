@@ -1351,7 +1351,7 @@ function renderExperts() {
           </div>` : '<div style="flex:1;"></div>'}
 
           <!-- Action buttons -->
-          <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:auto;">
+          <div style="margin-top:auto;">
             <button onclick="viewExpertProfile('${expert._id}', true)"
               style="padding:10px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;"
               onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
