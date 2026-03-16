@@ -5169,7 +5169,8 @@ function renderClientExploreGrid(experts) {
         </div>
       </div>`;
   }).join('') + '</div>' + paginationControlsHTML(experts, 'clientExplore');
-
+}
+   
 // ─── HIRE EXPERT ───
 async function hireExpert(expertId, expertName) {
   if (isUserRestricted()) { showRestrictedToast(); return; } // ← ADD THIS
