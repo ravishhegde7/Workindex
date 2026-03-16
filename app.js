@@ -1892,14 +1892,16 @@ function renderClientRequests() {
       { label: 'Proposals',  value: totalAppr, color: '#3b82f6', icon: '📨' },
       { label: 'Completed',  value: completed, color: '#22c55e', icon: '✅' }
     ];
-    hero.innerHTML = stats.map(s => `
-      <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center;cursor:pointer;transition:all 0.2s;"
-        onmouseover="this.style.borderColor='${s.color}';this.style.transform='translateY(-2px)'"
-        onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
-        <div style="font-size:20px;margin-bottom:4px;">${s.icon}</div>
-        <div style="font-size:22px;font-weight:800;color:${s.color};line-height:1;">${s.value}</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">${s.label}</div>
-      </div>`).join('');
+    hero.innerHTML = stats.map(function(s) {
+      return '<div onclick="' + s.action + '"' +
+        ' style="background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:14px 12px;text-align:center;cursor:pointer;transition:all 0.2s;"' +
+        ' onmouseover="this.style.borderColor=\'' + s.color + '\';this.style.transform=\'translateY(-2px)\'"' +
+        ' onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'translateY(0)\'">' +
+        '<div style="font-size:20px;margin-bottom:4px;">' + s.icon + '</div>' +
+        '<div style="font-size:22px;font-weight:800;color:' + s.color + ';line-height:1;">' + s.value + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">' + s.label + '</div>' +
+        '</div>';
+    }).join('');
     container.parentNode.insertBefore(hero, container);
   } else {
     const vals = existingHero.querySelectorAll('[style*="font-size:22px"]');
