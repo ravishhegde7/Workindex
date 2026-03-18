@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#FC8019"/>
+<title>Refund & Cancellation Policy – WorkIndex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #FC8019;
+    --primary-dark: #E67417;
+    --bg: #FFFFFF;
+    --bg-gray: #F9FAFB;
+    --border: #E9E9EB;
+    --text: #3D4152;
+    --text-light: #686B78;
+    --text-muted: #93959F;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--primary);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; color: #fff;
+  }
+  .logo-text { font-size: 20px; font-weight: 800; color: var(--text); }
+  .nav-back {
+    padding: 8px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .nav-back:hover { border-color: var(--primary); color: var(--primary); }
+
+  .hero {
+    text-align: center;
+    padding: 52px 24px 36px;
+    background: linear-gradient(135deg, #fff8f3 0%, #fff 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(252,128,25,0.1);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 900; color: var(--text); margin-bottom: 10px; }
+  .hero p { font-size: 15px; color: var(--text-muted); }
+
+  .main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* META */
+  .meta-bar {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+    padding: 16px 20px;
+    background: var(--bg-gray);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+  }
+  .meta-item { font-size: 13px; color: var(--text-muted); }
+  .meta-item strong { color: var(--text); font-weight: 700; }
+
+  /* SUMMARY TABLE */
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .summary-card {
+    border-radius: 14px;
+    padding: 20px;
+    border: 1.5px solid;
+  }
+  .summary-card.no-refund {
+    background: rgba(239,68,68,0.04);
+    border-color: rgba(239,68,68,0.2);
+  }
+  .summary-card.possible {
+    background: rgba(245,158,11,0.04);
+    border-color: rgba(245,158,11,0.2);
+  }
+  .summary-card.yes-refund {
+    background: rgba(34,197,94,0.04);
+    border-color: rgba(34,197,94,0.2);
+  }
+  .summary-card .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .no-refund .badge { background: rgba(239,68,68,0.12); color: var(--red); }
+  .possible .badge { background: rgba(245,158,11,0.12); color: var(--amber); }
+  .yes-refund .badge { background: rgba(34,197,94,0.12); color: var(--green); }
+  .summary-card h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .summary-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  /* SECTIONS */
+  .policy-section { margin-bottom: 40px; scroll-margin-top: 100px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(252,128,25,0.15);
+  }
+  .section-icon {
+    width: 40px; height: 40px;
+    background: rgba(252,128,25,0.1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 19px; font-weight: 800; color: var(--text); }
+
+  .policy-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .policy-list li {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.7;
+    padding-left: 20px;
+    position: relative;
+  }
+  .policy-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 12px;
+    top: 3px;
+  }
+  .policy-list li strong { color: var(--text); }
+
+  /* HIGHLIGHT / WARNING */
+  .highlight-box {
+    background: rgba(252,128,25,0.06);
+    border: 1.5px solid rgba(252,128,25,0.2);
+    border-left: 4px solid var(--primary);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  .highlight-box strong { color: var(--text); }
+
+  .warning-box {
+    background: rgba(239,68,68,0.04);
+    border: 1.5px solid rgba(239,68,68,0.2);
+    border-left: 4px solid var(--red);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  .warning-box strong { color: #dc2626; }
+
+  .info-box {
+    background: rgba(34,197,94,0.04);
+    border: 1.5px solid rgba(34,197,94,0.2);
+    border-left: 4px solid var(--green);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  .info-box strong { color: #16a34a; }
+
+  /* PROCESS STEPS */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 16px;
+    background: var(--bg-gray);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+  }
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-body h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .step-body p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+  /* TABLE */
+  .refund-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+  }
+  .refund-table th {
+    background: var(--bg-gray);
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .refund-table td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--text-light);
+    border-top: 1px solid var(--border);
+  }
+  .refund-table tr:nth-child(even) td { background: var(--bg-gray); }
+  .badge-red { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; background: rgba(239,68,68,0.1); color: var(--red); }
+  .badge-green { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; background: rgba(34,197,94,0.1); color: var(--green); }
+  .badge-amber { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; background: rgba(245,158,11,0.1); color: var(--amber); }
+
+  /* CONTACT STRIP */
+  .contact-strip {
+    background: linear-gradient(135deg, rgba(252,128,25,0.08), rgba(252,128,25,0.03));
+    border: 1.5px solid rgba(252,128,25,0.2);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    margin: 40px 0;
+  }
+  .contact-strip h3 { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .contact-strip p { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+  .contact-strip .btn {
+    display: inline-block;
+    padding: 12px 28px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    margin: 0 8px 8px;
+  }
+  .contact-strip .btn.outline {
+    background: transparent;
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+  }
+
+  /* OTHER LINKS */
+  .other-links {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .other-links a {
+    padding: 10px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .other-links a:hover { border-color: var(--primary); color: var(--primary); }
+
+  footer {
+    text-align: center;
+    padding: 28px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  footer a { color: var(--primary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <div class="logo-icon">W</div>
+    <span class="logo-text">WorkIndex</span>
+  </a>
+  <a href="/" class="nav-back">← Back to Home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">💰 Policy</div>
+  <h1>Refund & Cancellation Policy</h1>
+  <p>Last updated: January 2026 &nbsp;·&nbsp; Effective immediately</p>
+</div>
+
+<div class="main">
+
+  <div class="meta-bar">
+    <div class="meta-item"><strong>Platform:</strong> WorkIndex</div>
+    <div class="meta-item"><strong>Currency:</strong> Indian Rupees (INR)</div>
+    <div class="meta-item"><strong>Payment Gateway:</strong> Instamojo</div>
+    <div class="meta-item"><strong>Governed by:</strong> Consumer Protection Act, 2019</div>
+  </div>
+
+  <!-- QUICK SUMMARY -->
+  <div class="summary-cards">
+    <div class="summary-card no-refund">
+      <div class="badge">❌ No Refund</div>
+      <h4>Spent Credits</h4>
+      <p>Credits used to unlock client requests are non-refundable once consumed.</p>
+    </div>
+    <div class="summary-card possible">
+      <div class="badge">⚠️ Case by Case</div>
+      <h4>Technical Failures</h4>
+      <p>Payment deducted but credits not added — reviewed individually within 48 hrs.</p>
+    </div>
+    <div class="summary-card yes-refund">
+      <div class="badge">✅ Never Expire</div>
+      <h4>Unused Credits</h4>
+      <p>Credits you haven't spent yet never expire. Use them anytime.</p>
+    </div>
+  </div>
+
+  <!-- CREDIT REFUND POLICY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">💎</div>
+      <h2>Credit Purchase Refunds</h2>
+    </div>
+    <ul class="policy-list">
+      <li>All credit purchases on WorkIndex are <strong>final and non-refundable</strong> once the transaction is completed successfully.</li>
+      <li>Credits are a digital consumable — once purchased, they are credited to your account and available for immediate use.</li>
+      <li>We do not offer refunds for unused credits simply because you changed your mind or decided not to use the platform.</li>
+      <li><strong>Unused credits never expire</strong> — they remain in your account indefinitely and can be used whenever you're ready.</li>
+      <li>Credits cannot be transferred between accounts or converted to cash.</li>
+    </ul>
+
+    <div class="warning-box">
+      <strong>Important:</strong> Purchasing credits does not guarantee you will win clients or secure projects. WorkIndex is a lead generation marketplace — the outcome depends on your profile, pitch quality, and client preference. Unused opportunity is not grounds for a refund.
+    </div>
+
+    <table class="refund-table">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Credit Status</th>
+          <th>Refund Eligible?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Purchased credits, haven't used them yet</td>
+          <td>Safe, never expire</td>
+          <td><span class="badge-red">No Refund</span></td>
+        </tr>
+        <tr>
+          <td>Used credits to approach a client, client didn't respond</td>
+          <td>Consumed</td>
+          <td><span class="badge-red">No Refund</span></td>
+        </tr>
+        <tr>
+          <td>Used credits, client hired someone else</td>
+          <td>Consumed</td>
+          <td><span class="badge-red">No Refund</span></td>
+        </tr>
+        <tr>
+          <td>Used credits, client cancelled their request</td>
+          <td>Consumed</td>
+          <td><span class="badge-red">No Refund</span></td>
+        </tr>
+        <tr>
+          <td>Payment deducted, credits NOT added to account</td>
+          <td>Not received</td>
+          <td><span class="badge-amber">Review Required</span></td>
+        </tr>
+        <tr>
+          <td>Duplicate payment charged for same transaction</td>
+          <td>Not applicable</td>
+          <td><span class="badge-green">Refund Eligible</span></td>
+        </tr>
+        <tr>
+          <td>Account banned due to policy violation</td>
+          <td>Forfeited</td>
+          <td><span class="badge-red">No Refund</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TECHNICAL FAILURES -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <h2>Technical Failures & Payment Issues</h2>
+    </div>
+    <ul class="policy-list">
+      <li>If your payment was deducted from your bank/UPI but <strong>credits were not added</strong> to your WorkIndex account, this is considered a technical failure.</li>
+      <li>Such cases are reviewed individually and typically resolved within <strong>24–48 business hours</strong> of your report.</li>
+      <li>If a duplicate payment was charged (the same transaction billed twice), the excess amount will be refunded.</li>
+      <li>Payment gateway fees charged by Instamojo are non-recoverable and may be deducted from any approved refund amount.</li>
+    </ul>
+
+    <div class="info-box">
+      <strong>How to Report a Payment Issue:</strong> Log in → Go to Settings → Raise a Support Ticket → Select "Payment failed but amount deducted". Include your transaction ID, bank reference number, and the date/time of the transaction.
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Report within 7 days</h4>
+          <p>Technical payment failures must be reported within 7 days of the transaction date. Claims beyond this window may not be accepted.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Provide proof</h4>
+          <p>Share your bank statement screenshot or UPI transaction reference number showing the deduction.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Review (24–48 hrs)</h4>
+          <p>Our team verifies with the payment gateway. If confirmed, credits are added or refund initiated within 2 business days.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Refund processed</h4>
+          <p>Approved refunds are returned to the original payment method. Bank processing may take 3–7 business days additionally.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANCELLATION POLICY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🚫</div>
+      <h2>Cancellation Policy</h2>
+    </div>
+
+    <ul class="policy-list">
+      <li><strong>Customers</strong> may cancel a posted service request at any time from their dashboard before a professional has been selected and work has started. Cancellation is free.</li>
+      <li><strong>Professionals</strong> cannot "cancel" an approach once sent — the credits consumed for that approach are non-recoverable.</li>
+      <li><strong>Account cancellation</strong>: You may request deletion of your WorkIndex account at any time by raising a support ticket. Any remaining unused credits in your account will be forfeited and not refunded upon account deletion.</li>
+      <li>WorkIndex reserves the right to cancel and refund a credit purchase if it determines the purchase was made fraudulently.</li>
+      <li>Subscriptions or recurring charges do not currently exist on WorkIndex — all purchases are one-time.</li>
+    </ul>
+  </div>
+
+  <!-- SERVICE QUALITY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🤝</div>
+      <h2>Service Quality Disputes</h2>
+    </div>
+    <ul class="policy-list">
+      <li>WorkIndex is a <strong>marketplace and does not guarantee</strong> the quality, accuracy, or outcomes of any professional service.</li>
+      <li>Disputes about the quality of work, deliverables, or timelines are between the client and the professional — WorkIndex is not a party to these agreements.</li>
+      <li>WorkIndex does not provide refunds for professional services paid to experts — those payments are made outside the platform.</li>
+      <li>If you have been defrauded or harassed by an expert, report it through the platform — WorkIndex will take account action including restriction or banning.</li>
+    </ul>
+    <div class="highlight-box">
+      <strong>Best Practice:</strong> Always agree on deliverables, timelines, and payment terms with the professional before work begins. Payments made directly to professionals are outside WorkIndex's control.
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="contact-strip">
+    <h3>💬 Have a payment or billing issue?</h3>
+    <p>Our support team handles payment queries Monday to Saturday, 9am – 7pm IST. We aim to respond within 24 hours.</p>
+    <a href="mailto:support@workindex.in" class="btn">📧 Email Support</a>
+    <a href="/contact.html" class="btn outline">📋 Raise a Ticket</a>
+  </div>
+
+  <div class="other-links">
+    <a href="/terms.html">📋 Terms & Conditions</a>
+    <a href="/contact.html">📬 Contact Us</a>
+    <a href="/">🏠 Back to Home</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 WorkIndex. All rights reserved. &nbsp;|&nbsp; <a href="/terms.html">Terms</a> &nbsp;|&nbsp; <a href="/contact.html">Contact</a></p>
+</footer>
+
+</body>
+</html>

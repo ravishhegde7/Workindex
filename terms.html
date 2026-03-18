@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#FC8019"/>
+<title>Terms & Conditions – WorkIndex</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #FC8019;
+    --primary-dark: #E67417;
+    --bg: #FFFFFF;
+    --bg-gray: #F9FAFB;
+    --border: #E9E9EB;
+    --text: #3D4152;
+    --text-light: #686B78;
+    --text-muted: #93959F;
+  }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--primary);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px; color: #fff;
+  }
+  .logo-text { font-size: 20px; font-weight: 800; color: var(--text); }
+  .nav-back {
+    padding: 8px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .nav-back:hover { border-color: var(--primary); color: var(--primary); }
+
+  .hero {
+    text-align: center;
+    padding: 52px 24px 36px;
+    background: linear-gradient(135deg, #fff8f3 0%, #fff 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(252,128,25,0.1);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .hero h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 900; color: var(--text); margin-bottom: 10px; }
+  .hero p { font-size: 15px; color: var(--text-muted); }
+
+  /* TAB SWITCHER */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 24px 0;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    position: sticky;
+    top: 69px;
+    z-index: 9;
+  }
+  .tab-btn {
+    padding: 11px 24px;
+    border: 1.5px solid var(--border);
+    border-bottom: none;
+    border-radius: 10px 10px 0 0;
+    background: var(--bg-gray);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+  .tab-btn.active {
+    background: #fff;
+    color: var(--primary);
+    border-color: var(--border);
+    border-bottom: 2px solid #fff;
+    position: relative;
+  }
+
+  /* CONTENT */
+  .main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* TOC */
+  .toc {
+    background: var(--bg-gray);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 40px;
+  }
+  .toc h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+  .toc-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .toc-list li a {
+    font-size: 14px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .toc-list li a:hover { text-decoration: underline; }
+  .toc-list li { display: flex; align-items: center; gap: 8px; }
+  .toc-list li::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+  }
+
+  /* SECTIONS */
+  .terms-section {
+    margin-bottom: 36px;
+    scroll-margin-top: 140px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(252,128,25,0.15);
+  }
+  .section-icon {
+    width: 40px; height: 40px;
+    background: rgba(252,128,25,0.1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .terms-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .terms-list li {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.7;
+    padding-left: 20px;
+    position: relative;
+  }
+  .terms-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 12px;
+    top: 3px;
+  }
+  .terms-list li strong { color: var(--text); }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: rgba(252,128,25,0.06);
+    border: 1.5px solid rgba(252,128,25,0.2);
+    border-left: 4px solid var(--primary);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--text-light);
+    line-height: 1.6;
+  }
+  .highlight-box strong { color: var(--text); }
+
+  /* GENERAL BLOCK */
+  .general-block {
+    background: var(--bg-gray);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-top: 40px;
+  }
+  .general-block h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* META */
+  .meta-bar {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    padding: 16px 20px;
+    background: var(--bg-gray);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+  }
+  .meta-item { font-size: 13px; color: var(--text-muted); }
+  .meta-item strong { color: var(--text); font-weight: 700; }
+
+  /* OTHER LINKS */
+  .other-links {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .other-links a {
+    padding: 10px 20px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .other-links a:hover { border-color: var(--primary); color: var(--primary); }
+
+  footer {
+    text-align: center;
+    padding: 28px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  footer a { color: var(--primary); text-decoration: none; }
+
+  /* Tab content toggle */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <div class="logo-icon">W</div>
+    <span class="logo-text">WorkIndex</span>
+  </a>
+  <a href="/" class="nav-back">← Back to Home</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">📋 Legal</div>
+  <h1>Terms & Conditions</h1>
+  <p>Last updated: January 2026 &nbsp;·&nbsp; Effective immediately</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('customers')">👤 For Customers</button>
+  <button class="tab-btn" onclick="switchTab('professionals')">⭐ For Professionals</button>
+  <button class="tab-btn" onclick="switchTab('general')">📌 General</button>
+</div>
+
+<div class="main">
+
+  <div class="meta-bar">
+    <div class="meta-item"><strong>Platform:</strong> WorkIndex</div>
+    <div class="meta-item"><strong>Operator:</strong> Sole Proprietorship, Karnataka, India</div>
+    <div class="meta-item"><strong>Governed by:</strong> Indian IT Act & Consumer Protection Laws</div>
+  </div>
+
+  <!-- ═══ CUSTOMERS TAB ═══ -->
+  <div class="tab-content active" id="tab-customers">
+
+    <div class="toc">
+      <h3>📖 Table of Contents</h3>
+      <ul class="toc-list">
+        <li><a href="#c-posting">Posting Requests</a></li>
+        <li><a href="#c-selection">How Expert Selection Works</a></li>
+        <li><a href="#c-explore">Exploring & Directly Hiring Experts</a></li>
+        <li><a href="#c-documents">Documents & File Sharing</a></li>
+        <li><a href="#c-payments">Payments & Hiring</a></li>
+        <li><a href="#c-reviews">Reviews & Ratings</a></li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="c-posting">
+      <div class="section-header">
+        <div class="section-icon">📋</div>
+        <h2>Posting Requests</h2>
+      </div>
+      <ul class="terms-list">
+        <li>You can post service requests <strong>completely free of charge</strong>.</li>
+        <li>You are responsible for providing <strong>accurate, honest, and complete information</strong> in your request.</li>
+        <li>Posting fake, test, or misleading requests may result in immediate account suspension.</li>
+        <li>Each request is visible to verified experts matching your service category and location preferences.</li>
+        <li>You may edit or cancel a request at any time before an expert has been accepted or service has commenced.</li>
+        <li>WorkIndex reserves the right to remove requests that violate community guidelines or appear fraudulent.</li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="c-selection">
+      <div class="section-header">
+        <div class="section-icon">📨</div>
+        <h2>How Expert Selection Works</h2>
+      </div>
+      <ul class="terms-list">
+        <li>A maximum of <strong>5 professionals</strong> can approach you per request — ensuring only serious, relevant proposals reach you.</li>
+        <li>Experts who respond early are generally more committed and available — reviewing approaches promptly gives you best results.</li>
+        <li>You are under <strong>no obligation</strong> to hire any expert who approaches you.</li>
+        <li>Once you select an expert and service begins, we recommend marking your request completed to avoid further approaches.</li>
+        <li>WorkIndex does not guarantee the quality, timeliness, or outcome of any service delivered by a professional.</li>
+      </ul>
+      <div class="highlight-box">
+        <strong>Important:</strong> WorkIndex is a marketplace — we connect you with professionals but are not a party to any service agreement between you and the expert you hire.
+      </div>
+    </div>
+
+    <div class="terms-section" id="c-explore">
+      <div class="section-header">
+        <div class="section-icon">🔍</div>
+        <h2>Exploring & Directly Hiring Experts</h2>
+      </div>
+      <ul class="terms-list">
+        <li>You may browse verified expert profiles in the Explore section and shortlist or invite experts directly at no cost.</li>
+        <li>Inviting an expert directly <strong>does not cost you anything</strong> as a customer.</li>
+        <li>You are responsible for verifying an expert's credentials and suitability before hiring them.</li>
+        <li>WorkIndex profiles display ratings and verified reviews from past clients to assist your decision-making.</li>
+        <li>Blocking an expert removes them from your search results and prevents further contact.</li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="c-documents">
+      <div class="section-header">
+        <div class="section-icon">📁</div>
+        <h2>Documents & File Sharing</h2>
+      </div>
+      <ul class="terms-list">
+        <li>You may upload documents to your account and share them with experts you are actively working with.</li>
+        <li>Nothing is shared without your <strong>explicit approval</strong> — you control all access at all times.</li>
+        <li>You may grant or revoke document access to any expert at any time from your dashboard.</li>
+        <li>WorkIndex stores your documents securely but is <strong>not liable</strong> for misuse after you have knowingly granted access to an expert.</li>
+        <li>Do not upload documents containing passwords, bank PINs, OTPs, or other highly sensitive personal data unrelated to the service.</li>
+        <li>Report any document misuse immediately through the support ticket system.</li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="c-payments">
+      <div class="section-header">
+        <div class="section-icon">💰</div>
+        <h2>Payments & Hiring</h2>
+      </div>
+      <ul class="terms-list">
+        <li>All payments for professional services are made <strong>directly between you and the expert</strong> — WorkIndex does not process or hold these payments.</li>
+        <li>WorkIndex does not guarantee, mediate, or take responsibility for any payment arrangement between clients and professionals.</li>
+        <li>Any disputes over payment, scope, quality, or delivery must be resolved directly between you and the expert.</li>
+        <li>WorkIndex is not liable for the outcome, quality, accuracy, or timeliness of any service delivered.</li>
+        <li>Always agree on scope and payment terms with the expert before work begins.</li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="c-reviews">
+      <div class="section-header">
+        <div class="section-icon">⭐</div>
+        <h2>Reviews & Ratings</h2>
+      </div>
+      <ul class="terms-list">
+        <li>You are encouraged to leave honest ratings after work is completed — reviews help the community.</li>
+        <li>Reviews help other customers decide and help genuine experts grow on the platform.</li>
+        <li>False, malicious, or defamatory reviews intended to harm an expert may be removed and your account suspended.</li>
+        <li>WorkIndex may verify reviews for authenticity but does not guarantee all reviews are independently verified.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ PROFESSIONALS TAB ═══ -->
+  <div class="tab-content" id="tab-professionals">
+
+    <div class="toc">
+      <h3>📖 Table of Contents</h3>
+      <ul class="toc-list">
+        <li><a href="#p-credits">Credits & Payments</a></li>
+        <li><a href="#p-approaches">Approaches & Leads</a></li>
+        <li><a href="#p-direct">Direct Hire via Explore</a></li>
+        <li><a href="#p-profile">Profile & Profile Strength</a></li>
+        <li><a href="#p-documents">Documents & File Access</a></li>
+        <li><a href="#p-ratings">Ratings & Conduct</a></li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="p-credits">
+      <div class="section-header">
+        <div class="section-icon">💎</div>
+        <h2>Credits & Payments</h2>
+      </div>
+      <ul class="terms-list">
+        <li>Credits are purchased upfront and are <strong>strictly non-refundable</strong> under any circumstance once purchased.</li>
+        <li>Credits are consumed when you unlock a client's contact details and send an approach to their request.</li>
+        <li>Purchasing credits <strong>does not guarantee</strong> you will win the client — it gives you the opportunity to pitch.</li>
+        <li>WorkIndex is a <strong>lead generation platform</strong>, not a job guarantee platform. Success depends on your profile, pitch, and the client's decision.</li>
+        <li>Credit packages are one-time purchases with <strong>no expiry date</strong> — unused credits carry forward indefinitely.</li>
+        <li>In the event of account suspension or ban due to policy violations, remaining credits are forfeited with no refund.</li>
+      </ul>
+      <div class="highlight-box">
+        <strong>Non-Refund Policy:</strong> Credits once spent to unlock a client request are not returned even if the client is unresponsive, hires someone else, cancels their request, or provides inaccurate information.
+      </div>
+    </div>
+
+    <div class="terms-section" id="p-approaches">
+      <div class="section-header">
+        <div class="section-icon">📨</div>
+        <h2>Approaches & Leads</h2>
+      </div>
+      <ul class="terms-list">
+        <li>Only <strong>5 experts maximum</strong> can send an approach on any single client request — first come, first served basis.</li>
+        <li>Responding early significantly increases your chances — clients tend to engage most with the first 1–3 approaches they receive.</li>
+        <li>Credits spent to unlock a request are <strong>not returned</strong> even if the client is unresponsive, cancels, or hires another expert.</li>
+        <li>WorkIndex does not control or influence which expert a client ultimately chooses.</li>
+        <li>You are responsible for your own communication, pricing, terms, and delivery after connecting with a client.</li>
+        <li>Never attempt to take conversations or payments outside the platform against platform guidelines.</li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="p-direct">
+      <div class="section-header">
+        <div class="section-icon">🔍</div>
+        <h2>Direct Hire via Explore</h2>
+      </div>
+      <ul class="terms-list">
+        <li>Clients may discover your profile through the Explore section and invite you directly to their project.</li>
+        <li>Credits are still required to respond to a direct invite and unlock the client's full contact details.</li>
+        <li>A direct invite signals strong client interest but does <strong>not waive the credit requirement</strong>.</li>
+        <li>Direct invites are influenced by your profile strength, KYC verification status, ratings, and availability.</li>
+        <li>Maintain a professional profile and positive rating to maximize direct hire opportunities.</li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="p-profile">
+      <div class="section-header">
+        <div class="section-icon">👤</div>
+        <h2>Profile & Profile Strength</h2>
+      </div>
+      <ul class="terms-list">
+        <li>A complete and accurate profile significantly increases your chances of being discovered and invited by clients.</li>
+        <li>Profile strength is calculated based on: profile photo, bio, specialization, services offered, location, experience, certifications, and ratings.</li>
+        <li>Experts with higher profile strength appear higher in search results and receive more direct client invites.</li>
+        <li>You must provide <strong>accurate, truthful information</strong> about your qualifications, experience, and credentials.</li>
+        <li>Misrepresenting your credentials, qualifications, or identity is grounds for <strong>immediate permanent account suspension</strong> with no credit refund.</li>
+        <li>WorkIndex may request verification of credentials at any time.</li>
+      </ul>
+    </div>
+
+    <div class="terms-section" id="p-documents">
+      <div class="section-header">
+        <div class="section-icon">📁</div>
+        <h2>Documents & File Access</h2>
+      </div>
+      <ul class="terms-list">
+        <li>Clients may share documents with you through the platform solely for the purpose of completing their requested service.</li>
+        <li>You may request document access only when it is <strong>genuinely required</strong> to assess or deliver the service.</li>
+        <li>After a client grants access, you may download and use documents <strong>exclusively for delivering the requested service</strong>.</li>
+        <li>Downloaded documents must <strong>not be shared with third parties</strong>, used for unrelated purposes, or retained after the engagement ends.</li>
+        <li>Misuse of client documents will result in <strong>immediate permanent ban</strong> and may be reported to relevant legal authorities.</li>
+        <li>Once a client revokes document access, you must immediately cease use of any information obtained from those documents.</li>
+      </ul>
+      <div class="highlight-box">
+        <strong>Zero Tolerance:</strong> Misuse or unauthorized sharing of client documents is taken extremely seriously. It will result in permanent account termination and potential legal action.
+      </div>
+    </div>
+
+    <div class="terms-section" id="p-ratings">
+      <div class="section-header">
+        <div class="section-icon">⭐</div>
+        <h2>Ratings & Conduct</h2>
+      </div>
+      <ul class="terms-list">
+        <li>Clients can rate you after work completion and those reviews are <strong>publicly visible</strong> on your profile.</li>
+        <li>WorkIndex does not remove negative reviews unless they violate platform guidelines or are demonstrably false.</li>
+        <li>You are expected to maintain <strong>professional, respectful conduct</strong> at all times with clients and other users.</li>
+        <li>Harassment, intimidation, discrimination, or abusive behaviour will result in account suspension.</li>
+        <li>WorkIndex reserves the right to restrict, suspend, or remove profiles with consistent negative ratings, multiple reports, or conduct violations.</li>
+        <li>You may respond to reviews professionally from your dashboard — this response is also publicly visible.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- ═══ GENERAL TAB ═══ -->
+  <div class="tab-content" id="tab-general">
+
+    <div class="general-block">
+      <h3>📌 General Terms — Applies to Everyone</h3>
+      <ul class="terms-list">
+        <li>WorkIndex is a <strong>marketplace platform</strong> that connects clients with professionals — we are not a party to any service agreement between them.</li>
+        <li>WorkIndex reserves the right to <strong>update these terms at any time</strong>. Continued use of the platform constitutes acceptance of the updated terms.</li>
+        <li>Users are expected to comply with all applicable Indian laws, including but not limited to the IT Act, 2000, and Consumer Protection Act, 2019.</li>
+        <li>Accounts found to be fraudulent, abusive, or used for illegal activities will be <strong>permanently banned without notice</strong>.</li>
+        <li>Banned expert accounts forfeit any remaining credits with no refund.</li>
+        <li>For disputes or misuse reports, raise a support ticket — our team will review within <strong>48 working hours</strong>.</li>
+        <li>WorkIndex does not sell, share, or monetize your personal data with third parties for advertising purposes.</li>
+        <li>These terms are governed by the laws of Karnataka, India. Any legal disputes shall be subject to the exclusive jurisdiction of courts in Karnataka.</li>
+        <li>WorkIndex's liability in any event is limited to the amount you paid to WorkIndex directly (credit purchases) — not including any amounts paid to professionals.</li>
+      </ul>
+    </div>
+
+    <div class="highlight-box" style="margin-top:24px;">
+      <strong>Contact for Legal Matters:</strong> For any legal notices, contract queries, or formal correspondence, write to us at <a href="mailto:support@workindex.in" style="color:var(--primary);">support@workindex.in</a> with subject line "Legal Notice – WorkIndex".
+    </div>
+
+  </div>
+
+  <div class="other-links">
+    <a href="/refund-policy.html">💰 Refund Policy</a>
+    <a href="/contact.html">📬 Contact Us</a>
+    <a href="/">🏠 Back to Home</a>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 WorkIndex. All rights reserved. &nbsp;|&nbsp; <a href="/refund-policy.html">Refund Policy</a> &nbsp;|&nbsp; <a href="/contact.html">Contact</a></p>
+</footer>
+
+<script>
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
