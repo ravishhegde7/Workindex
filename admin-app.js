@@ -2831,9 +2831,11 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
         }).join('') + '</div>';
     }).catch(function() { g('settStats').innerHTML = '<p style="color:#606078;text-align:center">Could not load stats</p>'; });
   }
-function loadVisitStats() {
-    // Fetch visit stats from the visits route
-    api('../visits/stats').then(function(d) {
+window.loadVisitStats = function loadVisitStats() {
+    // Use the correct non-admin visits stats endpoint with admin token
+    fetch('https://workindex-production.up.railway.app/api/visits/stats', {
+      headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }
+    }).then(function(r) { return r.json(); }).then(function(d) {
       if (!d.success || !d.stats) return;
       var s = d.stats;
 
