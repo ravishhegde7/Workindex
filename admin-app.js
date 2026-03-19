@@ -2832,32 +2832,38 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
     }).catch(function() { g('settStats').innerHTML = '<p style="color:#606078;text-align:center">Could not load stats</p>'; });
   }
 function loadVisitStats() {
-    var el = g('settVisitStats');
-    if (!el) return;
-    el.innerHTML = '<div class="spin"></div>';
-    api('stats').then(function(d) {
-      if (!d.success) { el.innerHTML = '<p style="color:#606078">Could not load</p>'; return; }
-      var s = d.stats || {};
-      el.innerHTML =
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' +
-          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
-            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Total Clients</div>' +
-            '<div style="font-size:22px;font-weight:800;color:#3b82f6;">' + (s.totalClients||0) + '</div>' +
+    // Fetch visit stats from the visits route
+    api('../visits/stats').then(function(d) {
+      if (!d.success || !d.stats) return;
+      var s = d.stats;
+
+      var total = g('visitTotal');   if (total)  total.textContent  = (s.total||0).toLocaleString('en-IN');
+      var today = g('visitToday');   if (today)  today.textContent  = (s.today||0).toLocaleString('en-IN');
+      var week  = g('visitWeek');    if (week)   week.textContent   = (s.week||0).toLocaleString('en-IN');
+      var month = g('visitMonth');   if (month)  month.textContent  = (s.month||0).toLocaleString('en-IN');
+
+      var statesEl = g('visitStates');
+      if (!statesEl) return;
+      var states = s.states || [];
+      if (!states.length) {
+        statesEl.innerHTML = '<div style="font-size:13px;color:#606078;">No visit data yet</div>';
+        return;
+      }
+      var maxCount = states[0].count || 1;
+      statesEl.innerHTML = states.map(function(st) {
+        var pct = Math.round((st.count / maxCount) * 100);
+        return '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<div style="font-size:12px;color:#a0a0b8;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(st.state) + '</div>' +
+          '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
+            '<div style="height:100%;width:' + pct + '%;background:#FC8019;border-radius:3px;"></div>' +
           '</div>' +
-          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
-            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Total Experts</div>' +
-            '<div style="font-size:22px;font-weight:800;color:#FC8019;">' + (s.totalExperts||0) + '</div>' +
-          '</div>' +
-          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
-            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Total Requests</div>' +
-            '<div style="font-size:22px;font-weight:800;color:#f0f0f4;">' + (s.totalRequests||0) + '</div>' +
-          '</div>' +
-          '<div style="background:#18181d;border-radius:10px;padding:14px 16px;">' +
-            '<div style="font-size:10px;color:#606078;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Amount Paid (₹)</div>' +
-            '<div style="font-size:22px;font-weight:800;color:#22c55e;">₹' + ((s.credits&&s.credits.totalAmountPaid)||0).toLocaleString('en-IN') + '</div>' +
-          '</div>' +
+          '<div style="font-size:12px;font-weight:700;color:#f0f0f4;width:28px;text-align:right;">' + st.count + '</div>' +
         '</div>';
-    }).catch(function() { el.innerHTML = '<p style="color:#606078">Error</p>'; });
+      }).join('');
+    }).catch(function() {
+      var statesEl = g('visitStates');
+      if (statesEl) statesEl.innerHTML = '<div style="font-size:13px;color:#606078;">Could not load visit data</div>';
+    });
   }
    
 /* ═══ DOWNLOAD REPORTS ══════════════════════════════════════════════════ */
