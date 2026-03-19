@@ -2832,8 +2832,9 @@ else html += '<a class="btn bgho" href="' + esc(doc.url) + '" target="_blank">Do
     }).catch(function() { g('settStats').innerHTML = '<p style="color:#606078;text-align:center">Could not load stats</p>'; });
   }
 window.loadVisitStats = function loadVisitStats() {
-    var statesEl = g('visitStates');
-    if (statesEl) statesEl.innerHTML = '<div style="font-size:13px;color:#606078;">Loading...</div>';
+    var statesEl  = g('visitStates');
+    var pagesEl   = g('visitPages');
+    var devicesEl = g('visitDevices');
 
     fetch('https://workindex-production.up.railway.app/api/visits/stats', {
       headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }
@@ -2843,29 +2844,63 @@ window.loadVisitStats = function loadVisitStats() {
       if (!d.success || !d.stats) throw new Error('bad response');
       var s = d.stats;
 
+      // ── Counters ──
       var el;
       el = g('visitTotal');  if (el) el.textContent = (s.total  || 0).toLocaleString('en-IN');
       el = g('visitToday');  if (el) el.textContent = (s.today  || 0).toLocaleString('en-IN');
       el = g('visitWeek');   if (el) el.textContent = (s.week   || 0).toLocaleString('en-IN');
       el = g('visitMonth');  if (el) el.textContent = (s.month  || 0).toLocaleString('en-IN');
 
-      var states = s.states || [];
-      if (!statesEl) return;
-      if (!states.length) {
-        statesEl.innerHTML = '<div style="font-size:13px;color:#606078;">No visit data yet — visits will appear as users land on workindex.co.in</div>';
-        return;
+      // ── Devices ──
+      var devices = s.devices || [];
+      var mobile  = 0, desktop = 0;
+      devices.forEach(function(d) {
+        if (d.device === 'Mobile') mobile  = d.count;
+        else                       desktop = d.count;
+      });
+      el = g('visitMobile');  if (el) el.textContent = mobile.toLocaleString('en-IN');
+      el = g('visitDesktop'); if (el) el.textContent = desktop.toLocaleString('en-IN');
+
+      // ── Top Pages ──
+      if (pagesEl) {
+        var pages = s.pages || [];
+        if (!pages.length) {
+          pagesEl.innerHTML = '<div style="font-size:13px;color:#606078;">No page data yet</div>';
+        } else {
+          var maxP = pages[0].count || 1;
+          pagesEl.innerHTML = pages.map(function(p) {
+            var pct = Math.round((p.count / maxP) * 100);
+            var label = p.page === '/' ? '🏠 Home' : '📄 ' + p.page;
+            return '<div style="display:flex;align-items:center;gap:8px;">' +
+              '<div style="font-size:12px;color:#a0a0b8;width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(label) + '</div>' +
+              '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
+                '<div style="height:100%;width:' + pct + '%;background:#3b82f6;border-radius:3px;"></div>' +
+              '</div>' +
+              '<div style="font-size:12px;font-weight:700;color:#f0f0f4;width:28px;text-align:right;">' + p.count + '</div>' +
+            '</div>';
+          }).join('');
+        }
       }
-      var maxCount = states[0].count || 1;
-      statesEl.innerHTML = states.map(function(st) {
-        var pct = Math.round((st.count / maxCount) * 100);
-        return '<div style="display:flex;align-items:center;gap:8px;">' +
-          '<div style="font-size:12px;color:#a0a0b8;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(st.state) + '</div>' +
-          '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
-            '<div style="height:100%;width:' + pct + '%;background:#FC8019;border-radius:3px;"></div>' +
-          '</div>' +
-          '<div style="font-size:12px;font-weight:700;color:#f0f0f4;width:28px;text-align:right;">' + st.count + '</div>' +
-        '</div>';
-      }).join('');
+
+      // ── States ──
+      if (statesEl) {
+        var states = s.states || [];
+        if (!states.length) {
+          statesEl.innerHTML = '<div style="font-size:13px;color:#606078;">No visit data yet</div>';
+        } else {
+          var maxS = states[0].count || 1;
+          statesEl.innerHTML = states.map(function(st) {
+            var pct = Math.round((st.count / maxS) * 100);
+            return '<div style="display:flex;align-items:center;gap:8px;">' +
+              '<div style="font-size:12px;color:#a0a0b8;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(st.state) + '</div>' +
+              '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
+                '<div style="height:100%;width:' + pct + '%;background:#FC8019;border-radius:3px;"></div>' +
+              '</div>' +
+              '<div style="font-size:12px;font-weight:700;color:#f0f0f4;width:28px;text-align:right;">' + st.count + '</div>' +
+            '</div>';
+          }).join('');
+        }
+      }
     })
     .catch(function() {
       if (statesEl) statesEl.innerHTML = '<div style="font-size:13px;color:#606078;">Could not load visit data</div>';
