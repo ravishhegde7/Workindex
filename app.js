@@ -3567,7 +3567,7 @@ function loadSettings() {
     darkModeToggle.checked = localStorage.getItem('darkMode') === 'true';
   }
 // Load email notification preference
-  const emailToggle = document.getElementById('emailNotifToggle');
+  const emailToggle = document.getElementById('emailNotif');
   if (emailToggle && state.user) {
     // Check from state.user.preferences first
     const emailPref = state.user.preferences &&
