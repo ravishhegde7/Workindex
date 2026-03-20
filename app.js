@@ -2225,7 +2225,28 @@ function renderAvailableRequests() {
   }
 
   // Filtering/sorting/search now done server-side
-  const allRequests = state.availableRequests || [];
+   let allRequests = state.availableRequests || [];
+
+// Client-side response count filter
+const rFilter = state.browseResponse || '';
+if (rFilter === '0') {
+  allRequests = allRequests.filter(r => (r.currentApproaches || 0) === 0);
+} else if (rFilter === 'lt2') {
+  allRequests = allRequests.filter(r => (r.currentApproaches || 0) < 2);
+} else if (rFilter === 'lt3') {
+  allRequests = allRequests.filter(r => (r.currentApproaches || 0) < 3);
+}
+
+// Client-side date filter
+const dFilter = state.browseDate || '';
+if (dFilter) {
+  const now = Date.now();
+  const cutoffs = { today: 86400000, week: 7 * 86400000, month: 30 * 86400000 };
+  const cutoff = cutoffs[dFilter];
+  if (cutoff) {
+    allRequests = allRequests.filter(r => r.createdAt && (now - new Date(r.createdAt).getTime()) <= cutoff);
+  }
+}
    
   if (!allRequests.length) {
     const isFiltered = (state.browseServiceFilter || []).length > 0 || state.browseSearch;
