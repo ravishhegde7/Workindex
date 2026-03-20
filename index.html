@@ -3521,6 +3521,19 @@ async function handleSignup() {
   if (!name || !email || !phone || !password) {
     showToast('Please fill all fields', 'error'); return;
   }
+  // ─── NAME VALIDATION ───
+const namePhonePattern = /(\+?\d[\s\-.]?){9,13}\d|\b\d{10}\b/;
+const nameWordPattern = /\b(zero|one|two|three|four|five|six|seven|eight|nine|call|contact|reach|whatsapp|telegram|dm)\b/gi;
+const nameWordMatches = name.match(nameWordPattern) || [];
+if (namePhonePattern.test(name) || nameWordMatches.length >= 4) {
+  showToast('Name cannot contain phone numbers or contact information', 'error'); return;
+}
+if (name.length < 2 || name.length > 60) {
+  showToast('Name must be between 2 and 60 characters', 'error'); return;
+}
+if (/[^a-zA-Z\s\.\-']/.test(name)) {
+  showToast('Name can only contain letters, spaces, dots and hyphens', 'error'); return;
+}
   if (!/^[0-9]{10}$/.test(phone)) {
     showToast('Enter a valid 10-digit phone number', 'error'); return;
   }
