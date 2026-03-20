@@ -2116,10 +2116,30 @@ function renderBrowseToolbar() {
     { value: 'budget_l',  label: 'Budget: Low → High' },
     { value: 'credits_h', label: 'Credits: High → Low' },
   ];
-  const cur = state.browseSort || 'newest';
-  const hasSearch = state.browseSearch && state.browseSearch.trim();
+
+  const responseOpts = [
+    { value: '',          label: 'All Responses' },
+    { value: '0',         label: '0 Responses (Fresh)' },
+    { value: 'lt2',       label: 'Less than 2' },
+    { value: 'lt3',       label: 'Less than 3' },
+  ];
+
+  const dateOpts = [
+    { value: '',       label: 'Any Time' },
+    { value: 'today',  label: 'Posted Today' },
+    { value: 'week',   label: 'This Week' },
+    { value: 'month',  label: 'This Month' },
+  ];
+
+  const curSort     = state.browseSort     || 'newest';
+  const curResponse = state.browseResponse || '';
+  const curDate     = state.browseDate     || '';
+  const hasSearch   = state.browseSearch && state.browseSearch.trim();
+  const hasFilters  = hasSearch || curResponse || curDate;
+
   return `
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+      <!-- Search input -->
       <div style="flex:1;min-width:180px;position:relative;">
         <input id="browseSearchInput" type="text" placeholder="🔍 Search requests..."
           value="${state.browseSearch || ''}"
@@ -2130,14 +2150,39 @@ function renderBrowseToolbar() {
           style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;
                  color:var(--primary);font-size:16px;cursor:pointer;padding:4px;">→</button>
       </div>
+
+      <!-- Sort -->
       <select onchange="state.browseSort=this.value;applyBrowseFilters();"
         style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);
                color:var(--text);font-size:13px;font-weight:600;cursor:pointer;">
-        ${sortOpts.map(o => `<option value="${o.value}" ${cur === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+        ${sortOpts.map(o => `<option value="${o.value}" ${curSort === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
       </select>
-      ${hasSearch ? `<button onclick="state.browseSearch='';state.browseServiceFilter=[];document.getElementById('browseSearchInput').value='';applyBrowseFilters();"
-        style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;background:transparent;
-               color:var(--text-muted);font-size:13px;cursor:pointer;white-space:nowrap;">✕ Clear</button>` : ''}
+
+      <!-- Response filter -->
+      <select onchange="state.browseResponse=this.value;applyBrowseFilters();"
+        style="padding:9px 14px;border:1.5px solid ${curResponse ? 'var(--primary)' : 'var(--border)'};
+               border-radius:10px;background:var(--bg);color:${curResponse ? 'var(--primary)' : 'var(--text)'};
+               font-size:13px;font-weight:600;cursor:pointer;">
+        ${responseOpts.map(o => `<option value="${o.value}" ${curResponse === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+      </select>
+
+      <!-- Date filter -->
+      <select onchange="state.browseDate=this.value;applyBrowseFilters();"
+        style="padding:9px 14px;border:1.5px solid ${curDate ? 'var(--primary)' : 'var(--border)'};
+               border-radius:10px;background:var(--bg);color:${curDate ? 'var(--primary)' : 'var(--text)'};
+               font-size:13px;font-weight:600;cursor:pointer;">
+        ${dateOpts.map(o => `<option value="${o.value}" ${curDate === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+      </select>
+
+      <!-- Clear all -->
+      ${hasFilters ? `
+        <button onclick="state.browseSearch='';state.browseResponse='';state.browseDate='';
+                         state.browseServiceFilter=[];
+                         document.getElementById('browseSearchInput').value='';
+                         applyBrowseFilters();"
+          style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;background:transparent;
+                 color:var(--text-muted);font-size:13px;cursor:pointer;white-space:nowrap;">✕ Clear</button>
+      ` : ''}
     </div>`;
 }
 
