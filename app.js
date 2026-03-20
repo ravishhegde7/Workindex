@@ -3890,7 +3890,7 @@ function navigateToPath(path, pushState = true) {
   const pageId = pathToPage[path] || 'landing';
 
   // Guard protected routes
-  const protectedPages = ['clientDash', 'expertDash', 'settings', 'myTickets'];
+  const protectedPages = ['clientDash', 'expertDash', 'settings', 'myTickets', 'creditsHistory'];
   if (protectedPages.includes(pageId) && !state.token) {
     showPage('landing', pushState);
     return;
