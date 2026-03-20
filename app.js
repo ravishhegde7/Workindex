@@ -2262,8 +2262,7 @@ if (dFilter) {
         </svg>
         <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">${isFiltered ? 'No matches found' : 'No requests yet'}</h3>
         <p style="font-size:14px;color:var(--text-muted);line-height:1.6;max-width:260px;margin:0 auto 20px;">${isFiltered ? 'Try clearing your filters or searching something broader.' : 'New client requests will appear here. Check back soon!'}</p>
-        ${isFiltered ? `<button onclick="state.browseSearch='';state.browseServiceFilter=[];state.browseSort='newest';document.getElementById('browseFilterBar').innerHTML=renderBrowseFilterChips();applyBrowseFilters();"
-          style="padding:10px 24px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">
+        ${isFiltered ? `<button onclick="state.browseSearch='';state.browseResponse='';state.browseDate='';state.browseServiceFilter=[];state.browseSort='newest';document.getElementById('browseFilterBar').innerHTML=renderBrowseFilterChips();applyBrowseFilters();"          style="padding:10px 24px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">
           ✕ Clear Filters
         </button>` : ''}
       </div>`;
