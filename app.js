@@ -4504,6 +4504,9 @@ const wordPhonePattern = new RegExp(
 );
 const contactWordPattern = /\b(call|contact|reach|ring|ping|text|msg|message)\s+(me\s+)?(at\s+|on\s+)?([a-z\s]+\b(zero|one|two|three|four|five|six|seven|eight|nine)\b)/gi;
 
+wordPhonePattern.lastIndex = 0;
+contactWordPattern.lastIndex = 0;
+phonePattern.lastIndex = 0;   
 const hasContact = phonePattern.test(bioText) 
   || contactPatterns.some(p => p.test(bioText))
   || wordPhonePattern.test(bioText)
