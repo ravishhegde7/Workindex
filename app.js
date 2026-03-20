@@ -2695,6 +2695,145 @@ try {
    }
  }
 }
+// ─── CREDITS HISTORY ───
+let _chCurrentTab = 'purchase';
+
+function switchCreditsTab(tab) {
+  _chCurrentTab = tab;
+  const purchaseTab = document.getElementById('chPurchaseTab');
+  const spentTab    = document.getElementById('chSpentTab');
+  const purchaseBtn = document.getElementById('chTabPurchase');
+  const spentBtn    = document.getElementById('chTabSpent');
+
+  if (tab === 'purchase') {
+    purchaseTab.style.display = 'block';
+    spentTab.style.display    = 'none';
+    purchaseBtn.style.background = 'var(--primary)';
+    purchaseBtn.style.color      = '#fff';
+    spentBtn.style.background    = 'transparent';
+    spentBtn.style.color         = 'var(--text-muted)';
+    loadCreditsHistory('purchase');
+  } else {
+    purchaseTab.style.display = 'none';
+    spentTab.style.display    = 'block';
+    spentBtn.style.background = 'var(--primary)';
+    spentBtn.style.color      = '#fff';
+    purchaseBtn.style.background = 'transparent';
+    purchaseBtn.style.color      = 'var(--text-muted)';
+    loadCreditsHistory('spent');
+  }
+}
+
+async function loadCreditsHistory(type) {
+  const containerId = type === 'purchase' ? 'chPurchaseList' : 'chSpentList';
+  const container   = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '<div style="text-align:center;padding:40px;"><div class="spinner"></div></div>';
+
+  try {
+    const res  = await fetch(`${API_URL}/credits/transactions?type=${type === 'purchase' ? 'purchase' : 'spent'}&limit=50`, {
+      headers: { 'Authorization': `Bearer ${state.token}` }
+    });
+    const data = await res.json();
+
+    if (!data.success || !data.transactions.length) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:48px 20px;">
+          <div style="font-size:48px;margin-bottom:12px;">${type === 'purchase' ? '💳' : '💎'}</div>
+          <h3 style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;">No ${type === 'purchase' ? 'purchases' : 'spending'} yet</h3>
+          <p style="font-size:14px;color:var(--text-muted);">${type === 'purchase' ? 'Buy credits to get started' : 'Credits spent on approaches will appear here'}</p>
+        </div>`;
+      return;
+    }
+
+    if (type === 'purchase') {
+      renderPurchaseHistory(data.transactions, container);
+    } else {
+      renderSpentHistory(data.transactions, container);
+    }
+  } catch (err) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);">Failed to load history</div>';
+  }
+}
+
+function renderPurchaseHistory(transactions, container) {
+  container.innerHTML = transactions.map(tx => {
+    const date    = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+    const credits = tx.amount || tx.purchaseDetails?.packageSize || 0;
+    const paid    = tx.purchaseDetails?.amountPaid || 0;
+    const closing = tx.balanceAfter ?? '—';
+
+    return `
+      <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:rgba(252,128,25,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💳</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text);">+${credits} Credits</div>
+              <div style="font-size:12px;color:var(--text-muted);">${date}</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:16px;font-weight:800;color:#22c55e;">₹${paid}</div>
+            <div style="font-size:11px;color:var(--text-muted);">paid</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg-gray);border-radius:8px;">
+          <span style="font-size:12px;color:var(--text-muted);">Closing Balance</span>
+          <span style="font-size:12px;font-weight:700;color:var(--text);">💎 ${closing} credits</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderSpentHistory(transactions, container) {
+  const serviceLabels = {
+    itr: 'ITR Filing', gst: 'GST Services', accounting: 'Accounting',
+    audit: 'Audit', photography: 'Photography', development: 'Development'
+  };
+
+  container.innerHTML = transactions.map(tx => {
+    const date       = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+    const credits    = Math.abs(tx.amount || 0);
+    const clientName = tx.approachDetails?.clientName || tx.relatedClient?.name || '—';
+    const service    = tx.approachDetails?.requestService || '—';
+    const closing    = tx.balanceAfter ?? '—';
+    const svcLabel   = serviceLabels[service] || service;
+
+    return `
+      <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">💎</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text);">-${credits} Credits</div>
+              <div style="font-size:12px;color:var(--text-muted);">${date}</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:13px;font-weight:700;color:#ef4444;">-${credits}</div>
+            <div style="font-size:11px;color:var(--text-muted);">spent</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+          <div style="padding:8px 10px;background:var(--bg-gray);border-radius:8px;">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Spent on</div>
+            <div style="font-size:12px;font-weight:700;color:var(--text);">👤 ${clientName}</div>
+          </div>
+          <div style="padding:8px 10px;background:var(--bg-gray);border-radius:8px;">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Category</div>
+            <div style="font-size:12px;font-weight:700;color:var(--primary);">${svcLabel}</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg-gray);border-radius:8px;">
+          <span style="font-size:12px;color:var(--text-muted);">Closing Balance</span>
+          <span style="font-size:12px;font-weight:700;color:var(--text);">💎 ${closing} credits</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 // ─── UPDATE EXPERT PROFILE ───
 function updateExpertProfile() {
   const user = state.user;
