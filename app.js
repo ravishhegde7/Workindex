@@ -5609,6 +5609,13 @@ function openTicketModal() {
   document.body.style.overflow = 'hidden';
 }
 
+var CREDIT_REFUND_TRIGGERS = [
+  'Spent credits on fake or spam request',
+  'Spent credits but client never responded',
+  'I was charged credits incorrectly',
+  'Credits deducted but approach was not submitted'
+];
+
 function tkUserSelectIssue(el, issue) {
   _tkUserSelectedIssue = issue;
   document.getElementById('tkUserSelectedCat').textContent = issue;
@@ -5616,6 +5623,92 @@ function tkUserSelectIssue(el, issue) {
   document.getElementById('tkUserDescription').placeholder = 'Describe your issue: "' + issue + '"...';
   document.getElementById('tkUserStep1').style.display = 'none';
   document.getElementById('tkUserStep2').style.display = 'block';
+
+  // Remove any previous approach selector
+  var existingSelector = document.getElementById('tkApproachSelector');
+  if (existingSelector) existingSelector.remove();
+
+  // Show approach selector for credit refund issues (experts only)
+  var isRefundIssue = CREDIT_REFUND_TRIGGERS.indexOf(issue) >= 0;
+  if (isRefundIssue && state.user && state.user.role === 'expert') {
+    var step2 = document.getElementById('tkUserStep2');
+    var selectorDiv = document.createElement('div');
+    selectorDiv.id = 'tkApproachSelector';
+    selectorDiv.style.cssText = 'margin-bottom:14px;';
+    selectorDiv.innerHTML =
+      '<label style="display:block;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:8px;">Select Approach for Refund</label>' +
+      '<div id="tkApproachList" style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;border:1.5px solid var(--border);border-radius:10px;padding:8px;">' +
+        '<div style="font-size:13px;color:var(--text-muted);padding:8px;text-align:center;">Loading your approaches...</div>' +
+      '</div>' +
+      '<div id="tkSelectedApproach" style="display:none;margin-top:8px;padding:10px 12px;background:rgba(252,128,25,0.08);border:1px solid rgba(252,128,25,0.25);border-radius:8px;font-size:12px;color:var(--primary);line-height:1.5;"></div>';
+
+    // Insert before description field
+    var descWrapper = document.getElementById('tkUserDescription');
+    if (descWrapper && descWrapper.parentNode) {
+      descWrapper.parentNode.insertBefore(selectorDiv, descWrapper);
+    } else if (step2) {
+      step2.insertBefore(selectorDiv, step2.firstChild);
+    }
+
+    // Fetch approaches with credits spent
+    fetch(API_URL + '/approaches', {
+      headers: { 'Authorization': 'Bearer ' + state.token }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var approaches = (d.approaches || []).filter(function(a) {
+        return a.creditsSpent && a.creditsSpent > 0;
+      });
+      var listEl = document.getElementById('tkApproachList');
+      if (!listEl) return;
+      if (!approaches.length) {
+        listEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px;text-align:center;">No approaches with credit spend found.</div>';
+        return;
+      }
+      listEl.innerHTML = approaches.map(function(a) {
+        var reqTitle = (a.request && a.request.title) ? a.request.title : 'Unknown Request';
+        var clientName = (a.client && a.client.name) ? a.client.name : 'Client';
+        var date = a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '';
+        return '<div class="tk-approach-option" data-approach-id="' + a._id + '" data-credits="' + (a.creditsSpent||0) + '" data-title="' + encodeURIComponent(reqTitle) + '" data-client="' + encodeURIComponent(clientName) + '" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .15s;">' +
+          '<div style="flex:1;">' +
+            '<div style="font-size:13px;font-weight:600;color:var(--text);">' + reqTitle + '</div>' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">' + clientName + ' · ' + date + '</div>' +
+          '</div>' +
+          '<div style="font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap;">' + (a.creditsSpent||0) + ' cr</div>' +
+          '<div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all .15s;" class="tk-approach-radio"></div>' +
+        '</div>';
+      }).join('');
+
+      // Wire selection
+      listEl.querySelectorAll('.tk-approach-option').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          listEl.querySelectorAll('.tk-approach-option').forEach(function(o) {
+            o.style.borderColor = 'var(--border)';
+            o.querySelector('.tk-approach-radio').style.background = 'transparent';
+            o.querySelector('.tk-approach-radio').style.borderColor = 'var(--border)';
+            delete o.dataset.selected;
+          });
+          this.style.borderColor = 'var(--primary)';
+          this.querySelector('.tk-approach-radio').style.background = 'var(--primary)';
+          this.querySelector('.tk-approach-radio').style.borderColor = 'var(--primary)';
+          this.dataset.selected = 'true';
+
+          var credits = this.dataset.credits;
+          var title = decodeURIComponent(this.dataset.title);
+          var client = decodeURIComponent(this.dataset.client);
+          var selectedEl = document.getElementById('tkSelectedApproach');
+          if (selectedEl) {
+            selectedEl.style.display = 'block';
+            selectedEl.innerHTML = '✓ Selected: <strong>' + title + '</strong> · ' + client + ' · <strong>' + credits + ' credits</strong> will be requested for refund';
+          }
+        });
+      });
+    })
+    .catch(function() {
+      var listEl = document.getElementById('tkApproachList');
+      if (listEl) listEl.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px;text-align:center;">Could not load approaches.</div>';
+    });
+  }
 }
 
 function tkUserGoBack() {
