@@ -566,9 +566,17 @@ emailNotifications: loadEmailNotifications,
     var existing = document.getElementById('pag-' + key);
     if (existing) existing.remove();
     if (role === 'expert') {
-      setT('eTbl', page.map(function(u) {
-        return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td style="color:#f59e0b">' + (u.credits||0) + '</td><td>' + (u.rating||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
-      }).join(''));
+  setT('eTbl', page.map(function(u) {
+    var str = calculateAdminProfileStrength(u);
+    var strColor = str.score >= 70 ? '#22c55e' : str.score >= 40 ? '#f59e0b' : '#ef4444';
+    var strBar = '<div style="display:flex;align-items:center;gap:6px;">' +
+      '<div style="width:48px;height:5px;background:#2a2a38;border-radius:3px;overflow:hidden;">' +
+        '<div style="height:100%;width:' + str.score + '%;background:' + strColor + ';border-radius:3px;"></div>' +
+      '</div>' +
+      '<span style="font-size:12px;font-weight:700;color:' + strColor + ';">' + str.score + '</span>' +
+    '</div>';
+    return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td style="color:#f59e0b">' + (u.credits||0) + '</td><td>' + (u.rating||'-') + '</td><td>' + strBar + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
+  }).join(''));
     } else {
       setT('cTbl', page.map(function(u) {
         return '<tr><td>' + uLnk(u._id, u.name) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td style="font-size:12px">' + (u.phone||'-') + '</td><td>' + ust(u) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(u.createdAt) + '</td><td><span class="btn bgho" data-uid="' + esc(u._id) + '">View</span></td></tr>';
