@@ -3991,13 +3991,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialPath = window.location.pathname;
 
   if (state.token && state.user) {
-    const authedRoutes = ['/settings', '/my-tickets', '/dashboard'];
-    if (authedRoutes.includes(initialPath)) {
-      navigateToPath(initialPath, false);
-    } else {
-      enterDashboard();
-    }
+  const authedRoutes = ['/settings', '/my-tickets', '/dashboard'];
+  if (authedRoutes.includes(initialPath)) {
+    navigateToPath(initialPath, false);
+    // ─── Start inactivity watcher on page reload too ───
+    startInactivityWatcher();
+    loadNotifications();
+    if (notificationInterval) clearInterval(notificationInterval);
+    notificationInterval = setInterval(loadNotifications, 30000);
   } else {
+    enterDashboard();
+  }
+} 
+  else {
     navigateToPath(initialPath, false);
   }
 });
