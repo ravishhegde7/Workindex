@@ -3690,5 +3690,94 @@ window.adminDeleteInvite = function(invId, el) {
     else toast(d.message || 'Failed', 'e');
   }).catch(function() { toast('Error', 'e'); });
 };
+/* ═══ APPROACH DETAIL VIEWER (from ticket modal) ═══════════════════════ */
+window.loadApproachDetail = function(approachId) {
+  // Open in the existing drawer
+  g('ov1').classList.add('on'); g('dr1').classList.add('on');
+  g('drT').textContent = '📋 Approach Detail';
+  g('drTabs').innerHTML = '';
+  g('drB').innerHTML = '<div style="text-align:center;padding:40px"><div class="spin"></div></div>';
+
+  api('approaches/' + approachId).then(function(d) {
+    if (!d.success || !d.approach) {
+      // Fallback: search approaches
+      return api('approaches?limit=200').then(function(d2) {
+        var found = (d2.approaches||[]).filter(function(a) { return a._id === approachId; })[0];
+        return { success: !!found, approach: found };
+      });
+    }
+    return d;
+  }).then(function(d) {
+    if (!d.success || !d.approach) {
+      g('drB').innerHTML = '<div class="empty"><h3>Approach not found</h3></div>';
+      return;
+    }
+    var a = d.approach;
+    var expert = a.expert || {};
+    var client = a.client || {};
+    var request = a.request || {};
+
+    var statusColor = { pending:'#f59e0b', accepted:'#22c55e', rejected:'#ef4444', completed:'#3b82f6' };
+    var sColor = statusColor[a.status] || '#a0a0b8';
+
+    var html =
+      // Expert + Client header
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">' +
+        '<div style="background:#18181d;border-radius:10px;padding:12px 14px;">' +
+          '<div style="font-size:10px;color:#606078;text-transform:uppercase;margin-bottom:5px;">Expert</div>' +
+          '<div style="font-size:14px;font-weight:700;color:#FC8019;cursor:pointer;" data-uid="' + (expert._id||'') + '">' + esc(expert.name||'—') + '</div>' +
+          '<div style="font-size:11px;color:#606078;">' + esc(expert.email||'') + '</div>' +
+        '</div>' +
+        '<div style="background:#18181d;border-radius:10px;padding:12px 14px;">' +
+          '<div style="font-size:10px;color:#606078;text-transform:uppercase;margin-bottom:5px;">Client</div>' +
+          '<div style="font-size:14px;font-weight:700;color:#3b82f6;cursor:pointer;" data-uid="' + (client._id||'') + '">' + esc(client.name||'—') + '</div>' +
+          '<div style="font-size:11px;color:#606078;">' + esc(client.email||'') + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // Stats row
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">' +
+        '<div style="background:#18181d;border-radius:10px;padding:12px 14px;text-align:center;">' +
+          '<div style="font-size:10px;color:#606078;margin-bottom:4px;">Status</div>' +
+          '<div style="font-size:14px;font-weight:700;color:' + sColor + ';">' + esc(a.status||'—') + '</div>' +
+        '</div>' +
+        '<div style="background:#18181d;border-radius:10px;padding:12px 14px;text-align:center;">' +
+          '<div style="font-size:10px;color:#606078;margin-bottom:4px;">Credits Spent</div>' +
+          '<div style="font-size:20px;font-weight:800;color:#FC8019;">' + (a.creditsSpent||0) + '</div>' +
+        '</div>' +
+        '<div style="background:#18181d;border-radius:10px;padding:12px 14px;text-align:center;">' +
+          '<div style="font-size:10px;color:#606078;margin-bottom:4px;">Quote</div>' +
+          '<div style="font-size:14px;font-weight:700;color:#f59e0b;">' + (a.quote ? '₹' + Number(a.quote).toLocaleString('en-IN') : '—') + '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // Request
+      '<div style="background:#18181d;border-radius:10px;padding:12px 14px;margin-bottom:12px;">' +
+        '<div style="font-size:10px;color:#606078;text-transform:uppercase;margin-bottom:6px;">Request</div>' +
+        '<div style="font-size:13px;font-weight:600;color:#f0f0f4;">' + esc(request.title||'—') + '</div>' +
+        (request.service ? '<div style="font-size:11px;color:#606078;margin-top:3px;">' + esc(request.service) + '</div>' : '') +
+      '</div>' +
+
+      // Message
+      (a.message ?
+        '<div style="background:#18181d;border-radius:10px;padding:12px 14px;margin-bottom:12px;">' +
+          '<div style="font-size:10px;color:#606078;text-transform:uppercase;margin-bottom:6px;">Expert\'s Message</div>' +
+          '<div style="font-size:13px;color:#c0c0d8;line-height:1.7;white-space:pre-wrap;">' + esc(a.message) + '</div>' +
+        '</div>' : '') +
+
+      // Date
+      '<div style="font-size:12px;color:#606078;margin-bottom:16px;">Submitted: ' + fmtT(a.createdAt) + '</div>' +
+
+      // Refund action
+      '<div style="background:rgba(252,128,25,.06);border:1px solid rgba(252,128,25,.2);border-radius:10px;padding:14px 16px;">' +
+        '<div style="font-size:12px;color:#a0a0b8;margin-bottom:10px;">This approach is linked to an expert refund ticket. If you approve the ticket, <strong style="color:#FC8019;">' + (a.creditsSpent||0) + ' credits</strong> will be returned to the expert.</div>' +
+        '<button onclick="closeDr()" style="padding:8px 16px;border-radius:7px;border:1px solid #2a2a38;background:#18181d;color:#a0a0b8;font-size:13px;cursor:pointer;">← Back to Ticket</button>' +
+      '</div>';
+
+    g('drB').innerHTML = html;
+  }).catch(function() {
+    g('drB').innerHTML = '<div class="empty"><h3>Error loading approach</h3></div>';
+  });
+};
    
 })();
