@@ -870,28 +870,51 @@ p0 += '</div>'; // close outer flex
             '<div style="overflow-x:auto;">' +
             '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
             '<thead><tr style="background:#18181d;color:#606078;font-size:11px;text-transform:uppercase;">' +
-            '<th style="padding:10px 12px;text-align:left;">Expert</th>' +
-            '<th style="padding:10px 12px;text-align:left;">Client</th>' +
-            '<th style="padding:10px 12px;text-align:left;">Masked Contact</th>' +
-            '<th style="padding:10px 12px;text-align:left;">Status</th>' +
-            '<th style="padding:10px 12px;text-align:left;">Date</th>' +
-            '</tr></thead><tbody>' +
-            invites.map(function(inv) {
-              var statusBadge = inv.completed
-  ? '<span class="badge bgr">✅ Completed</span>'
-  : inv.unlocked
-    ? '<span class="badge bbl">🔓 Unlocked</span>'
-    : '<span class="badge byw">🔒 Pending</span>';
-              return '<tr style="border-bottom:1px solid #1a1a24;">' +
-                '<td style="padding:10px 12px;color:#FC8019;font-weight:600;">' + esc(inv.expert ? inv.expert.name : '—') + '</td>' +
-                '<td style="padding:10px 12px;color:#a0a0b8;">' + esc(inv.clientName || '—') + '</td>' +
-                '<td style="padding:10px 12px;font-family:monospace;font-size:12px;color:#a0a0b8;">' +
-                  esc(inv.maskedPhone || '') + '<br>' + esc(inv.maskedEmail || '') +
-                '</td>' +
-                '<td style="padding:10px 12px;">' + statusBadge + '</td>' +
-                '<td style="padding:10px 12px;color:#606078;font-size:12px;">' + fmt(inv.createdAt) + '</td>' +
-                '</tr>';
-            }).join('') +
+'<th style="padding:10px 12px;text-align:left;">Expert</th>' +
+'<th style="padding:10px 12px;text-align:left;">Client</th>' +
+'<th style="padding:10px 12px;text-align:left;">Masked Contact</th>' +
+'<th style="padding:10px 12px;text-align:left;">Status</th>' +
+'<th style="padding:10px 12px;text-align:left;">Date</th>' +
+'<th style="padding:10px 12px;text-align:left;">Actions</th>' +
+'</tr></thead><tbody>' +
+invites.map(function(inv) {
+  var statusBadge = inv.completed
+    ? '<span class="badge bgr">✅ Completed</span>'
+    : inv.unlocked
+      ? '<span class="badge bbl">🔓 Unlocked</span>'
+      : '<span class="badge byw">🔒 Pending</span>';
+
+  var expertId   = inv.expert ? inv.expert._id : '';
+  var expertName = inv.expert ? inv.expert.name : '—';
+  var invId      = inv._id || '';
+  var uid2       = 'inv_' + invId;
+
+  var actions =
+    '<div style="position:relative;display:inline-block;">' +
+      '<button class="btn bgho" onclick="document.getElementById(\'' + uid2 + '\').style.display=document.getElementById(\'' + uid2 + '\').style.display===\'block\'?\'none\':\'block\';event.stopPropagation();">Actions ▾</button>' +
+      '<div id="' + uid2 + '" style="display:none;position:absolute;right:0;top:32px;background:#1a1a24;border:1px solid #2a2a38;border-radius:8px;z-index:100;min-width:150px;box-shadow:0 4px 16px rgba(0,0,0,0.4);">' +
+        // View expert profile
+        (expertId ? '<div data-uid="' + expertId + '" style="padding:10px 14px;cursor:pointer;color:#f0f0f4;font-size:13px;" onmouseover="this.style.background=\'#2a2a38\'" onmouseout="this.style.background=\'transparent\'">👤 View Expert</div>' : '') +
+        // Mark as completed
+        (!inv.completed ? '<div onclick="adminMarkInviteComplete(\'' + invId + '\',this)" style="padding:10px 14px;cursor:pointer;color:#22c55e;font-size:13px;font-weight:600;" onmouseover="this.style.background=\'#2a2a38\'" onmouseout="this.style.background=\'transparent\'">✅ Mark Completed</div>' : '') +
+        // Reset to pending
+        (inv.unlocked || inv.completed ? '<div onclick="adminResetInvite(\'' + invId + '\',this)" style="padding:10px 14px;cursor:pointer;color:#f59e0b;font-size:13px;" onmouseover="this.style.background=\'#2a2a38\'" onmouseout="this.style.background=\'transparent\'">🔄 Reset to Pending</div>' : '') +
+        // Delete invite
+        '<div onclick="adminDeleteInvite(\'' + invId + '\',this)" style="padding:10px 14px;cursor:pointer;color:#ef4444;font-size:13px;border-top:1px solid #2a2a38;" onmouseover="this.style.background=\'#2a2a38\'" onmouseout="this.style.background=\'transparent\'">🗑 Delete</div>' +
+      '</div>' +
+    '</div>';
+
+  return '<tr style="border-bottom:1px solid #1a1a24;">' +
+    '<td style="padding:10px 12px;color:#FC8019;font-weight:600;">' + esc(expertName) + '</td>' +
+    '<td style="padding:10px 12px;color:#a0a0b8;">' + esc(inv.clientName || '—') + '</td>' +
+    '<td style="padding:10px 12px;font-family:monospace;font-size:12px;color:#a0a0b8;">' +
+      esc(inv.maskedPhone || '') + '<br>' + esc(inv.maskedEmail || '') +
+    '</td>' +
+    '<td style="padding:10px 12px;">' + statusBadge + '</td>' +
+    '<td style="padding:10px 12px;color:#606078;font-size:12px;">' + fmt(inv.createdAt) + '</td>' +
+    '<td style="padding:10px 12px;">' + actions + '</td>' +
+    '</tr>';
+}).join('') +
             '</tbody></table></div>' +
             '<hr style="border:none;border-top:1px solid #1a1a24;margin:16px 0;">';
         } else {
