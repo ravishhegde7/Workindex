@@ -640,8 +640,52 @@ function renderAdminStrengthMeter(u) {
   var missingRows = missing.length
     ? missing.map(function(i) {
         return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;">' +
-  
-           function buildDr(u, d) {
+          '<span style="font-size:11px;color:#606078;">○</span>' +
+          '<span style="font-size:12px;color:#a0a0b8;">' + i.label + '</span>' +
+          '<span style="font-size:10px;color:#FC8019;margin-left:auto;">+' + i.pts + 'pts</span>' +
+        '</div>';
+      }).join('')
+    : '<div style="font-size:12px;color:#22c55e;padding:3px 0;">🎉 All sections complete!</div>';
+
+  return '<div style="background:#18181d;border-radius:12px;padding:16px;margin-bottom:14px;">' +
+
+    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:' + (missing.length ? '12' : '0') + 'px;">' +
+
+      '<div style="position:relative;flex-shrink:0;width:64px;height:64px;">' +
+        '<svg width="64" height="64" style="transform:rotate(-90deg);">' +
+          '<circle cx="32" cy="32" r="' + radius + '" fill="none" stroke="#2a2a38" stroke-width="6"/>' +
+          '<circle cx="32" cy="32" r="' + radius + '" fill="none" stroke="' + color + '" stroke-width="6"' +
+            ' stroke-dasharray="' + dash + ' ' + circ + '" stroke-linecap="round"/>' +
+        '</svg>' +
+        '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+          '<span style="font-size:17px;font-weight:800;color:#f0f0f4;line-height:1;">' + score + '</span>' +
+          '<span style="font-size:9px;color:#606078;">/ 100</span>' +
+        '</div>' +
+      '</div>' +
+
+      '<div style="flex:1;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">' +
+          '<span style="font-size:14px;font-weight:700;color:#f0f0f4;">Profile Strength</span>' +
+          '<span style="padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;background:' + bg + ';color:' + color + ';">' + label + '</span>' +
+        '</div>' +
+        '<div style="height:6px;background:#2a2a38;border-radius:3px;overflow:hidden;margin-bottom:5px;">' +
+          '<div style="height:100%;width:' + score + '%;background:' + color + ';border-radius:3px;"></div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:#606078;">' + done.length + ' / ' + items.length + ' sections complete</div>' +
+      '</div>' +
+    '</div>' +
+
+    (missing.length
+      ? '<div style="border-top:1px solid #222230;padding-top:10px;">' +
+          '<div style="font-size:10px;font-weight:700;color:#606078;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Missing from profile</div>' +
+          missingRows +
+        '</div>'
+      : '') +
+
+  '</div>';
+}
+
+function buildDr(u, d) {
     var tabs = ['Profile', 'Transactions', u.role === 'expert' ? 'Approaches' : 'Requests', 'Tickets'];
     g('drTabs').innerHTML = tabs.map(function(t, i) {
       return '<div class="drt' + (i===0?' on':'') + '" data-panel="dp' + i + '">' + t + '</div>';
