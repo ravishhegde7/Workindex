@@ -5740,12 +5740,19 @@ async function submitUserTicket() {
         'Authorization': 'Bearer ' + state.token,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        subject: _tkUserSelectedIssue,
-        issueType: _tkUserSelectedIssue,
-        description: description || _tkUserSelectedIssue,
-        priority: priority
-      })
+      var selectedApproachEl = document.querySelector('.tk-approach-option[data-selected="true"]');
+    var approachId = selectedApproachEl ? selectedApproachEl.dataset.approachId : null;
+    var approachCredits = selectedApproachEl ? parseInt(selectedApproachEl.dataset.credits) : 0;
+
+    body: JSON.stringify({
+      subject: _tkUserSelectedIssue,
+      issueType: _tkUserSelectedIssue,
+      description: description || _tkUserSelectedIssue,
+      priority: priority,
+      relatedApproachId: approachId || undefined,
+      eligibleCredits: approachCredits || undefined,
+      isExpertRefund: approachId ? true : undefined
+    })
     });
 
     var data = await res.json();
