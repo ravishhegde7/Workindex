@@ -5844,18 +5844,16 @@ async function loadMyTickets() {
       var sc = statusColor[t.status] || '#6b7280';
       var sl = statusLabel[t.status] || t.status;
       var date = t.createdAt ? new Date(t.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '-';
-      return '<div style="background:var(--bg); border:1.5px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px;">' +
+      return '<div onclick="openMyTicketDetail(' + JSON.stringify(t).replace(/'/g, "\\'") + ')" style="background:var(--bg); border:1.5px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.borderColor=\'var(--primary)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
         '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">' +
           '<div style="font-size:15px; font-weight:700; color:var(--text); flex:1; margin-right:12px;">' + (t.issueType || t.subject || 'Support Ticket') + '</div>' +
           '<span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; background:' + sc + '20; color:' + sc + ';">' + sl + '</span>' +
         '</div>' +
-        (t.description && t.description !== t.subject ? '<p style="font-size:13px; color:var(--text-muted); margin-bottom:8px; line-height:1.5;">' + t.description.substring(0, 100) + (t.description.length > 100 ? '...' : '') + '</p>' : '') +
+        (t.description && t.description !== t.subject ? '<p style="font-size:13px; color:var(--text-muted); margin-bottom:8px; line-height:1.5;">' + t.description.substring(0, 80) + (t.description.length > 80 ? '...' : '') + '</p>' : '') +
         '<div style="display:flex; justify-content:space-between; align-items:center;">' +
           '<span style="font-size:12px; color:var(--text-muted);">' + date + '</span>' +
           (t.adminNote ? '<span style="font-size:12px; color:#22c55e;">💬 Admin replied</span>' : '') +
         '</div>' +
-        (t.adminNote ? '<div style="margin-top:10px; padding:10px; background:var(--bg-gray); border-radius:8px; font-size:13px; color:var(--text);"><strong>Admin:</strong> ' + t.adminNote + '</div>' : '') +
-        renderFollowUpButton(t) +
       '</div>';
     }).join('');
   } catch (err) {
