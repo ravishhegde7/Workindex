@@ -2879,7 +2879,6 @@ async function showRequestDetail(requestId) {
   const req = state.requests.find(r => r._id === requestId);
   if (!req) return;
   
-  // Fetch approaches for this request
   try {
     const res = await fetch(`${API_URL}/requests/${requestId}/approaches`, {
       method: 'GET',
@@ -2892,6 +2891,17 @@ async function showRequestDetail(requestId) {
     
     if (data.success) {
       showRequestApproaches(req, data.approaches || []);
+    } else {
+      // Fallback: fetch all approaches and filter client-side
+      const res2 = await fetch(`${API_URL}/approaches`, {
+        headers: { 'Authorization': `Bearer ${state.token}` }
+      });
+      const data2 = await res2.json();
+      const filtered = (data2.approaches || []).filter(function(a) {
+        var rid = a.request && (a.request._id || a.request);
+        return String(rid) === String(requestId);
+      });
+      showRequestApproaches(req, filtered);
     }
   } catch (error) {
     console.error('Load approaches error:', error);
