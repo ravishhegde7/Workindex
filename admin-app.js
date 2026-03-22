@@ -3690,6 +3690,15 @@ window.adminDeleteInvite = function(invId, el) {
     else toast(d.message || 'Failed', 'e');
   }).catch(function() { toast('Error', 'e'); });
 };
+   
+window.goBackToTicket = function() {
+  var tid = _tkId;
+  closeDr();
+  if (tid) {
+    setTimeout(function() { openTicketModal(tid); }, 250);
+  }
+};
+   
 /* ═══ APPROACH DETAIL VIEWER (from ticket modal) ═══════════════════════ */
 window.loadApproachDetail = function(approachId) {
   // Open in the existing drawer
