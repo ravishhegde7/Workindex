@@ -2878,37 +2878,23 @@ function updateExpertProfile() {
 async function showRequestDetail(requestId) {
   const req = state.requests.find(r => r._id === requestId);
   if (!req) return;
-  
+
   try {
     const res = await fetch(`${API_URL}/requests/${requestId}/approaches`, {
       method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${state.token}`
-      }
+      headers: { 'Authorization': `Bearer ${state.token}` }
     });
-    
     const data = await res.json();
-    
     if (data.success) {
       showRequestApproaches(req, data.approaches || []);
     } else {
-      // Fallback: fetch all approaches and filter client-side
-      const res2 = await fetch(`${API_URL}/approaches`, {
-        headers: { 'Authorization': `Bearer ${state.token}` }
-      });
-      const data2 = await res2.json();
-      const filtered = (data2.approaches || []).filter(function(a) {
-        var rid = a.request && (a.request._id || a.request);
-        return String(rid) === String(requestId);
-      });
-      showRequestApproaches(req, filtered);
+      showToast('Could not load proposals', 'error');
     }
   } catch (error) {
     console.error('Load approaches error:', error);
     showToast('Failed to load approaches', 'error');
   }
 }
-
 // ADD this new function (doesn't exist yet):
 
 async function cancelRequest(requestId) {
