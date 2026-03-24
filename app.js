@@ -1956,7 +1956,7 @@ function renderClientRequests() {
   container.innerHTML = items.map(function(req) {
     var st = stMap[req.status] || stMap.pending;
     var svcColor = svcColors[req.service] || '#FC8019';
-    var apprCount = req.approachCount || req.currentApproaches || 0;
+    var apprCount = req.currentApproaches || req.approachCount || 0;
     var ago = '';
     if (req.createdAt) {
       var diff = Date.now() - new Date(req.createdAt).getTime();
