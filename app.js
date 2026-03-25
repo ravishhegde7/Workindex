@@ -5687,7 +5687,9 @@ function tkUserSelectIssue(el, issue) {
         // Block if pending admin review — don't allow duplicate submission
         if (existing.status === 'pending_review') return false;
         // Block if approved — credits already returned
-        if (existing.decision === 'refund_approved' || existing.decision === 'Refund Approved') return false;
+        var dec = (existing.decision || '').toUpperCase();
+if (dec === 'REFUND_APPROVED' || dec === 'REFUND_APPROVED') return false;
+if (dec === 'NOT_ELIGIBLE') return false; // also block rejected — no retry
         // Allow if rejected (not_eligible) or resolved without approval — let them retry
         return true;
       });
