@@ -3812,14 +3812,16 @@ window.openCreateAdminModal = function openCreateAdminModal() {
 
   showAdminModal('Create Admin', html, function() {
     var payload = {
-      adminId:  g('cAdminId').value.trim(),
-      name:     g('cAdminName').value.trim(),
-      email:    g('cAdminEmail').value.trim(),
-      password: g('cAdminPw').value,
-      role:     g('cAdminRole').value,
-      template: g('cAdminTemplate').value,
-      permissions: g('cAdminRole').value === 'admin' ? collectPermissions() : undefined
+      adminId:     g('cAdminId').value.trim(),
+      name:        g('cAdminName').value.trim(),
+      email:       g('cAdminEmail').value.trim(),
+      password:    g('cAdminPw').value,
+      role:        g('cAdminRole').value,
+      template:    g('cAdminTemplate').value,
+      permissions: g('cAdminRole').value === 'admin' ? collectPermissions() : undefined,
+      allowedTabs: collectAllowedTabs('c')
     };
+     
     if (!payload.adminId || !payload.name || !payload.password) { toast('adminId, name and password are required', 'e'); return; }
     api('admins', 'POST', payload).then(function(d) {
       if (d.success) { toast('Admin created!'); closeAdminModal(); loadAdmins(); }
