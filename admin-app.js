@@ -3871,7 +3871,8 @@ window.openEditAdminModal = function openEditAdminModal(id) {
         '<option value="moderator">Moderator</option>' +
       '</select>' +
     '</div>' +
-    '<div style="margin-top:12px">' + buildPermissionCheckboxes(perms, 'e') + '</div>';
+    '<div style="margin-top:12px">' + buildPermissionCheckboxes(perms, 'e') + '</div>' +
+    buildTabCheckboxes(a.allowedTabs || [], 'e');
 
   showAdminModal('Edit — ' + a.name, html, function() {
     var template = g('eAdminTemplate').value;
