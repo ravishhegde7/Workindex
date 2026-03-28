@@ -373,12 +373,25 @@
     g('loginWrap').style.display = 'none';
     g('appWrap').style.display = 'block';
     startAdminInactivity();
-// Hide Manage Admins nav from non-super-admins
-    if (!adm || adm.role !== 'super_admin') {
-      document.querySelectorAll('[data-s="admins"]').forEach(function(el) {
+
+     // Tab visibility enforcement
+    var allowedTabs = adm && adm.allowedTabs && adm.allowedTabs.length ? adm.allowedTabs : null;
+    var superOnlyTabs = ['admins','audit','revenue','emailNotifications','settings','communication','invoices','heatmap'];
+
+    document.querySelectorAll('.ni[data-s], .mni[data-s]').forEach(function(el) {
+      var tab = el.dataset.s;
+      if (!tab) return;
+      // Super admin sees everything
+      if (adm && adm.role === 'super_admin') return;
+      // Hide super-only tabs for all non-super admins
+      if (superOnlyTabs.indexOf(tab) >= 0) {
+        el.style.display = 'none'; return;
+      }
+      // If allowedTabs is set, only show those tabs
+      if (allowedTabs && allowedTabs.indexOf(tab) < 0) {
         el.style.display = 'none';
-      });
-    }
+      }
+    });
      
     // Dashboard stat card clicks
     document.addEventListener('click', function(ev) {
