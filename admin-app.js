@@ -373,6 +373,13 @@
     g('loginWrap').style.display = 'none';
     g('appWrap').style.display = 'block';
     startAdminInactivity();
+// Hide Manage Admins nav from non-super-admins
+    if (!adm || adm.role !== 'super_admin') {
+      document.querySelectorAll('[data-s="admins"]').forEach(function(el) {
+        el.style.display = 'none';
+      });
+    }
+     
     // Dashboard stat card clicks
     document.addEventListener('click', function(ev) {
       var sc = ev.target.closest('[data-goto]');
