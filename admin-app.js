@@ -4083,7 +4083,7 @@ window.openSeoModal = function() {
   div.style.cssText = 'overflow-y:auto;';
   div.innerHTML = `
   <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
-    <div class="modal-h"><h3>🌐 Create SEO Page</h3><button class="modal-x" onclick="g('seoCreateModal').remove()">&#215;</button></div>
+    <div class="modal-h"><h3>🌐 Create SEO Page</h3><button class="modal-x" onclick="closeSeoModal()">&#215;</button></div>
     <div class="modal-b">
 
       <div style="font-size:11px;font-weight:700;color:#FC8019;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Page Identity</div>
