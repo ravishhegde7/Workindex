@@ -4332,7 +4332,8 @@ window.openSeoModal = function(prefill) {
     });
     window._seoModalPrefill = null;
   })();
-
+};
+   
 function collectSeoData() {
   var footerRaw = (g('seoFooter') && g('seoFooter').value) || '';
   var footerLinks = footerRaw.split('\n').filter(Boolean).map(function(line) {
