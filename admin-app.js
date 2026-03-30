@@ -4157,7 +4157,7 @@ window.openSeoModal = function() {
       <button class="btn bgho" onclick="closeSeoModal()">Cancel</button>
       <div style="display:flex;gap:8px">
         <button class="btn bywn" onclick="previewSeoPage()">👁 Preview</button>
-        <button class="btn bpri" id="seoSubmitBtn" onclick="submitSeoPage()">🚀 Publish to Netlify</button>
+        <button class="btn bpri" id="seoSubmitBtn" onclick="submitSeoPage()">🚀 Publish to Vercel</button>
       </div>
     </div>
   </div>`;
