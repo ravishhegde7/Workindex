@@ -4073,6 +4073,124 @@ window.deleteSeoPage = function(id, slug) {
   });
 };
 
+var SEO_TEMPLATES = {
+  itr: {
+    service: 'Income Tax Return Filing',
+    statsPrice: '₹999',
+    step1Title: 'Post Your Requirement',
+    step1P: 'Tell us your taxpayer type, income sources, and filing requirement. Takes under 2 minutes. 100% free.',
+    step2Title: 'Receive Quotes from CAs',
+    step2P: 'Verified CAs send you personalised quotes. You compare fees, experience, and choose the right CA.',
+    step3Title: 'Get Your Return Filed',
+    step3P: 'Share documents securely online. Your CA files on the income tax portal and sends you the acknowledgement.',
+    step4Title: 'Rate Your CA',
+    step4P: 'Leave an honest review after completion and help others find verified CA services.',
+    price1Label: 'Salaried Employee', price1Range: '₹999 – ₹1,500', price1Desc: 'Form 16 based ITR filing. Simple returns done in 24–48 hours.',
+    price2Label: 'Freelancer / Consultant', price2Range: '₹2,000 – ₹5,000', price2Desc: 'ITR-3 and ITR-4 for independent professionals and consultants.',
+    price3Label: 'Business Owner', price3Range: '₹3,000 – ₹10,000', price3Desc: 'P&L, balance sheet, and business ITR with complete documentation.',
+    price4Label: 'Capital Gains / NRI', price4Range: '₹2,500 – ₹15,000', price4Desc: 'Equity, mutual funds, property sale, or NRI income tax returns.',
+    faq1Q: 'What documents do I need for ITR filing?',
+    faq1A: 'For salaried: Form 16, PAN, Aadhaar, bank statements, investment proofs (80C, 80D), AIS from IT portal. For business: P&L, balance sheet, GST returns. Your CA will provide a complete checklist.',
+    faq2Q: 'What is the ITR filing deadline?',
+    faq2A: '31 July for individuals (non-audit cases). 31 October for audit cases. Belated returns can be filed until 31 December with a late fee under Section 234F.',
+    faq3Q: 'How long does ITR filing take?',
+    faq3A: 'Simple salaried returns are completed within 24–48 hours of document submission. Business returns may take 3–7 days depending on complexity.',
+    faq4Q: 'Old tax regime vs new tax regime — which is better?',
+    faq4A: 'It depends on your deductions. A verified CA will calculate your tax under both regimes and recommend whichever saves you more money.',
+    faq5Q: 'Can I file ITR online with a CA from another city?',
+    faq5A: 'Yes. ITR filing is done entirely online through the income tax portal. Your CA\'s city does not matter — you share documents digitally and receive acknowledgement via email.',
+    ctaH2: 'Ready to get your ITR filed?',
+    ctaP: 'Post your requirement for free. Verified CAs will send you personalised quotes within 24 hours.',
+    footerLinks: '/itr-filing-india.html|ITR Filing India\n/itr-filing-karnataka.html|ITR Filing Karnataka\n/gst-services-india.html|GST Services\n/accounting-services-india.html|Accounting'
+  },
+  gst: {
+    service: 'GST Consulting',
+    statsPrice: '₹1,000',
+    step1Title: 'Post Your GST Need',
+    step1P: 'Select the service — registration, filing, notice, or consultation. Add your business details. Free and takes 2 minutes.',
+    step2Title: 'Get Expert Quotes',
+    step2P: 'Verified GST consultants respond with personalised quotes and timelines. Compare and choose the right fit.',
+    step3Title: 'Stay GST Compliant',
+    step3P: 'Work directly with your chosen consultant online. Documents shared securely. Returns filed on time, every time.',
+    step4Title: 'Rate Your Expert',
+    step4P: 'Leave an honest review after completion and help other businesses find reliable GST professionals.',
+    price1Label: 'New GST Registration', price1Range: '₹1,000 – ₹3,000', price1Desc: 'Document collection, portal filing, department follow-up. Done in 3–7 days.',
+    price2Label: 'Monthly GSTR Filing', price2Range: '₹500 – ₹3,000/mo', price2Desc: 'GSTR-1 + GSTR-3B filing. Timely filing to avoid late fees and interest.',
+    price3Label: 'Annual GST Return (GSTR-9)', price3Range: '₹2,000 – ₹8,000', price3Desc: 'Annual reconciliation filing including GSTR-9C for eligible businesses.',
+    price4Label: 'GST Notice Handling', price4Range: '₹3,000 – ₹15,000', price4Desc: 'SCN, scrutiny and audit notice responses by verified GST consultants.',
+    faq1Q: 'Who needs GST registration?',
+    faq1A: 'Any business with annual turnover above ₹20 lakh (₹10 lakh for some service sectors) must register. E-commerce sellers and inter-state suppliers must register regardless of turnover.',
+    faq2Q: 'What is the QRMP scheme?',
+    faq2A: 'QRMP allows businesses with turnover up to ₹5 crore to file GSTR-1 and GSTR-3B quarterly while making monthly tax payments. It significantly reduces compliance burden for small businesses.',
+    faq3Q: 'What happens if I miss a GST filing deadline?',
+    faq3A: 'Late fees of ₹50/day (₹20/day for nil returns) apply, plus 18% per annum interest on outstanding tax. A GST consultant can help file overdue returns and minimise penalties.',
+    faq4Q: 'How long does GST registration take?',
+    faq4A: 'Typically 3–7 working days after submitting all documents. The consultant handles the application, document submission, and department follow-up on your behalf.',
+    faq5Q: 'Can I hire a GST consultant from another city?',
+    faq5A: 'Yes. GST registration and filing are done entirely online through the GST portal. A consultant from any city can handle your compliance without physical visits.',
+    ctaH2: 'Need a GST consultant?',
+    ctaP: 'Post your requirement free. Verified GST experts will send you personalised quotes within 24 hours.',
+    footerLinks: '/gst-services-india.html|GST Services India\n/gst-services-karnataka.html|GST Services Karnataka\n/itr-filing-india.html|ITR Filing\n/accounting-services-india.html|Accounting'
+  },
+  accounting: {
+    service: 'Accounting & Bookkeeping',
+    statsPrice: '₹1,500',
+    step1Title: 'Post Your Requirement',
+    step1P: 'Describe your business size, accounting software used, and specific needs. Free and takes 2 minutes.',
+    step2Title: 'Receive Quotes',
+    step2P: 'Verified accountants send personalised quotes based on your transaction volume and complexity.',
+    step3Title: 'Get Your Books in Order',
+    step3P: 'Work with your chosen accountant online. Share documents securely. Books maintained accurately every month.',
+    step4Title: 'Rate Your Accountant',
+    step4P: 'Leave an honest review and help other businesses find reliable accounting professionals.',
+    price1Label: 'Startup / Small Business', price1Range: '₹1,500 – ₹4,000/mo', price1Desc: 'Monthly bookkeeping, P&L, balance sheet for businesses with up to 100 transactions/month.',
+    price2Label: 'Growing SME', price2Range: '₹4,000 – ₹10,000/mo', price2Desc: '100–500 transactions/month. Accounts payable, receivable, bank reconciliation included.',
+    price3Label: 'Payroll Processing', price3Range: '₹2,000 – ₹8,000/mo', price3Desc: 'Monthly payroll, PF, ESI, TDS on salary for businesses with up to 50 employees.',
+    price4Label: 'Annual Accounts Preparation', price4Range: '₹5,000 – ₹20,000', price4Desc: 'Year-end financial statements, P&L, balance sheet for statutory filing and audit.',
+    faq1Q: 'What is the difference between bookkeeping and accounting?',
+    faq1A: 'Bookkeeping involves recording daily financial transactions — invoices, payments, expenses. Accounting involves interpreting, classifying, and summarising those records into financial statements, tax returns, and business insights.',
+    faq2Q: 'What accounting software do your accountants use?',
+    faq2A: 'Most accountants on WorkIndex work with Tally, QuickBooks, Zoho Books, and Excel. Mention your preferred software when posting your requirement and they will match accordingly.',
+    faq3Q: 'Do I need an accountant if I use Tally or Zoho?',
+    faq3A: 'Software helps you record transactions, but a qualified accountant ensures entries are categorised correctly, GST is reconciled, TDS is deducted, and your books are audit-ready. Most businesses need both.',
+    faq4Q: 'How often should I get my books updated?',
+    faq4A: 'Monthly is the standard for most businesses. It helps with GST filing, accurate P&L tracking, and early identification of cash flow issues. Year-end accounting is insufficient for any growing business.',
+    faq5Q: 'Can the accountant work remotely with my business?',
+    faq5A: 'Yes. All accountants on WorkIndex offer fully remote services. You share invoices, bank statements, and expense records digitally — they maintain your books and share reports monthly.',
+    ctaH2: 'Find an Accountant for Your Business',
+    ctaP: 'Post your requirement free. Verified accountants will send you personalised quotes within 24 hours.',
+    footerLinks: '/accounting-services-india.html|Accounting India\n/itr-filing-india.html|ITR Filing\n/gst-services-india.html|GST Services'
+  }
+};
+
+window.applySeoTemplate = function(category) {
+  var t = SEO_TEMPLATES[category];
+  if (!t) return;
+  var map = {
+    seoService: t.service, seoStatsPrice: t.statsPrice,
+    seoS1T: t.step1Title, seoS1P: t.step1P,
+    seoS2T: t.step2Title, seoS2P: t.step2P,
+    seoS3T: t.step3Title, seoS3P: t.step3P,
+    seoS4T: t.step4Title, seoS4P: t.step4P,
+    seoP1L: t.price1Label, seoP1R: t.price1Range, seoP1D: t.price1Desc,
+    seoP2L: t.price2Label, seoP2R: t.price2Range, seoP2D: t.price2Desc,
+    seoP3L: t.price3Label, seoP3R: t.price3Range, seoP3D: t.price3Desc,
+    seoP4L: t.price4Label, seoP4R: t.price4Range, seoP4D: t.price4Desc,
+    seoF1Q: t.faq1Q, seoF1A: t.faq1A,
+    seoF2Q: t.faq2Q, seoF2A: t.faq2A,
+    seoF3Q: t.faq3Q, seoF3A: t.faq3A,
+    seoF4Q: t.faq4Q, seoF4A: t.faq4A,
+    seoF5Q: t.faq5Q, seoF5A: t.faq5A,
+    seoCtaH: t.ctaH2, seoCtaP: t.ctaP,
+    seoFooter: t.footerLinks || ''
+  };
+  Object.keys(map).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && map[id]) el.value = map[id];
+  });
+  toast('✅ ' + category.toUpperCase() + ' template applied — fill in the city-specific details', 'i');
+};   
+   
 window.openSeoModal = function(prefill) {
   prefill = prefill || {};
   var existing = g('seoCreateModal');
