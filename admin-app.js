@@ -4205,6 +4205,15 @@ window.openSeoModal = function(prefill) {
     <div class="modal-h"><h3>🌐 Create SEO Page</h3><button class="modal-x" onclick="closeSeoModal()">&#215;</button></div>
     <div class="modal-b">
 
+      <div style="background:rgba(252,128,25,0.08);border:1px solid rgba(252,128,25,0.25);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;color:#FC8019;margin-bottom:10px;">⚡ Autofill from Template</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="applySeoTemplate('itr')" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(252,128,25,0.4);background:rgba(252,128,25,0.1);color:#FC8019;font-size:13px;font-weight:600;cursor:pointer;">📄 ITR Filing</button>
+          <button onclick="applySeoTemplate('gst')" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(59,130,246,0.4);background:rgba(59,130,246,0.1);color:#3b82f6;font-size:13px;font-weight:600;cursor:pointer;">🏢 GST Services</button>
+          <button onclick="applySeoTemplate('accounting')" style="padding:7px 14px;border-radius:7px;border:1px solid rgba(34,197,94,0.4);background:rgba(34,197,94,0.1);color:#22c55e;font-size:13px;font-weight:600;cursor:pointer;">📊 Accounting</button>
+        </div>
+        <div style="font-size:11px;color:#606078;margin-top:8px;">Select a template to autofill steps, pricing, FAQs and CTA. Then just fill in the city-specific details above.</div>
+      </div>
       <div style="font-size:11px;font-weight:700;color:#FC8019;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Page Identity</div>
       <div class="mfld"><label>Slug (filename without .html)</label><input type="text" id="seoSlug" placeholder="e.g. itr-filing-belgaum" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-')"></div>
       <div class="mfld"><label>Page Title (browser tab)</label><input type="text" id="seoTitle" placeholder="ITR Filing in Belgaum — WorkIndex | Verified CA Services"></div>
