@@ -4291,8 +4291,6 @@ window.openSeoModal = function(prefill) {
   </div>`;
    window._seoModalPrefill = prefill || null;
   document.body.appendChild(div);
-   window._seoModalPrefill = prefill || null;
-  document.body.appendChild(div);
   // Prefill fields if copying an existing page
   (function() {
     var p = window._seoModalPrefill || {};
