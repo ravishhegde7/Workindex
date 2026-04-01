@@ -2328,21 +2328,14 @@ if (dFilter) {
       const svcColor = svcColors[req.service] || '#FC8019';
 
       // Answer tags — show relevant questionnaire answers as pills
-      const answerTags = [];
+       const answerTags = [];
       const a = req.answers || {};
-      if (a.itrAnnualIncome)        answerTags.push('Income: ' + a.itrAnnualIncome.replace('above','> ').replace('below','< '));
-      if (a.itrTaxpayerType)        answerTags.push(a.itrTaxpayerType.charAt(0).toUpperCase() + a.itrTaxpayerType.slice(1));
-      if (a.gstTurnover)            answerTags.push('Turnover: ' + a.gstTurnover);
-      if (a.gstServiceType)         answerTags.push(a.gstServiceType.replace(/_/g,' '));
-      if (a.accountingFrequency)    answerTags.push(a.accountingFrequency.replace(/-/g,' '));
-      if (a.accountingTransactions) answerTags.push(a.accountingTransactions + ' txns/mo');
-      if (a.photographyType)        answerTags.push(a.photographyType.charAt(0).toUpperCase() + a.photographyType.slice(1));
-      if (a.photographyDuration)    answerTags.push(a.photographyDuration.replace(/-/g,' '));
-      if (a.devProjectType)         answerTags.push(a.devProjectType.replace(/-/g,' '));
-      if (a.devTimeline)            answerTags.push(a.devTimeline.replace(/-/g,' '));
-      if (a.auditType)              answerTags.push(a.auditType.replace(/_/g,' ') + ' audit');
-      if (a.auditTurnover)          answerTags.push('Turnover: ' + a.auditTurnover);
-
+      Object.entries(WI_SERVICES.answerTagFormatters).forEach(([key, fn]) => {
+        if (a[key] !== undefined && a[key] !== null && a[key] !== '') {
+          try { answerTags.push(fn(a[key])); } catch(e) {}
+        }
+      });
+       
       // Location from answers
       const location = (() => {
         if (a.fullAddress && a.fullAddress.city) return a.fullAddress.city + (a.fullAddress.state ? ', ' + a.fullAddress.state : '');
