@@ -2324,7 +2324,7 @@ if (dFilter) {
       const urgency = urgencyMap[urgencyKey] || urgencyMap.flexible;
 
       // Service color
-      const svcColors = { itr:'#8b5cf6', gst:'#3b82f6', accounting:'#10b981', audit:'#f59e0b', photography:'#ec4899', development:'#06b6d4' };
+      const svcColors = WI_SERVICES.colors;
       const svcColor = svcColors[req.service] || '#FC8019';
 
       // Answer tags — show relevant questionnaire answers as pills
