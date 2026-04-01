@@ -6171,8 +6171,9 @@ function renderClientExploreGrid(experts) {
   renderClientExploreGrid._currentList = experts;
   const items = paginate(experts, 'clientExplore');
 
-  const svcColors = { itr:'#8b5cf6', gst:'#3b82f6', accounting:'#10b981', audit:'#f59e0b', photography:'#ec4899', development:'#06b6d4' };
-  const serviceLabels = { itr:'ITR Filing', gst:'GST', accounting:'Accounting', audit:'Audit', photography:'Photography', development:'Development' };
+  const svcColors = WI_SERVICES.colors;
+  const serviceLabels = WI_SERVICES.labels;
+   
   const availMap = {
     available: { dot: '#22c55e', label: 'Available' },
     busy:      { dot: '#ef4444', label: 'Busy' },
