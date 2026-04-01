@@ -982,7 +982,7 @@ async function loadPublicExpertPage() {
     const state2 = (e.location?.state || pr.state || '');
     const loc = [city, state2].filter(Boolean).join(', ');
     const kycVerified = e.kyc?.status === 'approved';
-    const serviceLabels = { itr:'ITR Filing', gst:'GST', accounting:'Accounting', audit:'Audit', photography:'Photography', development:'Development' };
+    const serviceLabels = WI_SERVICES.labels;
     const initials = (e.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
 
     document.body.innerHTML = `
