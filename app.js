@@ -2790,11 +2790,8 @@ function renderPurchaseHistory(transactions, container) {
 }
 
 function renderSpentHistory(transactions, container) {
-  const serviceLabels = {
-    itr: 'ITR Filing', gst: 'GST Services', accounting: 'Accounting',
-    audit: 'Audit', photography: 'Photography', development: 'Development'
-  };
-
+  const serviceLabels = WI_SERVICES.labels;
+   
   container.innerHTML = transactions.map(tx => {
     const date       = tx.createdAt ? new Date(tx.createdAt).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
     const credits    = Math.abs(tx.amount || 0);
@@ -4302,7 +4299,7 @@ function renderExpertProfile() {
   if (!profileTab) return;
 
   // Service display labels
-  const serviceLabels = { itr: 'ITR Filing', gst: 'GST Services', accounting: 'Accounting', audit: 'Audit', photography: 'Photography', development: 'Development' };
+  const serviceLabels = WI_SERVICES.labels;
   const locationLabels = { online: '💻 Online / Remote', local: '📍 Local (in-person)', both: '🌐 Both online & in-person' };
 
   const memberSince = user.createdAt
