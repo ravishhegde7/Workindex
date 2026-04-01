@@ -2098,13 +2098,8 @@ async function loadExpertData() {
 // ─── BROWSE FILTER CHIPS RENDERER ───
 function renderBrowseFilterChips() {
   const services = [
-    { value: 'all',         label: 'All' },
-    { value: 'itr',         label: '📄 ITR Filing' },
-    { value: 'gst',         label: '🧾 GST' },
-    { value: 'accounting',  label: '📊 Accounting' },
-    { value: 'audit',       label: '🔍 Audit' },
-    { value: 'photography', label: '📷 Photography' },
-    { value: 'development', label: '💻 Development' },
+    { value: 'all', label: 'All' },
+    ...WI_SERVICES.list.map(s => ({ value: s.value, label: s.icon + ' ' + s.label }))
   ];
   const activeFilter = state.browseServiceFilter || [];
   return services.map(s => {
