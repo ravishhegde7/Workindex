@@ -4515,5 +4515,425 @@ window.loadApproachDetail = function(approachId) {
   });
 };
 
+/* ═══ SERVICE CATEGORIES CMS ════════════════════════════════════════════ */
+ 
+var _serviceCategories = [];
+var _editingCategoryId = null;
+ 
+// Question type definitions
+var Q_TYPES = [
+  { value: 'radio',    label: '⚪ Single Choice (Radio)' },
+  { value: 'checkbox', label: '☑️ Multiple Choice (Checkbox)' },
+  { value: 'text',     label: '✏️ Short Text Input' },
+  { value: 'textarea', label: '📝 Long Text (Textarea)' },
+  { value: 'select',   label: '🔽 Dropdown Select' }
+];
+ 
+window.loadServiceCategories = function() {
+  var sec = g('sec-serviceCategories');
+  if (!sec) return;
+  sec.innerHTML = '<div style="text-align:center;padding:40px"><div class="spin"></div></div>';
+  api('service-categories').then(function(d) {
+    _serviceCategories = d.categories || [];
+    renderServiceCategoriesPage();
+  }).catch(function() { toast('Failed to load service categories', 'e'); });
+};
+ 
+function renderServiceCategoriesPage() {
+  var sec = g('sec-serviceCategories');
+  if (!sec) return;
+ 
+  var rows = _serviceCategories.map(function(c) {
+    var statusBadge = c.isActive
+      ? '<span class="badge bgr">Active</span>'
+      : '<span class="badge brd">Inactive</span>';
+    return '<tr>' +
+      '<td><span style="font-size:20px;">' + esc(c.icon) + '</span></td>' +
+      '<td style="font-weight:700;color:#f0f0f4">' + esc(c.value) + '</td>' +
+      '<td style="color:#a0a0b8">' + esc(c.label) + '</td>' +
+      '<td><span style="background:' + esc(c.color) + '25;color:' + esc(c.color) + ';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">' + esc(c.color) + '</span></td>' +
+      '<td style="color:#f59e0b;font-weight:600">' + (c.creditCost || 20) + ' cr</td>' +
+      '<td style="color:#a0a0b8">' + (c.questions ? c.questions.length : 0) + ' questions</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td>' +
+        '<button class="btn bgho" style="font-size:12px;padding:5px 10px;margin-right:4px" onclick="openEditCategoryModal(\'' + c._id + '\')">Edit</button>' +
+        '<button class="btn bywn" style="font-size:12px;padding:5px 10px;margin-right:4px" onclick="previewCategoryConfig(\'' + c._id + '\')">Preview</button>' +
+        '<button class="btn brdn" style="font-size:12px;padding:5px 10px" onclick="deleteCategory(\'' + c._id + '\',\'' + esc(c.label) + '\')">Delete</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+ 
+  sec.innerHTML =
+    '<div class="card">' +
+      '<div class="ch" style="justify-content:space-between;flex-wrap:wrap;gap:10px">' +
+        '<h3>⚙️ Service Categories <span style="font-size:13px;color:#606078;font-weight:400">(' + _serviceCategories.length + ' total)</span></h3>' +
+        '<div style="display:flex;gap:8px;">' +
+          '<button class="btn bgho" onclick="syncCategoriesToGitHub()" style="padding:8px 14px;font-size:13px">🔄 Force Sync GitHub</button>' +
+          '<button class="btn bywn" onclick="seedDefaultCategories()" style="padding:8px 14px;font-size:13px">🌱 Seed Defaults</button>' +
+          '<button class="btn bpri" onclick="openCreateCategoryModal()" style="padding:8px 18px">+ Add Category</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="padding:0 0 12px;font-size:12px;color:#606078;line-height:1.6;">' +
+        'Changes are automatically pushed to <strong style="color:#f0f0f4">services-config.js</strong> on GitHub → Vercel auto-deploys in ~60 seconds. ' +
+        'The questionnaire appears in the client\'s "Post a Request" flow.' +
+      '</div>' +
+      '<div class="tw"><table><thead><tr>' +
+        '<th>Icon</th><th>Value (key)</th><th>Label</th><th>Color</th><th>Credits</th><th>Questions</th><th>Status</th><th>Actions</th>' +
+      '</tr></thead><tbody>' +
+      (rows || '<tr><td colspan="8" style="text-align:center;padding:30px;color:#606078">No categories yet. Click "Seed Defaults" to add the 6 existing services, or "+ Add Category" to create new ones.</td></tr>') +
+      '</tbody></table></div>' +
+    '</div>';
+}
+ 
+// ── Seed default categories ──────────────────────────────────
+window.seedDefaultCategories = function() {
+  if (!confirm('Seed the 6 default service categories (ITR, GST, Accounting, Audit, Photography, Development)?\n\nThis only works if no categories exist yet.')) return;
+  api('service-categories/seed', 'POST', {}).then(function(d) {
+    if (d.success) { toast('✅ ' + d.message); loadServiceCategories(); }
+    else toast(d.message || 'Failed', 'e');
+  }).catch(function() { toast('Error seeding', 'e'); });
+};
+ 
+// ── Force sync to GitHub ─────────────────────────────────────
+window.syncCategoriesToGitHub = function() {
+  if (!confirm('Push current categories to services-config.js on GitHub?')) return;
+  api('service-categories/sync', 'POST', {}).then(function(d) {
+    if (d.success) toast('✅ ' + d.message);
+    else toast(d.message || 'Sync failed', 'e');
+  }).catch(function() { toast('Sync error', 'e'); });
+};
+ 
+// ── Preview generated config ─────────────────────────────────
+window.previewCategoryConfig = function(id) {
+  api('service-categories/preview/config').then(function(d) {
+    if (!d.success) { toast('Preview failed', 'e'); return; }
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>services-config.js Preview</title>' +
+      '<style>body{background:#0f0f13;color:#c0c0d8;font-family:monospace;font-size:13px;padding:20px;white-space:pre-wrap;line-height:1.6}</style>' +
+      '</head><body>' + d.content.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</body></html>');
+    w.document.close();
+  }).catch(function() { toast('Error', 'e'); });
+};
+ 
+// ── Delete category ──────────────────────────────────────────
+window.deleteCategory = function(id, label) {
+  if (!confirm('Delete "' + label + '"?\n\nThis removes it from the DB and pushes updated services-config.js to GitHub. Vercel deploys in ~60s.')) return;
+  api('service-categories/' + id, 'DELETE').then(function(d) {
+    if (d.success) { toast('Deleted' + (d.githubPushed ? ' + GitHub synced ✅' : '')); loadServiceCategories(); }
+    else toast(d.message || 'Failed', 'e');
+  }).catch(function() { toast('Error', 'e'); });
+};
+ 
+// ── Build question editor HTML ───────────────────────────────
+function buildQuestionsEditor(questions, prefix) {
+  prefix = prefix || 'qe';
+  questions = questions || [];
+  var html = '<div id="' + prefix + 'QList" style="display:flex;flex-direction:column;gap:12px;">';
+ 
+  questions.forEach(function(q, idx) {
+    html += buildSingleQuestionBlock(q, idx, prefix);
+  });
+ 
+  html += '</div>';
+  html += '<button onclick="addQuestion(\'' + prefix + '\')" style="margin-top:10px;padding:8px 16px;border:1.5px dashed rgba(252,128,25,0.5);border-radius:8px;background:rgba(252,128,25,0.05);color:#FC8019;font-size:13px;font-weight:600;cursor:pointer;width:100%">+ Add Question</button>';
+  return html;
+}
+ 
+function buildSingleQuestionBlock(q, idx, prefix) {
+  var optionsHtml = '';
+  if (q.options && q.options.length) {
+    optionsHtml = '<div id="' + prefix + 'opts_' + idx + '" style="margin-top:8px;">';
+    q.options.forEach(function(opt, oi) {
+      optionsHtml += '<div style="display:flex;gap:6px;margin-bottom:5px;">' +
+        '<input type="text" placeholder="Value (e.g. salaried)" value="' + esc(opt.value) + '" style="flex:1;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;" class="' + prefix + 'optVal_' + idx + '">' +
+        '<input type="text" placeholder="Label shown to user" value="' + esc(opt.label) + '" style="flex:2;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;" class="' + prefix + 'optLbl_' + idx + '">' +
+        '<button onclick="removeOption(\'' + prefix + '\',' + idx + ',' + oi + ')" style="padding:4px 10px;border:1px solid rgba(239,68,68,0.3);border-radius:6px;background:rgba(239,68,68,0.08);color:#ef4444;font-size:12px;cursor:pointer;">✕</button>' +
+        '</div>';
+    });
+    optionsHtml += '</div>';
+    optionsHtml += '<button onclick="addOption(\'' + prefix + '\',' + idx + ')" style="padding:5px 12px;border:1px dashed #2a2a38;border-radius:6px;background:transparent;color:#606078;font-size:12px;cursor:pointer;margin-top:4px;">+ Add Option</button>';
+  }
+ 
+  var typeOpts = Q_TYPES.map(function(t) {
+    return '<option value="' + t.value + '"' + (q.type === t.value ? ' selected' : '') + '>' + t.label + '</option>';
+  }).join('');
+ 
+  return '<div class="qblock" id="' + prefix + 'q_' + idx + '" style="background:#18181d;border:1px solid #2a2a38;border-radius:10px;padding:14px;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+      '<span style="font-size:11px;font-weight:700;color:#FC8019;text-transform:uppercase;">Question ' + (idx+1) + '</span>' +
+      '<div style="display:flex;gap:6px;">' +
+        '<button onclick="moveQuestion(\'' + prefix + '\',' + idx + ',-1)" style="padding:3px 8px;border:1px solid #2a2a38;border-radius:5px;background:transparent;color:#a0a0b8;font-size:12px;cursor:pointer;">↑</button>' +
+        '<button onclick="moveQuestion(\'' + prefix + '\',' + idx + ',1)" style="padding:3px 8px;border:1px solid #2a2a38;border-radius:5px;background:transparent;color:#a0a0b8;font-size:12px;cursor:pointer;">↓</button>' +
+        '<button onclick="removeQuestion(\'' + prefix + '\',' + idx + ')" style="padding:3px 8px;border:1px solid rgba(239,68,68,0.3);border-radius:5px;background:rgba(239,68,68,0.08);color:#ef4444;font-size:12px;cursor:pointer;">🗑</button>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">' +
+      '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Question ID (no spaces)</label>' +
+        '<input type="text" id="' + prefix + 'qid_' + idx + '" value="' + esc(q.id||'') + '" placeholder="e.g. itrTaxpayerType" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>' +
+      '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Type</label>' +
+        '<select id="' + prefix + 'qtype_' + idx + '" onchange="onQTypeChange(\'' + prefix + '\',' + idx + ')" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#18181d;color:#f0f0f4;font-size:13px;">' + typeOpts + '</select></div>' +
+    '</div>' +
+    '<div style="margin-bottom:8px;"><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Question text shown to client</label>' +
+      '<input type="text" id="' + prefix + 'qqn_' + idx + '" value="' + esc(q.question||'') + '" placeholder="e.g. What is your taxpayer type?" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">' +
+      '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Alias (optional, e.g. urgency)</label>' +
+        '<input type="text" id="' + prefix + 'qalias_' + idx + '" value="' + esc(q.alias||'') + '" placeholder="urgency" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>' +
+      '<div style="display:flex;align-items:center;gap:8px;padding-top:18px;">' +
+        '<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#a0a0b8;cursor:pointer;">' +
+          '<input type="checkbox" id="' + prefix + 'qreq_' + idx + '"' + (q.required !== false ? ' checked' : '') + ' style="accent-color:#FC8019"> Required' +
+        '</label>' +
+      '</div>' +
+    '</div>' +
+    (q.type === 'radio' || q.type === 'checkbox' || q.type === 'select'
+      ? '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:6px;">Options (value | label shown to user)</label>' + optionsHtml + '</div>'
+      : '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Placeholder text</label><input type="text" id="' + prefix + 'qph_' + idx + '" value="' + esc(q.placeholder||'') + '" placeholder="Enter placeholder..." style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>'
+    ) +
+  '</div>';
+}
+ 
+// ── Question manipulation functions ──────────────────────────
+var _qEditorState = {}; // prefix → array of question objects
+ 
+window.onQTypeChange = function(prefix, idx) {
+  var sel = g(prefix + 'qtype_' + idx);
+  if (!sel) return;
+  var newType = sel.value;
+  // Refresh just this question block
+  var block = g(prefix + 'q_' + idx);
+  if (!block) return;
+  var currentQ = collectSingleQuestion(prefix, idx);
+  currentQ.type = newType;
+  if ((newType === 'radio' || newType === 'checkbox' || newType === 'select') && (!currentQ.options || !currentQ.options.length)) {
+    currentQ.options = [{ value: '', label: '' }];
+  }
+  block.outerHTML = buildSingleQuestionBlock(currentQ, idx, prefix);
+};
+ 
+window.addQuestion = function(prefix) {
+  var list = g(prefix + 'QList');
+  if (!list) return;
+  var idx = list.querySelectorAll('.qblock').length;
+  var newQ = { id: '', question: '', type: 'radio', required: true, options: [{ value: '', label: '' }] };
+  var div = document.createElement('div');
+  div.innerHTML = buildSingleQuestionBlock(newQ, idx, prefix);
+  list.appendChild(div.firstElementChild);
+};
+ 
+window.removeQuestion = function(prefix, idx) {
+  var block = g(prefix + 'q_' + idx);
+  if (block) block.remove();
+  renumberQuestions(prefix);
+};
+ 
+window.moveQuestion = function(prefix, idx, dir) {
+  var list = g(prefix + 'QList');
+  if (!list) return;
+  var blocks = Array.from(list.querySelectorAll('.qblock'));
+  var target = blocks[idx];
+  var swap   = blocks[idx + dir];
+  if (!target || !swap) return;
+  if (dir === -1) list.insertBefore(target, swap);
+  else list.insertBefore(swap, target);
+  renumberQuestions(prefix);
+};
+ 
+window.addOption = function(prefix, qIdx) {
+  var optsDiv = g(prefix + 'opts_' + qIdx);
+  if (!optsDiv) return;
+  var newRow = document.createElement('div');
+  var oi = optsDiv.querySelectorAll('[class*="optVal_"]').length;
+  newRow.style.cssText = 'display:flex;gap:6px;margin-bottom:5px;';
+  newRow.innerHTML =
+    '<input type="text" placeholder="Value" style="flex:1;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;" class="' + prefix + 'optVal_' + qIdx + '">' +
+    '<input type="text" placeholder="Label shown to user" style="flex:2;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;" class="' + prefix + 'optLbl_' + qIdx + '">' +
+    '<button onclick="this.closest(\'div\').remove()" style="padding:4px 10px;border:1px solid rgba(239,68,68,0.3);border-radius:6px;background:rgba(239,68,68,0.08);color:#ef4444;font-size:12px;cursor:pointer;">✕</button>';
+  optsDiv.appendChild(newRow);
+};
+ 
+window.removeOption = function(prefix, qIdx, optIdx) {
+  var optsDiv = g(prefix + 'opts_' + qIdx);
+  if (!optsDiv) return;
+  var rows = optsDiv.querySelectorAll('div');
+  if (rows[optIdx]) rows[optIdx].remove();
+};
+ 
+function renumberQuestions(prefix) {
+  var list = g(prefix + 'QList');
+  if (!list) return;
+  var blocks = list.querySelectorAll('.qblock');
+  blocks.forEach(function(block, newIdx) {
+    // Update id and label
+    block.id = prefix + 'q_' + newIdx;
+    var label = block.querySelector('span');
+    if (label) label.textContent = 'Question ' + (newIdx + 1);
+  });
+}
+ 
+// ── Collect questions from the editor ───────────────────────
+function collectSingleQuestion(prefix, idx) {
+  var qid   = g(prefix + 'qid_'   + idx);
+  var qtype = g(prefix + 'qtype_' + idx);
+  var qqn   = g(prefix + 'qqn_'   + idx);
+  var qalias= g(prefix + 'qalias_'+ idx);
+  var qreq  = g(prefix + 'qreq_'  + idx);
+  var qph   = g(prefix + 'qph_'   + idx);
+ 
+  var type = qtype ? qtype.value : 'radio';
+  var options = [];
+ 
+  if (type === 'radio' || type === 'checkbox' || type === 'select') {
+    var valEls = document.querySelectorAll('.' + prefix + 'optVal_' + idx);
+    var lblEls = document.querySelectorAll('.' + prefix + 'optLbl_' + idx);
+    valEls.forEach(function(el, i) {
+      var v = el.value.trim();
+      var l = lblEls[i] ? lblEls[i].value.trim() : '';
+      if (v || l) options.push({ value: v || l, label: l || v });
+    });
+  }
+ 
+  return {
+    id:       qid   ? qid.value.trim()   : '',
+    question: qqn   ? qqn.value.trim()   : '',
+    type:     type,
+    required: qreq  ? qreq.checked       : true,
+    alias:    qalias && qalias.value.trim() ? qalias.value.trim() : undefined,
+    placeholder: qph && qph.value.trim() ? qph.value.trim() : undefined,
+    options:  options
+  };
+}
+ 
+function collectAllQuestions(prefix) {
+  var list = g(prefix + 'QList');
+  if (!list) return [];
+  var blocks = list.querySelectorAll('.qblock');
+  var questions = [];
+  blocks.forEach(function(block, idx) {
+    var q = collectSingleQuestion(prefix, idx);
+    if (q.id && q.question) questions.push(q);
+  });
+  return questions;
+}
+ 
+// ── Create modal ─────────────────────────────────────────────
+window.openCreateCategoryModal = function() {
+  _editingCategoryId = null;
+  showCategoryModal('Create Service Category', null);
+};
+ 
+window.openEditCategoryModal = function(id) {
+  var cat = _serviceCategories.filter(function(c) { return c._id === id; })[0];
+  if (!cat) { toast('Category not found', 'e'); return; }
+  _editingCategoryId = id;
+  showCategoryModal('Edit — ' + cat.label, cat);
+};
+ 
+function showCategoryModal(title, cat) {
+  var existing = g('catModal');
+  if (existing) existing.remove();
+ 
+  var isEdit = !!cat;
+  var prefix = 'qe';
+ 
+  var questionsHTML = buildQuestionsEditor(cat ? cat.questions : [], prefix);
+ 
+  var div = document.createElement('div');
+  div.id = 'catModal';
+  div.className = 'modal-bg on';
+  div.style.cssText = 'overflow-y:auto;';
+  div.innerHTML =
+    '<div class="modal" style="max-width:720px;max-height:92vh;overflow-y:auto;">' +
+      '<div class="modal-h"><h3>⚙️ ' + title + '</h3><button class="modal-x" onclick="closeCategoryModal()">&#215;</button></div>' +
+      '<div class="modal-b">' +
+ 
+        '<div style="font-size:11px;font-weight:700;color:#FC8019;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Category Identity</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">' +
+          '<div class="mfld"><label>Value / Key (lowercase, no spaces)</label><input type="text" id="catValue" value="' + esc((cat&&cat.value)||'') + '" placeholder="e.g. legal_services"' + (isEdit?' readonly style="opacity:0.5"':'') + '></div>' +
+          '<div class="mfld"><label>Display Label</label><input type="text" id="catLabel" value="' + esc((cat&&cat.label)||'') + '" placeholder="e.g. Legal Services"></div>' +
+          '<div class="mfld"><label>Icon (emoji)</label><input type="text" id="catIcon" value="' + esc((cat&&cat.icon)||'⚖️') + '" placeholder="⚖️" style="font-size:20px;"></div>' +
+          '<div class="mfld"><label>Color (hex)</label><div style="display:flex;gap:8px;align-items:center;">' +
+            '<input type="color" id="catColorPicker" value="' + esc((cat&&cat.color)||'#FC8019') + '" style="width:44px;height:38px;border:none;border-radius:6px;cursor:pointer;">' +
+            '<input type="text" id="catColor" value="' + esc((cat&&cat.color)||'#FC8019') + '" placeholder="#FC8019" style="flex:1;" oninput="document.getElementById(\'catColorPicker\').value=this.value;">' +
+          '</div></div>' +
+          '<div class="mfld"><label>Credit Cost (per approach)</label><input type="number" id="catCreditCost" value="' + ((cat&&cat.creditCost)||20) + '" min="1" max="100"></div>' +
+          '<div class="mfld"><label>Max Approaches per Request</label><input type="number" id="catMaxApproaches" value="' + ((cat&&cat.maxApproaches)||5) + '" min="1" max="10"></div>' +
+          '<div class="mfld" style="grid-column:1/-1"><label>Search Aliases (comma-separated — users typing these will find this service)</label><input type="text" id="catAliases" value="' + esc((cat&&cat.searchAliases)||'') + '" placeholder="e.g. legal, lawyer, advocate, legal advice"></div>' +
+          '<div style="padding-top:8px;display:flex;align-items:center;gap:8px;">' +
+            '<label style="display:flex;align-items:center;gap:6px;font-size:14px;color:#a0a0b8;cursor:pointer;">' +
+              '<input type="checkbox" id="catIsActive"' + ((cat&&cat.isActive!==false)?' checked':'') + ' style="accent-color:#FC8019;"> Active (visible to users)' +
+            '</label>' +
+          '</div>' +
+          '<div class="mfld"><label>Sort Order (lower = shown first)</label><input type="number" id="catSortOrder" value="' + ((cat&&cat.sortOrder)||99) + '" min="1" max="999"></div>' +
+        '</div>' +
+ 
+        '<div style="font-size:11px;font-weight:700;color:#FC8019;text-transform:uppercase;letter-spacing:.07em;margin:4px 0 14px">Questionnaire Steps</div>' +
+        '<div style="font-size:12px;color:#606078;margin-bottom:14px;line-height:1.6;">' +
+          'These questions appear in the client\'s "Post a Request" form when they select this service. ' +
+          'Use Question IDs without spaces (e.g. <code style="color:#FC8019">legalCaseType</code>). ' +
+          'The last question should typically ask about urgency with alias <code style="color:#FC8019">urgency</code>.' +
+        '</div>' +
+        questionsHTML +
+ 
+      '</div>' +
+      '<div class="mfoot" style="justify-content:space-between">' +
+        '<button class="btn bgho" onclick="closeCategoryModal()">Cancel</button>' +
+        '<button class="btn bpri" id="catSaveBtn" onclick="submitCategory()">' + (isEdit ? '💾 Save Changes' : '🚀 Create & Push to GitHub') + '</button>' +
+      '</div>' +
+    '</div>';
+ 
+  document.body.appendChild(div);
+ 
+  // Sync color picker to text input
+  var picker = g('catColorPicker');
+  var colorInput = g('catColor');
+  if (picker && colorInput) {
+    picker.oninput = function() { colorInput.value = this.value; };
+  }
+}
+ 
+window.closeCategoryModal = function() {
+  var m = g('catModal');
+  if (m) m.remove();
+  _editingCategoryId = null;
+};
+ 
+window.submitCategory = function() {
+  var value   = g('catValue')   ? g('catValue').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'_') : '';
+  var label   = g('catLabel')   ? g('catLabel').value.trim()   : '';
+  var icon    = g('catIcon')    ? g('catIcon').value.trim()    : '🔧';
+  var color   = g('catColor')   ? g('catColor').value.trim()   : '#FC8019';
+  var creditCost    = parseInt(g('catCreditCost')    ? g('catCreditCost').value    : 20)  || 20;
+  var maxApproaches = parseInt(g('catMaxApproaches') ? g('catMaxApproaches').value : 5)   || 5;
+  var searchAliases = g('catAliases')    ? g('catAliases').value.trim()    : '';
+  var isActive      = g('catIsActive')   ? g('catIsActive').checked         : true;
+  var sortOrder     = parseInt(g('catSortOrder') ? g('catSortOrder').value : 99) || 99;
+ 
+  if (!value) { toast('Value/key is required', 'e'); return; }
+  if (!label) { toast('Label is required', 'e');     return; }
+ 
+  var questions = collectAllQuestions('qe');
+ 
+  var payload = { value, label, icon, color, creditCost, maxApproaches, searchAliases, isActive, sortOrder, questions };
+ 
+  var btn = g('catSaveBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving & pushing to GitHub...'; }
+ 
+  var method = _editingCategoryId ? 'PUT' : 'POST';
+  var path   = _editingCategoryId ? 'service-categories/' + _editingCategoryId : 'service-categories';
+ 
+  api(path, method, payload).then(function(d) {
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Create & Push to GitHub'; }
+    if (d.success) {
+      toast(d.message || 'Saved!');
+      closeCategoryModal();
+      loadServiceCategories();
+    } else {
+      toast(d.message || 'Failed', 'e');
+    }
+  }).catch(function() {
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Create & Push to GitHub'; }
+    toast('Error', 'e');
+  });
+};
+    
    
 })();
