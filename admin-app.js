@@ -4593,7 +4593,63 @@ function renderServiceCategoriesPage() {
     // Render special category cards (common + expert)
   renderSpecialCategoryCards();
 }
- 
+
+// ── Render Common + Expert cards above the table ──────────
+function renderSpecialCategoryCards() {
+  var container = document.getElementById('specialCategoryCards');
+  if (!container) return;
+
+  var commonCat  = _serviceCategories.find(function(c) { return c.value === '_common'; });
+  var expertCat  = _serviceCategories.find(function(c) { return c.value === '_expert'; });
+
+  function specialCard(cat, label, icon, color, seedFn) {
+    if (!cat) {
+      return '<div style="background:#18181d;border:2px dashed rgba(255,255,255,0.1);border-radius:14px;padding:20px;text-align:center;">' +
+        '<div style="font-size:28px;margin-bottom:8px;">' + icon + '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:#f0f0f4;margin-bottom:4px;">' + label + '</div>' +
+        '<div style="font-size:12px;color:#606078;margin-bottom:14px;">Not yet in DB — click Seed to initialize</div>' +
+        '<button onclick="' + seedFn + '()" style="padding:8px 18px;background:rgba(252,128,25,0.15);border:1px solid rgba(252,128,25,0.4);border-radius:8px;color:#FC8019;font-size:13px;font-weight:600;cursor:pointer;">🌱 Seed ' + label + '</button>' +
+        '</div>';
+    }
+    return '<div style="background:#18181d;border:1.5px solid ' + color + '40;border-radius:14px;padding:16px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">' +
+        '<div>' +
+          '<div style="font-size:22px;margin-bottom:4px;">' + icon + '</div>' +
+          '<div style="font-size:15px;font-weight:700;color:#f0f0f4;">' + label + '</div>' +
+          '<div style="font-size:12px;color:' + color + ';margin-top:2px;">' + (cat.questions||[]).length + ' steps configured</div>' +
+        '</div>' +
+        '<span style="background:' + color + '20;color:' + color + ';padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">Active</span>' +
+      '</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">' +
+        (cat.questions||[]).map(function(q) {
+          return '<span style="background:#0f0f13;border:1px solid #2a2a38;padding:3px 8px;border-radius:6px;font-size:11px;color:#a0a0b8;">' + esc(q.id||'?') + '</span>';
+        }).join('') +
+      '</div>' +
+      '<button onclick="openEditCategoryModal(\'' + cat._id + '\')" style="width:100%;padding:9px;background:rgba(252,128,25,0.1);border:1px solid rgba(252,128,25,0.3);border-radius:8px;color:#FC8019;font-size:13px;font-weight:600;cursor:pointer;">✏️ Edit ' + label + '</button>' +
+      '</div>';
+  }
+
+  container.innerHTML =
+    specialCard(commonCat, 'Common Steps', '🔗', '#6366f1', 'seedCommonSteps') +
+    specialCard(expertCat, 'Expert Onboarding Steps', '⭐', '#f59e0b', 'seedExpertSteps');
+}
+
+window.seedCommonSteps = function() {
+  if (!confirm('Seed the 8 common questionnaire steps (location, urgency, budget, description, etc.) into the database?')) return;
+  api('service-categories/seed-common', 'POST', {}).then(function(d) {
+    if (d.success) { toast('✅ ' + d.message + ' — click Force Sync to push to GitHub'); loadServiceCategories(); }
+    else toast(d.message || 'Failed', 'e');
+  }).catch(function() { toast('Error', 'e'); });
+};
+
+window.seedExpertSteps = function() {
+  if (!confirm('Seed the 8 expert onboarding steps (specialization, experience, city, bio, etc.) into the database?')) return;
+  api('service-categories/seed-expert', 'POST', {}).then(function(d) {
+    if (d.success) { toast('✅ ' + d.message + ' — click Force Sync to push to GitHub'); loadServiceCategories(); }
+    else toast(d.message || 'Failed', 'e');
+  }).catch(function() { toast('Error', 'e'); });
+};
+   
 // ── Seed default categories ──────────────────────────────────
 window.seedDefaultCategories = function() {
   if (!confirm('Seed the 6 default service categories (ITR, GST, Accounting, Audit, Photography, Development)?\n\nThis only works if no categories exist yet.')) return;
