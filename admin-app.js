@@ -4689,9 +4689,36 @@ function buildSingleQuestionBlock(q, idx, prefix) {
       '</div>' +
     '</div>' +
     (q.type === 'radio' || q.type === 'checkbox' || q.type === 'select'
-      ? '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:6px;">Options (value | label shown to user)</label>' + optionsHtml + '</div>'
-      : '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Placeholder text</label><input type="text" id="' + prefix + 'qph_' + idx + '" value="' + esc(q.placeholder||'') + '" placeholder="Enter placeholder..." style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>'
+      ? '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:6px;">Options (value | label | icon emoji | desc)</label>' + optionsHtml + '</div>'
+      : q.type === 'slider'
+      ? '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">' +
+          '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Min ₹</label><input type="number" id="' + prefix + 'qslMin_' + idx + '" value="' + (q.sliderMin||1000) + '" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+          '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Max ₹</label><input type="number" id="' + prefix + 'qslMax_' + idx + '" value="' + (q.sliderMax||100000) + '" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+          '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Step ₹</label><input type="number" id="' + prefix + 'qslStep_' + idx + '" value="' + (q.sliderStep||500) + '" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+          '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Default ₹</label><input type="number" id="' + prefix + 'qslDef_' + idx + '" value="' + (q.sliderDefault||5000) + '" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+          '<div style="grid-column:1/-1"><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Format string (use {value})</label><input type="text" id="' + prefix + 'qslFmt_' + idx + '" value="' + esc(q.sliderFormat||'₹{value}') + '" placeholder="₹{value}" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+        '</div>'
+      : q.type === 'address'
+      ? '<div>' +
+          '<div style="font-size:11px;color:#606078;margin-bottom:8px;">Address fields are fixed (building, area, pincode, city, state, landmark). The ID determines which address variant is used: <code style="color:#FC8019">full_address</code> = full address, <code style="color:#FC8019">client_location</code> = city/state/pincode only.</div>' +
+          '<div style="background:rgba(252,128,25,0.05);border:1px solid rgba(252,128,25,0.2);border-radius:6px;padding:10px;font-size:12px;color:#a0a0b8;">Fields auto-generated from ID. Set ID to <strong style="color:#FC8019">full_address</strong> or <strong style="color:#FC8019">client_location</strong>.</div>' +
+        '</div>'
+      : q.type === 'pincode'
+      ? '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Placeholder text</label><input type="text" id="' + prefix + 'qph_' + idx + '" value="' + esc(q.placeholder||'Enter 6-digit pincode') + '" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>'
+      : '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Placeholder text</label><input type="text" id="' + prefix + 'qph_' + idx + '" value="' + esc(q.placeholder||'') + '" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>'
     ) +
+ (q.type === 'textarea'
+      ? '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;">' +
+          '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Min Length</label><input type="number" id="' + prefix + 'qMinLen_' + idx + '" value="' + (q.minLength||0) + '" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+          '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Max Length</label><input type="number" id="' + prefix + 'qMaxLen_' + idx + '" value="' + (q.maxLength||1000) + '" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+          '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Validation message</label><input type="text" id="' + prefix + 'qVal_' + idx + '" value="' + esc(q.validation||'') + '" placeholder="e.g. Min 20 chars" style="width:100%;padding:7px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:12px;box-sizing:border-box;"></div>' +
+        '</div>'
+      : '') +
+    (q.type === 'checkbox'
+      ? '<div style="margin-top:8px;padding:8px 10px;background:#18181d;border-radius:6px;"><label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#a0a0b8;cursor:pointer;">' +
+          '<input type="checkbox" id="' + prefix + 'qusl_' + idx + '"' + (q.useServiceList ? ' checked' : '') + ' style="accent-color:#FC8019"> <span>Use Service List (auto-populate options from WI_SERVICES.list)</span></label></div>'
+      : '') +
+     
   '</div>';
 }
  
