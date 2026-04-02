@@ -2032,7 +2032,20 @@ function renderQuestion() {
     </div>
   `;
   
-  if (question.type === 'single') {
+  if (question.type === 'service-picker') {
+    html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;">';
+    WI_SERVICES.list.forEach(svc => {
+      const isSelected = qState.answers['service'] === svc.value;
+      html += `
+        <div data-question-key="service" data-option-value="${svc.value}" class="questionnaire-option"
+          style="padding: 20px 16px; border: 2px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}; border-radius: 12px; cursor: pointer; background: ${isSelected ? 'rgba(252,128,25,0.06)' : 'var(--bg)'}; text-align: center; transition: all 0.2s;">
+          <div style="font-size: 36px; margin-bottom: 8px;">${svc.icon}</div>
+          <div style="font-size: 14px; font-weight: 700; color: var(--text);">${svc.label}</div>
+        </div>`;
+    });
+    html += '</div>';
+  }
+  else if (question.type === 'single') {
     html += '<div style="display: flex; flex-direction: column; gap: 12px;">';
     question.options.forEach(opt => {
       const isSelected = qState.answers[question.key] === opt.value;
