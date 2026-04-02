@@ -4808,10 +4808,11 @@ function collectSingleQuestion(prefix, idx) {
   var qalias= g(prefix + 'qalias_'+ idx);
   var qreq  = g(prefix + 'qreq_'  + idx);
   var qph   = g(prefix + 'qph_'   + idx);
- 
+  var qsub  = g(prefix + 'qsub_'  + idx); // subtitle (if exists)
+
   var type = qtype ? qtype.value : 'radio';
   var options = [];
- 
+
   if (type === 'radio' || type === 'checkbox' || type === 'select') {
     var valEls = document.querySelectorAll('.' + prefix + 'optVal_' + idx);
     var lblEls = document.querySelectorAll('.' + prefix + 'optLbl_' + idx);
@@ -4821,8 +4822,8 @@ function collectSingleQuestion(prefix, idx) {
       if (v || l) options.push({ value: v || l, label: l || v });
     });
   }
- 
-  return {
+
+  var q = {
     id:       qid   ? qid.value.trim()   : '',
     question: qqn   ? qqn.value.trim()   : '',
     type:     type,
@@ -4831,6 +4832,40 @@ function collectSingleQuestion(prefix, idx) {
     placeholder: qph && qph.value.trim() ? qph.value.trim() : undefined,
     options:  options
   };
+
+  // Slider fields
+  if (type === 'slider') {
+    var slMin  = g(prefix + 'qslMin_'  + idx);
+    var slMax  = g(prefix + 'qslMax_'  + idx);
+    var slStep = g(prefix + 'qslStep_' + idx);
+    var slDef  = g(prefix + 'qslDef_'  + idx);
+    var slFmt  = g(prefix + 'qslFmt_'  + idx);
+    q.sliderMin    = slMin  ? parseInt(slMin.value)  || 1000   : 1000;
+    q.sliderMax    = slMax  ? parseInt(slMax.value)  || 100000 : 100000;
+    q.sliderStep   = slStep ? parseInt(slStep.value) || 500    : 500;
+    q.sliderDefault= slDef  ? parseInt(slDef.value)  || 5000   : 5000;
+    q.sliderFormat = slFmt  ? slFmt.value || '₹{value}'       : '₹{value}';
+    delete q.options;
+    delete q.placeholder;
+  }
+
+  // Textarea fields
+  if (type === 'textarea') {
+    var minL = g(prefix + 'qMinLen_' + idx);
+    var maxL = g(prefix + 'qMaxLen_' + idx);
+    var valM = g(prefix + 'qVal_'    + idx);
+    if (minL) q.minLength  = parseInt(minL.value) || 0;
+    if (maxL) q.maxLength  = parseInt(maxL.value) || 1000;
+    if (valM && valM.value.trim()) q.validation = valM.value.trim();
+  }
+
+  // useServiceList for checkbox (expert services)
+  if (type === 'checkbox') {
+    var usl = g(prefix + 'qusl_' + idx);
+    if (usl && usl.checked) q.useServiceList = true;
+  }
+
+  return q;
 }
  
 function collectAllQuestions(prefix) {
