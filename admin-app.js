@@ -4590,6 +4590,8 @@ function renderServiceCategoriesPage() {
       (rows || '<tr><td colspan="8" style="text-align:center;padding:30px;color:#606078">No categories yet.
        '</tbody></table></div>' +
     '</div>';
+    // Render special category cards (common + expert)
+  renderSpecialCategoryCards();
 }
  
 // ── Seed default categories ──────────────────────────────────
