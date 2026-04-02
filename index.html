@@ -2686,7 +2686,8 @@ function updateAddressField(key, fieldKey, value) {
 // ─── VALIDATION ───
 function checkCanProceed() {
   const stepKey = qState.sequence[qState.step];
-  const question = BARK_Q_FORMS[stepKey];
+  const question = _lookupQuestion(stepKey);
+  if (!question) return;
   const answer = qState.answers[question.key];
   const nextBtn = document.getElementById('qNextBtn');
   
