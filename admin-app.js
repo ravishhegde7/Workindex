@@ -4677,9 +4677,10 @@ function buildSingleQuestionBlock(q, idx, prefix) {
       '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Type</label>' +
         '<select id="' + prefix + 'qtype_' + idx + '" onchange="onQTypeChange(\'' + prefix + '\',' + idx + ')" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#18181d;color:#f0f0f4;font-size:13px;">' + typeOpts + '</select></div>' +
     '</div>' +
-    '<div style="margin-bottom:8px;"><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Question text shown to client</label>' +
+    '<div style="margin-bottom:8px;"><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Question title (shown to client)</label>' +
       '<input type="text" id="' + prefix + 'qqn_' + idx + '" value="' + esc(q.question||'') + '" placeholder="e.g. What is your taxpayer type?" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">' +
+    '<div style="margin-bottom:8px;"><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Subtitle / helper text (optional)</label>' +
+      '<input type="text" id="' + prefix + 'qsub_' + idx + '" value="' + esc(q.subtitle||'') + '" placeholder="Optional sub-text shown below the title" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>' +    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">' +
       '<div><label style="font-size:11px;color:#606078;display:block;margin-bottom:3px;">Alias (optional, e.g. urgency)</label>' +
         '<input type="text" id="' + prefix + 'qalias_' + idx + '" value="' + esc(q.alias||'') + '" placeholder="urgency" style="width:100%;padding:8px 10px;border:1px solid #2a2a38;border-radius:6px;background:#0f0f13;color:#f0f0f4;font-size:13px;box-sizing:border-box;"></div>' +
       '<div style="display:flex;align-items:center;gap:8px;padding-top:18px;">' +
