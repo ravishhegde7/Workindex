@@ -1918,19 +1918,17 @@ function buildQuestionSequence() {
     // Conditional address
     const locType = answers.serviceLocationType;
     if (locType === 'my-location' || locType === 'professional-office') {
-      seq.push(q.common.fullAddress.id);
-    } else if (locType === 'online') {
-      seq.push(q.common.clientLocation.id);
-    }
+  seq.push(q.common.full_address.id);
+} else if (locType === 'online') {
+  seq.push(q.common.clientLocation.id);
+}
  
     // Remaining common steps
-    seq.push(
-      q.common.urgency.id,
-      q.common.budget.id,
-      q.common.description.id,
-      q.common.preferredProfessional.id,
-      q.common.contactMethod.id
-    );
+    if (locType === 'my-location' || locType === 'professional-office') {
+  seq.push(q.common.full_address.id);
+} else if (locType === 'online') {
+  seq.push(q.common.clientLocation.id);
+}
  
     return seq;
   }
