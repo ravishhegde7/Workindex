@@ -4895,6 +4895,9 @@ function collectSingleQuestion(prefix, idx) {
     options:  options
   };
 
+var qsubEl = g(prefix + 'qsub_' + idx);
+  if (qsubEl && qsubEl.value.trim()) q.subtitle = qsubEl.value.trim();
+   
   // Slider fields
   if (type === 'slider') {
     var slMin  = g(prefix + 'qslMin_'  + idx);
