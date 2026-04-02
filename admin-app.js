@@ -4583,11 +4583,12 @@ function renderServiceCategoriesPage() {
         'Changes are automatically pushed to <strong style="color:#f0f0f4">services-config.js</strong> on GitHub → Vercel auto-deploys in ~60 seconds. ' +
         'The questionnaire appears in the client\'s "Post a Request" flow.' +
       '</div>' +
+      '<div id="specialCategoryCards" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;padding:0 0 4px;"></div>' +
       '<div class="tw"><table><thead><tr>' +
         '<th>Icon</th><th>Value (key)</th><th>Label</th><th>Color</th><th>Credits</th><th>Questions</th><th>Status</th><th>Actions</th>' +
       '</tr></thead><tbody>' +
-      (rows || '<tr><td colspan="8" style="text-align:center;padding:30px;color:#606078">No categories yet. Click "Seed Defaults" to add the 6 existing services, or "+ Add Category" to create new ones.</td></tr>') +
-      '</tbody></table></div>' +
+      (rows || '<tr><td colspan="8" style="text-align:center;padding:30px;color:#606078">No categories yet.
+       '</tbody></table></div>' +
     '</div>';
 }
  
