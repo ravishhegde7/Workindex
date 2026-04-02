@@ -4527,7 +4527,10 @@ var Q_TYPES = [
   { value: 'checkbox', label: '☑️ Multiple Choice (Checkbox)' },
   { value: 'text',     label: '✏️ Short Text Input' },
   { value: 'textarea', label: '📝 Long Text (Textarea)' },
-  { value: 'select',   label: '🔽 Dropdown Select' }
+  { value: 'select',   label: '🔽 Dropdown Select' },
+  { value: 'address',  label: '📍 Address (Full — building, area, city, state, pincode)' },
+  { value: 'slider',   label: '🎚️ Budget Slider (₹ range)' },
+  { value: 'pincode',  label: '🔢 Pincode Input' },
 ];
  
 window.loadServiceCategories = function() {
