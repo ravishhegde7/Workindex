@@ -4930,6 +4930,27 @@ var qsubEl = g(prefix + 'qsub_' + idx);
     if (usl && usl.checked) q.useServiceList = true;
   }
 
+  // Preserve addressFields based on question ID
+  if (type === 'address') {
+    var qidVal = qid ? qid.value.trim() : '';
+    if (qidVal === 'full_address') {
+      q.addressFields = {
+        building: { label: 'Flat / Building / House No.', placeholder: 'e.g. 4B, Sunrise Apartments', required: true },
+        area:     { label: 'Area / Street / Locality',    placeholder: 'e.g. Koramangala 5th Block',  required: true },
+        pincode:  { label: 'Pincode',                     placeholder: 'e.g. 560095',                 required: true },
+        city:     { label: 'City',                        placeholder: 'e.g. Bengaluru',              required: true },
+        state:    { label: 'State',                       placeholder: 'Select your state',            required: true, type: 'select' },
+        landmark: { label: 'Landmark (optional)',         placeholder: 'e.g. Near Indiranagar metro',  required: false }
+      };
+    } else if (qidVal === 'client_location') {
+      q.addressFields = {
+        city:    { label: 'City',    placeholder: 'e.g. Bengaluru', required: true },
+        state:   { label: 'State',   placeholder: 'Select state',    required: true, type: 'select' },
+        pincode: { label: 'Pincode', placeholder: 'e.g. 560095',    required: true }
+      };
+    }
+  }
+
   return q;
 }
  
