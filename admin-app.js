@@ -4932,10 +4932,9 @@ var qsubEl = g(prefix + 'qsub_' + idx);
   }
 
   // Preserve addressFields based on question ID
-  if (type === 'address') {
+  if (type === 'address' || type === 'address-simple') {
     var qidVal = qid ? qid.value.trim() : '';
     if (qidVal === 'full_address') {
-      q.addressFields = {
         building: { label: 'Flat / Building / House No.', placeholder: 'e.g. 4B, Sunrise Apartments', required: true },
         area:     { label: 'Area / Street / Locality',    placeholder: 'e.g. Koramangala 5th Block',  required: true },
         pincode:  { label: 'Pincode',                     placeholder: 'e.g. 560095',                 required: true },
