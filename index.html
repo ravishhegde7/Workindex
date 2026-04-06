@@ -2261,6 +2261,7 @@ function selectSingleOption(key, value) {
   }
   // If location type selected, rebuild to add/remove address
   else if (key === 'service_location_type') {
+    qState.answers['service_location_type'] = value;
     qState.sequence = buildQuestionSequence();
   }
   
