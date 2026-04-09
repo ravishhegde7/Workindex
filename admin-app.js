@@ -2997,10 +2997,11 @@ admin_approach_deleted:'#ef4444'
         }).join('') + '</div>';
     }).catch(function() { g('settStats').innerHTML = '<p style="color:#606078;text-align:center">Could not load stats</p>'; });
   }
+   
 window.loadVisitStats = function loadVisitStats() {
-    var statesEl  = g('visitStates');
-    var pagesEl   = g('visitPages');
-    var devicesEl = g('visitDevices');
+    var statesEl    = g('visitStates');
+    var pagesEl     = g('visitPages');
+    var devicesEl   = g('visitDevices');
 
     fetch('https://workindex-production.up.railway.app/api/visits/stats', {
       headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }
@@ -3010,16 +3011,21 @@ window.loadVisitStats = function loadVisitStats() {
       if (!d.success || !d.stats) throw new Error('bad response');
       var s = d.stats;
 
-      // ── Counters ──
+      // ── Core counters ──
       var el;
-      el = g('visitTotal');  if (el) el.textContent = (s.total  || 0).toLocaleString('en-IN');
-      el = g('visitToday');  if (el) el.textContent = (s.today  || 0).toLocaleString('en-IN');
-      el = g('visitWeek');   if (el) el.textContent = (s.week   || 0).toLocaleString('en-IN');
-      el = g('visitMonth');  if (el) el.textContent = (s.month  || 0).toLocaleString('en-IN');
+      el = g('visitTotal');    if (el) el.textContent = (s.total  || 0).toLocaleString('en-IN');
+      el = g('visitToday');    if (el) el.textContent = (s.today  || 0).toLocaleString('en-IN');
+      el = g('visitWeek');     if (el) el.textContent = (s.week   || 0).toLocaleString('en-IN');
+      el = g('visitMonth');    if (el) el.textContent = (s.month  || 0).toLocaleString('en-IN');
+
+      // ── Unique / New / Returning ──
+      el = g('visitUnique');    if (el) el.textContent = (s.unique    || 0).toLocaleString('en-IN');
+      el = g('visitNew');       if (el) el.textContent = (s.newVisitors || 0).toLocaleString('en-IN');
+      el = g('visitReturning'); if (el) el.textContent = (s.returning  || 0).toLocaleString('en-IN');
 
       // ── Devices ──
       var devices = s.devices || [];
-      var mobile  = 0, desktop = 0;
+      var mobile = 0, desktop = 0;
       devices.forEach(function(d) {
         if (d.device === 'Mobile') mobile  = d.count;
         else                       desktop = d.count;
@@ -3038,7 +3044,7 @@ window.loadVisitStats = function loadVisitStats() {
             var pct = Math.round((p.count / maxP) * 100);
             var label = p.page === '/' ? '🏠 Home' : '📄 ' + p.page;
             return '<div style="display:flex;align-items:center;gap:8px;">' +
-              '<div style="font-size:12px;color:#a0a0b8;width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(label) + '</div>' +
+              '<div style="font-size:12px;color:#a0a0b8;width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + label + '</div>' +
               '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
                 '<div style="height:100%;width:' + pct + '%;background:#3b82f6;border-radius:3px;"></div>' +
               '</div>' +
@@ -3058,7 +3064,7 @@ window.loadVisitStats = function loadVisitStats() {
           statesEl.innerHTML = states.map(function(st) {
             var pct = Math.round((st.count / maxS) * 100);
             return '<div style="display:flex;align-items:center;gap:8px;">' +
-              '<div style="font-size:12px;color:#a0a0b8;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(st.state) + '</div>' +
+              '<div style="font-size:12px;color:#a0a0b8;width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (st.state || 'Unknown') + '</div>' +
               '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
                 '<div style="height:100%;width:' + pct + '%;background:#FC8019;border-radius:3px;"></div>' +
               '</div>' +
@@ -3067,10 +3073,146 @@ window.loadVisitStats = function loadVisitStats() {
           }).join('');
         }
       }
+
+      // ── Extended section — only render if already expanded ──
+      var ext = g('visitExtended');
+      if (ext && ext.style.display !== 'none') {
+        renderVisitExtended(s);
+      } else {
+        // Store data for when user clicks See More
+        window._visitStatsCache = s;
+      }
     })
     .catch(function() {
       if (statesEl) statesEl.innerHTML = '<div style="font-size:13px;color:#606078;">Could not load visit data</div>';
     });
+  };
+
+  function renderVisitExtended(s) {
+    // ── Browsers ──
+    var browsersEl = g('visitBrowsers');
+    if (browsersEl) {
+      var browsers = s.browsers || [];
+      var browserColors = { Chrome: '#4285f4', Safari: '#f59e0b', Firefox: '#f97316', Edge: '#06b6d4', Opera: '#ef4444', Other: '#606078' };
+      if (!browsers.length) {
+        browsersEl.innerHTML = '<div style="font-size:13px;color:#606078;">No data yet</div>';
+      } else {
+        var maxB = browsers[0].count || 1;
+        browsersEl.innerHTML = browsers.map(function(b) {
+          var pct = Math.round((b.count / maxB) * 100);
+          var color = browserColors[b.browser] || '#a0a0b8';
+          return '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<div style="font-size:12px;color:#a0a0b8;width:80px;flex-shrink:0;">' + (b.browser || 'Other') + '</div>' +
+            '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
+              '<div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:3px;"></div>' +
+            '</div>' +
+            '<div style="font-size:12px;font-weight:700;color:#f0f0f4;width:28px;text-align:right;">' + b.count + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // ── Traffic Sources ──
+    var sourcesEl = g('visitSources');
+    if (sourcesEl) {
+      var sources = s.sources || [];
+      var sourceIcons = { Direct: '🔗', Google: '🔍', Facebook: '👥', Instagram: '📸', 'Twitter/X': '🐦', LinkedIn: '💼', WhatsApp: '💬', Other: '🌐' };
+      var sourceColors = { Direct: '#a0a0b8', Google: '#4285f4', Facebook: '#1877f2', Instagram: '#e1306c', 'Twitter/X': '#1da1f2', LinkedIn: '#0077b5', WhatsApp: '#25d366', Other: '#606078' };
+      if (!sources.length) {
+        sourcesEl.innerHTML = '<div style="font-size:13px;color:#606078;">No referrer data yet (add referrer to track call)</div>';
+      } else {
+        var maxSrc = sources[0].count || 1;
+        sourcesEl.innerHTML = sources.map(function(src) {
+          var pct = Math.round((src.count / maxSrc) * 100);
+          var icon = sourceIcons[src.source] || '🌐';
+          var color = sourceColors[src.source] || '#a0a0b8';
+          return '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<div style="font-size:12px;color:#a0a0b8;width:90px;flex-shrink:0;">' + icon + ' ' + (src.source || 'Direct') + '</div>' +
+            '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
+              '<div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:3px;"></div>' +
+            '</div>' +
+            '<div style="font-size:12px;font-weight:700;color:#f0f0f4;width:28px;text-align:right;">' + src.count + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // ── Countries ──
+    var countriesEl = g('visitCountries');
+    if (countriesEl) {
+      var countries = s.countries || [];
+      if (!countries.length) {
+        countriesEl.innerHTML = '<div style="font-size:13px;color:#606078;">No country data yet</div>';
+      } else {
+        var maxC = countries[0].count || 1;
+        countriesEl.innerHTML = countries.map(function(c) {
+          var pct = Math.round((c.count / maxC) * 100);
+          return '<div style="display:flex;align-items:center;gap:8px;">' +
+            '<div style="font-size:12px;color:#a0a0b8;width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (c.country || 'Unknown') + '</div>' +
+            '<div style="flex:1;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;">' +
+              '<div style="height:100%;width:' + pct + '%;background:#22c55e;border-radius:3px;"></div>' +
+            '</div>' +
+            '<div style="font-size:12px;font-weight:700;color:#f0f0f4;width:28px;text-align:right;">' + c.count + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // ── Hourly heatmap ──
+    var hourlyEl = g('visitHourly');
+    if (hourlyEl) {
+      var hourly = s.hourly || [];
+      if (!hourly.length) {
+        hourlyEl.innerHTML = '<div style="font-size:13px;color:#606078;">No hourly data yet</div>';
+      } else {
+        var hourMap = {};
+        hourly.forEach(function(h) { hourMap[h.hour] = h.count; });
+        var maxH = Math.max.apply(null, hourly.map(function(h) { return h.count; })) || 1;
+        var allHours = [];
+        for (var hr = 0; hr < 24; hr++) {
+          allHours.push({ hour: hr, count: hourMap[hr] || 0 });
+        }
+        // Group into rows of 6
+        var rows = '';
+        for (var row = 0; row < 4; row++) {
+          rows += '<div style="display:flex;gap:4px;margin-bottom:6px;">';
+          for (var col = 0; col < 6; col++) {
+            var h = allHours[row * 6 + col];
+            var intensity = maxH > 0 ? h.count / maxH : 0;
+            var r = Math.round(26 + intensity * 226);
+            var gv = Math.round(26 + intensity * 102);
+            var b2 = Math.round(36);
+            var bg = h.count > 0 ? ('rgb(' + r + ',' + gv + ',' + b2 + ')') : '#18181d';
+            var label12 = h.hour === 0 ? '12am' : h.hour < 12 ? h.hour + 'am' : h.hour === 12 ? '12pm' : (h.hour - 12) + 'pm';
+            rows += '<div style="flex:1;background:' + bg + ';border-radius:6px;padding:6px 4px;text-align:center;cursor:default;" title="' + label12 + ': ' + h.count + ' visits">' +
+              '<div style="font-size:10px;color:rgba(255,255,255,0.6);">' + label12 + '</div>' +
+              '<div style="font-size:12px;font-weight:700;color:#fff;">' + h.count + '</div>' +
+            '</div>';
+          }
+          rows += '</div>';
+        }
+        hourlyEl.innerHTML = rows;
+      }
+    }
+  }
+
+  window.toggleVisitDetails = function() {
+    var ext = g('visitExtended');
+    var btn = g('visitSeeMoreBtn');
+    if (!ext) return;
+    if (ext.style.display === 'none') {
+      ext.style.display = 'block';
+      if (btn) btn.innerHTML = '📊 See Less ▴';
+      // Render extended data from cache or re-fetch
+      if (window._visitStatsCache) {
+        renderVisitExtended(window._visitStatsCache);
+      } else {
+        loadVisitStats();
+      }
+    } else {
+      ext.style.display = 'none';
+      if (btn) btn.innerHTML = '📊 See More Analytics ▾';
+    }
   };
    
 /* ═══ DOWNLOAD REPORTS ══════════════════════════════════════════════════ */
