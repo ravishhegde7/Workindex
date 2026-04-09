@@ -1712,64 +1712,112 @@ function closeCreditModal(event) {
   document.getElementById('creditModal').classList.remove('open');
 }
 
-function proceedToPayment() {
+async function proceedToPayment() {
   const selected = document.querySelector('input[name="creditPack"]:checked');
   if (!selected) {
     showToast('Please select a package', 'warning');
     return;
   }
-  
-  const credits = selected.value;
-  const price = selected.dataset.price;
-  
-  // Open payment modal
-  document.getElementById('paymentAmount').textContent = `₹${price}`;
-  document.getElementById('paymentCredits').textContent = `${credits} Credits`;
-  
-  closeCreditModal();
-  document.getElementById('paymentModal').classList.add('open');
-}
 
-function closePaymentModal(event) {
-  if (event && event.target !== event.currentTarget) return;
-  document.getElementById('paymentModal').classList.remove('open');
-}
+  const packId = selected.dataset.packId;
 
-async function confirmPayment() {
-  const selected = document.querySelector('input[name="creditPack"]:checked');
-  if (!selected) return;
-  
-  const credits = parseInt(selected.value);
-  
   try {
-    // In production, this would verify actual payment
-    const res = await fetch(`${API_URL}/credits/add`, {
+    showToast('Preparing payment...', 'info');
+
+    // Step 1: Create Razorpay order on our backend
+    const res = await fetch(`${API_URL}/credits/purchase/initiate`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${state.token}`,
         'Content-Type': 'application/json'
       },
-            body: JSON.stringify({ 
-        credits,
-        amountPaid: parseInt(selected.dataset.price)  // ← add this
-      })
-            });
-    
+      body: JSON.stringify({ packId })
+    });
+
     const data = await res.json();
-    
+    if (!data.success) {
+      showToast(data.message || 'Could not initiate payment', 'error');
+      return;
+    }
+
+    closeCreditModal();
+
+    // Step 2: Open Razorpay checkout popup
+    const options = {
+      key: data.keyId,
+      amount: data.amount,       // in paise
+      currency: data.currency,
+      name: 'WorkIndex',
+      description: `${data.prefill.credits} Credits`,
+      image: '/logo.png',        // your logo path — update if different
+      order_id: data.orderId,
+      // Step 3: After user pays, Razorpay calls this handler
+      handler: async function (response) {
+        await verifyRazorpayPayment({
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          transactionId: data.transactionId
+        });
+      },
+      prefill: {
+        name: state.user?.name || '',
+        email: state.user?.email || ''
+      },
+      theme: { color: '#F97316' }, // WorkIndex orange
+      modal: {
+        ondismiss: function () {
+          showToast('Payment cancelled', 'info');
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+
+    // Handle payment failure inside the checkout (wrong PIN, bank decline, etc.)
+    rzp.on('payment.failed', function (response) {
+      showToast(`Payment failed: ${response.error.description}`, 'error');
+      console.error('Razorpay payment failed:', response.error);
+    });
+
+    rzp.open();
+
+  } catch (error) {
+    console.error('Payment initiation error:', error);
+    showToast('Could not start payment. Please try again.', 'error');
+  }
+}
+
+// ⭐ Called by Razorpay handler after successful payment
+// Sends Razorpay's 3 IDs to our backend for signature verification
+async function verifyRazorpayPayment({ razorpay_order_id, razorpay_payment_id, razorpay_signature, transactionId }) {
+  try {
+    showToast('Verifying payment...', 'info');
+
+    const res = await fetch(`${API_URL}/credits/purchase/verify`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ razorpay_order_id, razorpay_payment_id, razorpay_signature, transactionId })
+    });
+
+    const data = await res.json();
+
     if (data.success) {
       state.user.credits = data.newBalance;
       localStorage.setItem('user', JSON.stringify(state.user));
-      
-      showToast(`${credits} credits added successfully!`, 'success');
-      closePaymentModal();
       updateCreditDisplay(data.newBalance);
+      showToast(`${data.transaction.credits} credits added successfully!`, 'success');
+      // Refresh transaction history if the user is on the credits page
+      if (typeof loadCreditHistory === 'function') loadCreditHistory();
     } else {
-      showToast(data.message || 'Payment failed', 'error');
+      showToast(data.message || 'Payment verification failed — contact support', 'error');
     }
   } catch (error) {
-    console.error('Payment error:', error);
-    showToast('Payment failed', 'error');
+    console.error('Verify payment error:', error);
+    showToast('Verification failed — your payment is safe, contact support with your payment ID', 'error');
   }
 }
 
