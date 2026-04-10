@@ -529,7 +529,6 @@ async function downloadDocument(docId) {
     });
 
     const data = await res.json();
-    console.log('Download response:', data); // ← temp debug
 
     if (!data.success) {
       showToast(data.message || 'Download failed', 'error');
