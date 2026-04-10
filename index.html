@@ -2785,8 +2785,6 @@ async function submitQuestionnaire() {
           body: JSON.stringify({ profile: locationData })
         });
         const locData = await locRes.json();
-        console.log('Location save result:', JSON.stringify(locData));
-        console.log('Location data sent:', JSON.stringify(locationData));
         state.user = { ...state.user, profile: { ...(state.user.profile || {}), ...locationData } };
         localStorage.setItem('user', JSON.stringify(state.user));
       }
