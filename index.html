@@ -1908,17 +1908,15 @@ function buildQuestionSequence() {
 // ─── START QUESTIONNAIRE ───
 function startQuestionnaire(forceRole) {
   const role = forceRole || (state.user && state.user.role) || selectedRole;
-  qState = {
-    step: 0,
-    sequence: [],
-    answers: {},
-    role: role
-  };
+  qState = { step: 0, sequence: [], answers: {}, role: role };
 
   if (role === 'expert') {
-    // Build expert sequence directly without going through buildQuestionSequence
-    // which relies on answers.service being set
-    const expertSteps = WI_SERVICES.questionnaire.expert;
+    const expertSteps = WI_SERVICES && WI_SERVICES.questionnaire && WI_SERVICES.questionnaire.expert;
+    if (!expertSteps || !expertSteps.length) {
+      console.error('[WorkIndex] WI_SERVICES.questionnaire.expert not loaded');
+      showToast('Configuration error. Please refresh.', 'error');
+      return;
+    }
     qState.sequence = expertSteps.map(function(s) { return s.id; });
     qState.step = 0;
   } else {
