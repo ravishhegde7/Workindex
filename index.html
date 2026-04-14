@@ -1907,17 +1907,24 @@ function buildQuestionSequence() {
   
 // ─── START QUESTIONNAIRE ───
 function startQuestionnaire() {
+  const role = state.user?.role || selectedRole;
   qState = {
     step: 0,
     sequence: ['service'],
     answers: {},
-    role: state.user?.role || selectedRole
+    role: role
   };
+
+  // For experts: build the expert sequence immediately, skip service picker entirely
+  if (role === 'expert') {
+    qState.sequence = buildQuestionSequence();
+    qState.step = 0;
+  }
+
   showPage('questionnaire');
-  // Wait for page to be visible before rendering
   setTimeout(() => renderQuestion(), 50);
 }
-
+  
  // ── Question lookup: finds a step by its id across WI_SERVICES ──
   function _lookupQuestion(stepId) {
     const q = WI_SERVICES.questionnaire;
