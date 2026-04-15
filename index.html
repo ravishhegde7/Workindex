@@ -2746,6 +2746,80 @@ function updateAddressField(key, fieldKey, value) {
   qState.answers[key][fieldKey] = value;
   checkCanProceed();
 }
+
+// ─── PINCODE AUTOFILL ────────────────────────────────────────────────────────
+async function triggerPincodeAutofill(questionKey, pincode) {
+  if (!/^\d{6}$/.test(pincode)) return;
+
+  const spinner = document.getElementById('pincode_spinner_' + questionKey);
+  const errBox  = document.getElementById('pincode_error_' + questionKey);
+  if (spinner) spinner.style.display = 'block';
+  if (errBox)  errBox.style.display  = 'none';
+
+  try {
+    const res  = await fetch('https://api.postalpincode.in/pincode/' + pincode);
+    const data = await res.json();
+
+    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+      const po       = data[0].PostOffice[0];
+      const district = po.District || '';
+      const stateName = po.State   || '';
+
+      // Write into qState
+      if (!qState.answers[questionKey]) qState.answers[questionKey] = {};
+      qState.answers[questionKey].city  = district;
+      qState.answers[questionKey].state = stateName;
+
+      // Update city input (text)
+      const cityInput = document.getElementById('q_' + questionKey + '_city');
+      if (cityInput) {
+        cityInput.value = district;
+        cityInput.style.border     = '2px solid #10b981';
+        cityInput.style.background = 'rgba(16,185,129,0.04)';
+      }
+
+      // Update city autofill badge
+      const cityBadge = document.getElementById('autofill_badge_' + questionKey + '_city');
+      if (cityBadge) cityBadge.style.display = 'inline';
+
+      // Update state — could be <select> or <input>
+      const stateEl = document.getElementById('q_' + questionKey + '_state');
+      if (stateEl) {
+        stateEl.value = stateName;
+        stateEl.style.border     = '2px solid #10b981';
+        stateEl.style.background = 'rgba(16,185,129,0.04)';
+        const stateBadge = document.getElementById('autofill_badge_' + questionKey + '_state');
+        if (stateBadge) stateBadge.style.display = 'inline';
+      }
+
+      checkCanProceed();
+    } else {
+      if (errBox) {
+        errBox.textContent = 'Pincode not found. Please enter city and state manually.';
+        errBox.style.display = 'block';
+      }
+    }
+  } catch (e) {
+    // Silent fail — user fills manually
+    if (errBox) {
+      errBox.textContent = 'Could not look up pincode. Please fill city and state manually.';
+      errBox.style.display = 'block';
+    }
+  } finally {
+    if (spinner) spinner.style.display = 'none';
+  }
+}
+
+// Clears the green autofill badge when user manually edits a field
+function clearAutoFillBadge(questionKey, fieldKey) {
+  const badge = document.getElementById('autofill_badge_' + questionKey + '_' + fieldKey);
+  if (badge) badge.style.display = 'none';
+  const el = document.getElementById('q_' + questionKey + '_' + fieldKey);
+  if (el) {
+    el.style.border     = '2px solid var(--border)';
+    el.style.background = 'var(--bg)';
+  }
+}
      
 // ─── VALIDATION ───
 function checkCanProceed() {
