@@ -2250,16 +2250,24 @@ function renderQuestion() {
   }
   else if (question.type === 'pincode') {
     const value = qState.answers[question.key] || '';
+    const isExpertPincode = question.id === 'expert_pincode';
     html += `
-      <input type="text" id="qPincodeInput" maxlength="6" value="${value}"
-        placeholder="${question.placeholder || 'Enter 6-digit pincode'}"
-        style="width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 16px; font-family: inherit; letter-spacing: 2px;"
-        oninput="
-          this.value = this.value.replace(/\\D/g,'');
-          updateTextInput('${question.key}', this.value);
-          lookupPincode(this.value);
-        ">
-      <div id="pincodeResult" style="margin-top: 8px;"></div>
+      <div style="position:relative;">
+        <input type="text"
+          id="q_${question.key}"
+          value="${value}"
+          placeholder="${question.placeholder || 'Enter 6-digit pincode'}"
+          maxlength="6"
+          inputmode="numeric"
+          style="width:100%; padding:14px; border:2px solid var(--border); border-radius:10px; font-size:15px; box-sizing:border-box;"
+          oninput="
+            this.value=this.value.replace(/\\D/g,'');
+            updateAnswer('${question.key}', this.value);
+            ${isExpertPincode ? `if(this.value.length===6) triggerExpertPincodeAutofill(this.value);` : ''}
+          ">
+        ${isExpertPincode ? `<div id="expert_pincode_spinner" style="display:none; position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:12px; color:var(--text-muted);">⏳ Looking up...</div>` : ''}
+      </div>
+      ${isExpertPincode ? `<div id="expert_pincode_error" style="display:none; margin-top:6px; font-size:12px; color:#ef4444;"></div>` : ''}
     `;
   }
   content.innerHTML = html;
@@ -2818,6 +2826,67 @@ function clearAutoFillBadge(questionKey, fieldKey) {
   if (el) {
     el.style.border     = '2px solid var(--border)';
     el.style.background = 'var(--bg)';
+  }
+}
+
+// ─── EXPERT PINCODE AUTOFILL ─────────────────────────────────────────────────
+async function triggerExpertPincodeAutofill(pincode) {
+  if (!/^\d{6}$/.test(pincode)) return;
+
+  const spinner = document.getElementById('expert_pincode_spinner');
+  const errBox  = document.getElementById('expert_pincode_error');
+  if (spinner) spinner.style.display = 'block';
+  if (errBox)  errBox.style.display  = 'none';
+
+  try {
+    const res  = await fetch('https://api.postalpincode.in/pincode/' + pincode);
+    const data = await res.json();
+
+    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+      const po        = data[0].PostOffice[0];
+      const district  = po.District || '';
+      const stateName = po.State    || '';
+
+      // Pre-fill expert_city answer and advance to next question if it's upcoming
+      qState.answers['city']  = district;
+      qState.answers['state'] = stateName;
+
+      // Also set by key in case the questionnaire uses key not id
+      qState.answers['expert_city']  = district;
+      qState.answers['expert_state'] = stateName;
+
+      // If city input is already rendered (visible), fill it
+      const cityInput = document.getElementById('q_city') || document.getElementById('q_expert_city');
+      if (cityInput) {
+        cityInput.value = district;
+        cityInput.style.border     = '2px solid #10b981';
+        cityInput.style.background = 'rgba(16,185,129,0.04)';
+      }
+
+      // If state is rendered as radio, auto-select the matching option
+      // (radio buttons — find the one matching stateName and trigger click)
+      const stateRadios = document.querySelectorAll('input[name="q_state"], input[name="q_expert_state"]');
+      stateRadios.forEach(function(radio) {
+        if (radio.value === stateName) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change'));
+        }
+      });
+
+      checkCanProceed();
+    } else {
+      if (errBox) {
+        errBox.textContent = 'Pincode not found. Please enter city and state manually.';
+        errBox.style.display = 'block';
+      }
+    }
+  } catch (e) {
+    if (errBox) {
+      errBox.textContent = 'Could not look up pincode. Please fill city and state manually.';
+      errBox.style.display = 'block';
+    }
+  } finally {
+    if (spinner) spinner.style.display = 'none';
   }
 }
      
