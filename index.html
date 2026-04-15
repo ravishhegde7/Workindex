@@ -1925,7 +1925,18 @@ function startQuestionnaire(forceRole) {
   }
 
   showPage('questionnaire');
-  setTimeout(function() { renderQuestion(); }, 50);
+  setTimeout(function() {
+    // Safety check: re-apply sequence if it got wiped during showPage
+    if (role === 'expert') {
+      const expertSteps = WI_SERVICES && WI_SERVICES.questionnaire && WI_SERVICES.questionnaire.expert;
+      if (expertSteps && expertSteps.length) {
+        qState.sequence = expertSteps.map(function(s) { return s.id; });
+        qState.step = 0;
+        qState.role = 'expert';
+      }
+    }
+    renderQuestion();
+  }, 100);
 }
   
  // ── Question lookup: finds a step by its id across WI_SERVICES ──
