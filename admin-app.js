@@ -4847,6 +4847,13 @@ window.seedCommonSteps = function() {
   }).catch(function() { toast('Error', 'e'); });
 };
 
+   window.resetExpertSteps = function() {
+  if (!confirm('This will DELETE the current expert steps from DB so you can re-seed with the correct order. Continue?')) return;
+  api('service-categories/reset-expert', 'POST', {}).then(function(d) {
+    if (d.success) { toast('✅ ' + d.message); loadServiceCategories(); }
+    else toast(d.message || 'Failed', 'e');
+  }).catch(function() { toast('Error', 'e'); });
+};
 window.seedExpertSteps = function() {
   if (!confirm('Seed the 8 expert onboarding steps (specialization, experience, city, bio, etc.) into the database?')) return;
   api('service-categories/seed-expert', 'POST', {}).then(function(d) {
