@@ -629,8 +629,9 @@ function calculateAdminProfileStrength(u) {
   // ── Normalize questionnaire keys (same as app.js renderExpertProfile) ──
   var bio            = pr.bio            || pr.expert_bio            || '';
   var specialization = pr.specialization || pr.expert_specialization || u.specialization || '';
-  var city           = pr.city           || pr.expert_city           || (u.location && u.location.city) || '';
-  var pincode        = pr.pincode        || pr.expert_pincode        || (u.location && u.location.pincode) || '';
+  var locDet         = (pr.expert_location_details && typeof pr.expert_location_details === 'object') ? pr.expert_location_details : null;
+  var city           = pr.city           || pr.expert_city           || (locDet && locDet.city)    || (u.location && u.location.city)    || '';
+  var pincode        = pr.pincode        || pr.expert_pincode        || (locDet && locDet.pincode) || (u.location && u.location.pincode) || '';
   var experience     = pr.experience     || pr.expert_experience     || u.yearsOfExperience || '';
   var gstNumber      = pr.gstNumber      || '';
   var licenseNumber  = pr.licenseNumber  || '';
@@ -741,7 +742,10 @@ var av = u.profilePhoto ? '<img src="' + esc(u.profilePhoto) + '" alt="">' : esc
 var p0 = '<div class="uhero"><div class="uav">' + av + '</div><div class="uhi"><h3>' + esc(u.name) + '</h3><p>' + esc(u.email) + ' / ' + esc(u.phone||'No phone') + '</p><div style="display:flex;gap:5px;flex-wrap:wrap">' + bdg(u.role) + ust(u) + (u.warnings ? '<span class="badge bo">' + u.warnings + ' warns</span>' : '') + '</div></div></div>';
 
 var loc = u.location || {};
-var locStr = [loc.city, loc.state, loc.pincode].filter(Boolean).join(', ') || [pr.city, pr.state, pr.pincode].filter(Boolean).join(', ') || '-';
+var locDet2 = (pr.expert_location_details && typeof pr.expert_location_details === 'object') ? pr.expert_location_details : null;
+var locStr = [loc.city, loc.state, loc.pincode].filter(Boolean).join(', ')
+  || [pr.city || (locDet2 && locDet2.city), pr.state || (locDet2 && locDet2.state), pr.pincode || (locDet2 && locDet2.pincode)].filter(Boolean).join(', ')
+  || '-';
 var kycStatus = (u.kyc && u.kyc.status) || 'not_submitted';
 var kycColor = kycStatus==='approved'?'#22c55e':kycStatus==='pending'?'#f59e0b':kycStatus==='rejected'?'#ef4444':'#606078';
 var warnColor = (u.warnings||0)>=3?'#ef4444':(u.warnings||0)>0?'#f59e0b':'#22c55e';
