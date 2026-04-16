@@ -4785,12 +4785,19 @@ if (/[^a-zA-Z\s\.\-']/.test(nameVal)) {
 
   try {
     const updatedProfile = {
-      ...(state.user.profile || {}),
-      city: cityVal,
-      pincode: pincodeVal,
-      state: stateVal
-    };
-
+  ...(state.user.profile || {}),
+  city: cityVal,
+  pincode: pincodeVal,
+  state: stateVal,
+  // Keep expert_location_details in sync with the flat fields
+  expert_location_details: {
+    ...(typeof (state.user.profile?.expert_location_details) === 'object'
+        ? state.user.profile.expert_location_details : {}),
+    pincode: pincodeVal,
+    city:    cityVal,
+    state:   stateVal
+  }
+};
     // Save profile (city, pincode, state)
     const res = await fetch(`${API_URL}/users/profile`, {
       method: 'PUT',
