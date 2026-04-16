@@ -1925,10 +1925,14 @@ g('invAmt').value = inrAmt > 0 ? inrAmt : '';
   }
 
   // 4b. expert_location_details (new pincode-autofill address object)
-  if (!city && pr.expert_location_details && typeof pr.expert_location_details === 'object') {
-    city  = (pr.expert_location_details.city  || '').trim() || null;
-    state = (pr.expert_location_details.state || '').trim() || null;
+  if (pr.expert_location_details && typeof pr.expert_location_details === 'object') {
+    if (!city)  city  = (pr.expert_location_details.city  || '').trim() || null;
+    if (!state) state = (pr.expert_location_details.state || '').trim() || null;
   }
+
+  // 4c. expert_city / expert_state flat keys (legacy individual questions)
+  if (!city)  city  = (pr.expert_city  || '').trim() || null;
+  if (!state) state = (pr.expert_state || '').trim() || null;
 
   // 5. top-level user location field (fallback)
   if (!city && u.location) {
