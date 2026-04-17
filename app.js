@@ -2027,7 +2027,7 @@ function renderClientRequests() {
     cancelled: { label:'Cancelled', color:'#ef4444', bg:'rgba(239,68,68,0.1)',   icon:'❌' }
   };
 
-  var items = paginate(allRequests, 'clientRequests');
+  var items = paginate(filteredRequests, 'clientRequests');
 
   container.innerHTML = items.map(function(req) {
     var st = stMap[req.status] || stMap.pending;
@@ -2085,7 +2085,7 @@ function renderClientRequests() {
             '</div>') +
       '</div>' +
     '</div>';
-  }).join('') + paginationControlsHTML(allRequests, 'clientRequests');
+  }).join('') + paginationControlsHTML(filteredRequests, 'clientRequests');
 }
 
 // ─── UPDATE CLIENT PROFILE ───
