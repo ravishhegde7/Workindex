@@ -3802,31 +3802,45 @@ async function resendGoogleOTP(email) {
 
 // ── Phone collection for Google sign-up users ─────────────────────────────
 function showGooglePhoneScreen(user) {
-  const authCard = document.querySelector('.auth-card');
-  if (!authCard) { startQuestionnaire(user.role); return; }
+  const existing = document.getElementById('googlePhoneOverlay');
+  if (existing) existing.remove();
 
-  authCard.innerHTML = `
-    <div style="text-align:center; padding: 8px 0 24px;">
+  const overlay = document.createElement('div');
+  overlay.id = 'googlePhoneOverlay';
+  overlay.style.cssText = `
+    position: fixed; inset: 0; background: var(--bg); z-index: 2000;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  `;
+
+  overlay.innerHTML = `
+    <div style="background: var(--bg); width: 100%; max-width: 400px; border-radius: 16px;
+                border: 1.5px solid var(--border); padding: 32px 24px; text-align: center;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.12);">
       <div style="font-size:48px; margin-bottom:12px;">📱</div>
-      <h3 style="font-size:18px; font-weight:700; margin-bottom:8px;">One last thing</h3>
+      <h3 style="font-size:20px; font-weight:800; margin-bottom:8px; color: var(--text);">
+        One last thing
+      </h3>
       <p style="font-size:14px; color:var(--text-muted); line-height:1.5; margin-bottom:24px;">
         Add your phone number to complete your profile.<br>
         <span style="font-size:12px;">Google doesn't share phone numbers with us.</span>
       </p>
-      <div class="field" style="text-align:left; margin-bottom:8px;">
-        <label>Phone Number</label>
+      <div style="text-align:left; margin-bottom:16px;">
+        <label style="font-size:13px; font-weight:600; color:var(--text);
+                      display:block; margin-bottom:8px;">Phone Number</label>
         <div style="display:flex; gap:8px;">
           <span style="padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
-                       font-size:15px; font-weight:600; background:var(--bg-gray); color:var(--text-muted);">
+                       font-size:15px; font-weight:600; background:var(--bg-gray);
+                       color:var(--text-muted); flex-shrink:0;">
             +91
           </span>
           <input type="tel" id="googlePhoneInput" placeholder="10-digit mobile number"
             maxlength="10" inputmode="numeric"
-            style="flex:1; padding:12px; border:1.5px solid var(--border); border-radius:10px; font-size:15px;"
+            style="flex:1; padding:12px; border:1.5px solid var(--border); border-radius:10px;
+                   font-size:15px; background:var(--bg); color:var(--text);"
             oninput="this.value=this.value.replace(/\\D/g,'')">
         </div>
       </div>
-      <button class="btn-primary" style="width:100%; margin-bottom:12px; margin-top:8px;"
+      <button class="btn-primary" style="width:100%; margin-bottom:12px;"
         onclick="submitGooglePhone('${user._id}')">
         Save & Continue →
       </button>
@@ -3837,8 +3851,9 @@ function showGooglePhoneScreen(user) {
       </button>
     </div>
   `;
-}
 
+  document.body.appendChild(overlay);
+}
 async function submitGooglePhone(userId) {
   const phone = document.getElementById('googlePhoneInput')?.value?.trim();
   if (!phone || !/^[0-9]{10}$/.test(phone)) {
@@ -3873,6 +3888,9 @@ function skipGooglePhone() {
 }
 
 function proceedAfterGoogleSignup() {
+  const overlay = document.getElementById('googlePhoneOverlay');
+  if (overlay) overlay.remove();
+
   const user = state.user;
   if (state.pendingServiceFlow && user.role === 'client') {
     const svc = state.pendingServiceFlow;
