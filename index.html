@@ -3564,6 +3564,267 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 })();
 </script>
+
+<script>
+// ─── GOOGLE SIGN-IN INTEGRATION ────────────────────────────────────────────
+ 
+const GOOGLE_CLIENT_ID = '385283993547-m41gp8puiq8a71f2856tu0bbskn7qir1.apps.googleusercontent.com';
+ 
+// State for Google OTP flow
+let _gOtpEmail = null;  // email address waiting for OTP verification
+ 
+// ── Render Google button into a container ──────────────────────────────────
+function renderGoogleButton(containerId, context) {
+  if (!window.google || !window.google.accounts) return;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+ 
+  container.innerHTML = '';
+ 
+  window.google.accounts.id.initialize({
+    client_id:             GOOGLE_CLIENT_ID,
+    callback:              (response) => handleGoogleCredential(response, context),
+    auto_select:           false,
+    cancel_on_tap_outside: true,
+    ux_mode:               'popup',
+  });
+ 
+  window.google.accounts.id.renderButton(container, {
+    theme:          'outline',
+    size:           'large',
+    width:          container.offsetWidth > 50 ? container.offsetWidth : 340,
+    text:           context === 'signup' ? 'signup_with' : 'signin_with',
+    shape:          'rectangular',
+    logo_alignment: 'left',
+  });
+}
+ 
+// ── Called when user picks a Google account ────────────────────────────────
+async function handleGoogleCredential(response, context) {
+  const credential = response.credential;
+  if (!credential) {
+    showToast('Google sign-in failed. Please try again.', 'error');
+    return;
+  }
+ 
+  // For signup, use the currently selected role
+  const role = context === 'signup' ? (selectedRole || 'client') : undefined;
+ 
+  try {
+    showToast('Connecting with Google...', 'info');
+ 
+    const res = await fetch(`${API_URL}/auth/google-init`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ credential, role }),
+    });
+ 
+    const data = await res.json();
+ 
+    if (!data.success) {
+      showToast(data.message || 'Google sign-in failed.', 'error');
+      return;
+    }
+ 
+    if (data.action === 'login') {
+      // ── Returning user — go straight to dashboard ────────────────────
+      state.token = data.token;
+      state.user  = data.user;
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user',  JSON.stringify(data.user));
+ 
+      showToast('Welcome back!', 'success');
+ 
+      if (data.user.role === 'expert') {
+        showPage('expertDash');
+        if (typeof loadExpertData === 'function') loadExpertData();
+      } else {
+        showPage('clientDash');
+        if (typeof loadClientData === 'function') loadClientData();
+      }
+ 
+    } else if (data.action === 'verify_otp') {
+      // ── New user — show OTP screen ───────────────────────────────────
+      _gOtpEmail = data.email;
+      showGoogleOTPScreen(data.email);
+    }
+ 
+  } catch (err) {
+    console.error('Google auth error:', err);
+    showToast('Network error. Please try again.', 'error');
+  }
+}
+ 
+// ── Show OTP verification screen for new Google users ──────────────────────
+function showGoogleOTPScreen(email) {
+  // Re-use signupStep2 UI — same look as normal OTP screen
+  document.getElementById('signupStep1').style.display = 'none';
+  document.getElementById('signupStep2').style.display = 'block';
+ 
+  // Update the email display
+  const emailDisplay = document.getElementById('otpEmailDisplay');
+  if (emailDisplay) emailDisplay.textContent = email;
+ 
+  // Override the verify button to call Google OTP handler
+  const verifyBtn = document.getElementById('verifyOtpBtn');
+  if (verifyBtn) {
+    verifyBtn.onclick = handleGoogleVerifyOTP;
+    verifyBtn.textContent = 'Verify & Create Account';
+  }
+ 
+  // Override the OTP input Enter key
+  const otpInput = document.getElementById('signupOTP');
+  if (otpInput) {
+    otpInput.value = '';
+    otpInput.onkeypress = (e) => { if (e.key === 'Enter') handleGoogleVerifyOTP(); };
+  }
+ 
+  // Override resend button
+  startResendCountdown(
+    'signupResendBtn',
+    'signupResendTimer',
+    () => resendGoogleOTP(email)
+  );
+ 
+  // Override "Change details" back button to reset Google flow
+  const changeBtn = document.querySelector('#signupStep2 button:last-of-type');
+  if (changeBtn) {
+    changeBtn.onclick = () => {
+      _gOtpEmail = null;
+      document.getElementById('signupStep2').style.display = 'none';
+      document.getElementById('signupStep1').style.display = 'block';
+      // Restore normal OTP verify button behaviour
+      const vBtn = document.getElementById('verifyOtpBtn');
+      if (vBtn) {
+        vBtn.onclick = handleVerifySignupOTP;
+        vBtn.textContent = 'Verify & Create Account';
+      }
+    };
+  }
+ 
+  showToast(`Verification code sent to ${email}`, 'success');
+}
+ 
+// ── Verify OTP for new Google user ─────────────────────────────────────────
+async function handleGoogleVerifyOTP() {
+  const otp = document.getElementById('signupOTP')?.value?.trim();
+  if (!otp || otp.length !== 6) {
+    showToast('Enter the 6-digit code', 'error');
+    return;
+  }
+ 
+  const btn = document.getElementById('verifyOtpBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+ 
+  try {
+    const res = await fetch(`${API_URL}/auth/google-verify-otp`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email: _gOtpEmail, otp }),
+    });
+ 
+    const data = await res.json();
+ 
+    if (!data.success) {
+      showToast(data.message || 'Invalid code', 'error');
+      return;
+    }
+ 
+    // ── Account created — route to onboarding ────────────────────────
+    state.token = data.token;
+    state.user  = data.user;
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user',  JSON.stringify(data.user));
+    _gOtpEmail = null;
+ 
+    showToast('Account created!', 'success');
+ 
+    if (state.pendingServiceFlow && data.user.role === 'client') {
+      const svc = state.pendingServiceFlow;
+      state.pendingServiceFlow = null;
+      qState = {
+        step:     1,
+        sequence: [],
+        answers:  { service: svc },
+        role:     'client',
+      };
+      qState.sequence = buildQuestionSequence();
+      showPage('questionnaire');
+      renderQuestion();
+    } else {
+      startQuestionnaire(data.user.role);
+    }
+ 
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify & Create Account'; }
+  }
+}
+ 
+// ── Resend OTP for Google signup ───────────────────────────────────────────
+async function resendGoogleOTP(email) {
+  try {
+    const res = await fetch(`${API_URL}/auth/google-resend-otp`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    showToast(data.success ? 'Code resent!' : (data.message || 'Failed to resend'), data.success ? 'success' : 'error');
+  } catch (e) {
+    showToast('Network error', 'error');
+  }
+}
+ 
+// ── Hook: re-render buttons when auth mode switches ───────────────────────
+const __origSwitchAuthMode = switchAuthMode;
+switchAuthMode = function(mode) {
+  __origSwitchAuthMode(mode);
+  setTimeout(() => {
+    if (mode === 'login')  renderGoogleButton('googleLoginBtn',  'login');
+    else                   renderGoogleButton('googleSignupBtn', 'signup');
+  }, 60);
+};
+ 
+// ── Hook: re-render signup button when role changes ───────────────────────
+const __origSelectRole = typeof selectRole === 'function' ? selectRole : null;
+if (__origSelectRole) {
+  selectRole = function(role) {
+    __origSelectRole(role);
+    setTimeout(() => renderGoogleButton('googleSignupBtn', 'signup'), 60);
+  };
+}
+ 
+// ── Hook: render on auth page load ────────────────────────────────────────
+const __origShowPage = typeof showPage === 'function' ? showPage : null;
+if (__origShowPage) {
+  showPage = function(pageId) {
+    __origShowPage(pageId);
+    if (pageId === 'auth') {
+      setTimeout(() => {
+        const loginVisible =
+          document.getElementById('loginForm') &&
+          document.getElementById('loginForm').style.display !== 'none';
+        if (loginVisible) renderGoogleButton('googleLoginBtn',  'login');
+        else              renderGoogleButton('googleSignupBtn', 'signup');
+      }, 100);
+    }
+  };
+}
+ 
+// ── Initial render: wait for GSI script to load ───────────────────────────
+(function waitForGSI() {
+  if (window.google && window.google.accounts) {
+    const authPage = document.getElementById('auth');
+    if (authPage && authPage.classList.contains('active')) {
+      renderGoogleButton('googleLoginBtn', 'login');
+    }
+  } else {
+    setTimeout(waitForGSI, 250);
+  }
+})();
+</script>
   
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/services-config.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
