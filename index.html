@@ -3879,10 +3879,6 @@ async function submitGooglePhone(userId) {
   proceedAfterGoogleSignup();
 }
 
-function skipGooglePhone() {
-  showToast('You can add your phone later in Profile settings', 'info');
-  proceedAfterGoogleSignup();
-}
 
 function proceedAfterGoogleSignup() {
   const overlay = document.getElementById('googlePhoneOverlay');
