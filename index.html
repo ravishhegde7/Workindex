@@ -3731,7 +3731,9 @@ async function handleGoogleVerifyOTP() {
     });
  
     const data = await res.json();
- 
+    
+ console.log('Google verify OTP response:', JSON.stringify(data));
+    
     if (!data.success) {
       showToast(data.message || 'Invalid code', 'error');
       return;
