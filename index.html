@@ -3783,7 +3783,93 @@ async function resendGoogleOTP(email) {
     showToast('Network error', 'error');
   }
 }
- 
+
+// ── Phone collection for Google sign-up users ─────────────────────────────
+function showGooglePhoneScreen(user) {
+  const authCard = document.querySelector('.auth-card');
+  if (!authCard) { startQuestionnaire(user.role); return; }
+
+  authCard.innerHTML = `
+    <div style="text-align:center; padding: 8px 0 24px;">
+      <div style="font-size:48px; margin-bottom:12px;">📱</div>
+      <h3 style="font-size:18px; font-weight:700; margin-bottom:8px;">One last thing</h3>
+      <p style="font-size:14px; color:var(--text-muted); line-height:1.5; margin-bottom:24px;">
+        Add your phone number to complete your profile.<br>
+        <span style="font-size:12px;">Google doesn't share phone numbers with us.</span>
+      </p>
+      <div class="field" style="text-align:left; margin-bottom:8px;">
+        <label>Phone Number</label>
+        <div style="display:flex; gap:8px;">
+          <span style="padding:12px 14px; border:1.5px solid var(--border); border-radius:10px;
+                       font-size:15px; font-weight:600; background:var(--bg-gray); color:var(--text-muted);">
+            +91
+          </span>
+          <input type="tel" id="googlePhoneInput" placeholder="10-digit mobile number"
+            maxlength="10" inputmode="numeric"
+            style="flex:1; padding:12px; border:1.5px solid var(--border); border-radius:10px; font-size:15px;"
+            oninput="this.value=this.value.replace(/\\D/g,'')">
+        </div>
+      </div>
+      <button class="btn-primary" style="width:100%; margin-bottom:12px; margin-top:8px;"
+        onclick="submitGooglePhone('${user._id}')">
+        Save & Continue →
+      </button>
+      <button style="width:100%; padding:10px; background:none; border:none;
+                     color:var(--text-muted); font-size:14px; cursor:pointer;"
+        onclick="skipGooglePhone()">
+        Skip for now
+      </button>
+    </div>
+  `;
+}
+
+async function submitGooglePhone(userId) {
+  const phone = document.getElementById('googlePhoneInput')?.value?.trim();
+  if (!phone || !/^[0-9]{10}$/.test(phone)) {
+    showToast('Enter a valid 10-digit phone number', 'error'); return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/users/profile`, {
+      method:  'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${state.token}`
+      },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.user.phone = phone;
+      localStorage.setItem('user', JSON.stringify(state.user));
+      showToast('Phone saved!', 'success');
+    }
+  } catch (e) {
+    // Non-fatal — continue regardless
+  }
+
+  proceedAfterGoogleSignup();
+}
+
+function skipGooglePhone() {
+  showToast('You can add your phone later in Profile settings', 'info');
+  proceedAfterGoogleSignup();
+}
+
+function proceedAfterGoogleSignup() {
+  const user = state.user;
+  if (state.pendingServiceFlow && user.role === 'client') {
+    const svc = state.pendingServiceFlow;
+    state.pendingServiceFlow = null;
+    qState = { step:1, sequence:[], answers:{ service: svc }, role:'client' };
+    qState.sequence = buildQuestionSequence();
+    showPage('questionnaire');
+    renderQuestion();
+  } else {
+    startQuestionnaire(user.role);
+  }
+}
+  
 // ── Hook: re-render buttons when auth mode switches ───────────────────────
 const __origSwitchAuthMode = switchAuthMode;
 switchAuthMode = function(mode) {
