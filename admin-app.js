@@ -287,6 +287,14 @@
           .then(function() { return api('users/' + uid + '/action', 'POST', { action: 'warn', reason: rReason }); })
           .then(function(d) { toast(d.message || 'Restricted'); searchActions(); })
           .catch(function() { toast('Error', 'e'); });
+      } else if (act === 'delete') {
+        if (!confirm('PERMANENTLY DELETE ' + nm + '?\n\nThis will remove them from the database and cannot be undone.')) return;
+        var confirmName = prompt('Type the user\'s name to confirm deletion:');
+        if (confirmName !== nm) { toast('Name did not match — deletion cancelled', 'e'); return; }
+        api('users/' + uid, 'DELETE').then(function(d) {
+          if (d.success) { toast('User deleted permanently'); searchActions(); }
+          else toast(d.message || 'Failed', 'e');
+        }).catch(function() { toast('Error', 'e'); });
       } else {
         if (!confirm(act + ' ' + nm + '?')) return;
         doAct(uid, act, '');
@@ -1871,7 +1879,7 @@ g('invAmt').value = inrAmt > 0 ? inrAmt : '';
       var rb = u.isRestricted
         ? '<button class="btn bgrn" data-act="unrestrict" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Unrestrict</button>'
         : '<button class="btn bywn" style="background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3)" data-act="restrict" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Restrict</button>';      var warnBadge = (u.warnings||0) > 0 ? '<span style="color:' + ((u.warnings||0)>=3?'#ef4444':'#f59e0b') + ';font-weight:700">' + (u.warnings||0) + '/3</span>' : '0';
-      return '<tr><td><strong>' + esc(u.name) + '</strong></td><td>' + bdg(u.role) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td>' + ust(u) + (u.isRestricted ? ' <span class="badge brd">Restricted</span>' : '') + '</td><td>' + warnBadge + '</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">' + bb + '<button class="btn bywn" data-act="warn" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Warn</button>' + fb + rb + '<span class="btn bgho" data-uid="' + u._id + '">View</span></div></td></tr>';    }).join(''));
+      return '<tr><td><strong>' + esc(u.name) + '</strong></td><td>' + bdg(u.role) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td>' + ust(u) + (u.isRestricted ? ' <span class="badge brd">Restricted</span>' : '') + '</td><td>' + warnBadge + '</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">' + bb + '<button class="btn bywn" data-act="warn" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Warn</button>' + fb + rb + '<span class="btn bgho" data-uid="' + u._id + '">View</span>' + delb + '</div></td></tr>';
   }
 
   /* ═══ HEATMAP ════════════════════════════════════════════════════════════ */
