@@ -4941,6 +4941,46 @@ async function savePhoneEdit() {
   }
 }
 
+function toggleClientPhoneEdit() {
+  const area = document.getElementById('clientPhoneEditArea');
+  if (!area) return;
+  const isOpen = area.style.display !== 'none';
+  area.style.display = isOpen ? 'none' : 'block';
+  const input = document.getElementById('clientPhoneEditInput');
+  if (input && !isOpen) input.value = state.user?.phone || '';
+}
+
+async function saveClientPhoneEdit() {
+  const input = document.getElementById('clientPhoneEditInput');
+  const phone = input?.value?.trim();
+  if (!phone || !/^[0-9]{10}$/.test(phone)) {
+    showToast('Enter a valid 10-digit phone number', 'error'); return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/users/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.user.phone = phone;
+      localStorage.setItem('user', JSON.stringify(state.user));
+      const el = document.getElementById('profilePhone');
+      if (el) el.textContent = phone;
+      showToast('Phone number updated!', 'success');
+      toggleClientPhoneEdit();
+    } else {
+      showToast(data.message || 'Failed to save', 'error');
+    }
+  } catch (e) {
+    showToast('Network error', 'error');
+  }
+}
+
 // ─── UPDATE AVAILABILITY ───
 async function updateAvailability(status) {
   try {
