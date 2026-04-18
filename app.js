@@ -4645,7 +4645,33 @@ if (locDetails && typeof locDetails === 'object') {
         <h3 class="settings-section-title">Contact Information</h3>
         <div style="padding:12px 0;border-bottom:1px solid var(--border);">
           <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Phone</div>
-          <div style="font-size:15px;font-weight:600;color:var(--text);">${user.phone || 'Not provided'}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div id="phoneDisplay" style="font-size:15px;font-weight:600;color:var(--text);">${user.phone || 'Not provided'}</div>
+            <button onclick="togglePhoneEdit()" id="phoneEditBtn"
+              style="padding:5px 12px;border:1.5px solid var(--primary);border-radius:8px;background:transparent;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">
+              ✏️ Edit
+            </button>
+          </div>
+          <div id="phoneEditArea" style="display:none;margin-top:10px;">
+            <div style="display:flex;gap:8px;">
+              <span style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;background:var(--bg-gray);color:var(--text-muted);flex-shrink:0;">+91</span>
+              <input type="tel" id="phoneEditInput" placeholder="10-digit mobile number"
+                maxlength="10" inputmode="numeric"
+                value="${user.phone || ''}"
+                style="flex:1;padding:10px 12px;border:1.5px solid var(--primary);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);"
+                oninput="this.value=this.value.replace(/\D/g,'')">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+              <button onclick="savePhoneEdit()"
+                style="flex:1;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">
+                Save
+              </button>
+              <button onclick="togglePhoneEdit()"
+                style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:8px;background:transparent;color:var(--text);font-size:13px;cursor:pointer;">
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
         <div style="padding:12px 0;border-bottom:1px solid var(--border);">
           <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Service Location</div>
@@ -4876,6 +4902,45 @@ if (/[^a-zA-Z\s\.\-']/.test(nameVal)) {
     if (btn) { btn.disabled = false; btn.textContent = '💾 Save Basic Info'; }
   }
 }
+
+function togglePhoneEdit() {
+  const area = document.getElementById('phoneEditArea');
+  const btn  = document.getElementById('phoneEditBtn');
+  if (!area) return;
+  const isOpen = area.style.display !== 'none';
+  area.style.display = isOpen ? 'none' : 'block';
+  if (btn) btn.textContent = isOpen ? '✏️ Edit' : '✕ Cancel';
+}
+
+async function savePhoneEdit() {
+  const input = document.getElementById('phoneEditInput');
+  const phone = input?.value?.trim();
+  if (!phone || !/^[0-9]{10}$/.test(phone)) {
+    showToast('Enter a valid 10-digit phone number', 'error'); return;
+  }
+  try {
+    const res = await fetch(`${API_URL}/users/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${state.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.user.phone = phone;
+      localStorage.setItem('user', JSON.stringify(state.user));
+      showToast('Phone number updated!', 'success');
+      renderExpertProfile();
+    } else {
+      showToast(data.message || 'Failed to save', 'error');
+    }
+  } catch (e) {
+    showToast('Network error', 'error');
+  }
+}
+
 // ─── UPDATE AVAILABILITY ───
 async function updateAvailability(status) {
   try {
