@@ -3756,6 +3756,11 @@ async function handleGoogleVerifyOTP() {
     _gOtpEmail = null;
  
     showToast('Account created!', 'success');
+
+    if (data.needsPhone) {
+      showGooglePhoneScreen(data.user);
+      return;
+    }
  
     if (state.pendingServiceFlow && data.user.role === 'client') {
       const svc = state.pendingServiceFlow;
