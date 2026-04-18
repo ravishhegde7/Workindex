@@ -4384,6 +4384,8 @@ if (locDetails && typeof locDetails === 'object') {
   if (!profile.state   && profile.expert_state)   profile.state   = profile.expert_state;
 }
   if (!profile.experience && profile.expert_experience)         profile.experience = profile.expert_experience;
+   if (!profile.businessType && profile.expert_business_type)    profile.businessType = profile.expert_business_type;
+  if (!profile.teamSize && profile.expert_team_size)            profile.teamSize = profile.expert_team_size;
   if (!profile.servicesOffered && profile.expert_services)      profile.servicesOffered = profile.expert_services;
   if (!profile.serviceLocationType && profile.expert_location)  profile.serviceLocationType = profile.expert_location;
   const kyc     = user.kyc    || {};
@@ -4559,6 +4561,8 @@ if (locDetails && typeof locDetails === 'object') {
         ${renderInlineField('professionalAddress', 'Professional Address', profile.professionalAddress, 'text', 'Office address')}
         ${renderInlineField('bio', 'About / Bio', profile.bio, 'textarea', 'Tell clients about your expertise...')}
         ${renderInlineField('portfolio', 'Portfolio & Proof of Work', profile.portfolio, 'textarea', 'Links, achievements, notable projects...')}
+        ${renderInlineField('businessType', 'Business Type', profile.businessType, 'text', 'e.g. Proprietorship, Pvt Ltd')}
+        ${renderInlineField('teamSize', 'Team Size', profile.teamSize, 'text', 'e.g. Solo, 2-4 members')}
 
         <div id="editSaveRow" style="display:none;margin-top:16px;">
           <button onclick="saveProfileEdits()" style="width:100%;padding:14px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;">💾 Save Changes</button>
@@ -4697,7 +4701,7 @@ function toggleEditMode() {
 
 // ─── SAVE PROFILE EDITS ───
 async function saveProfileEdits() {
-  const fields = ['specialization','experience','certificationNumber','gstNumber','licenseNumber','education','professionalAddress','bio','portfolio'];
+  const fields = ['specialization','experience','certificationNumber','gstNumber','licenseNumber','education','professionalAddress','bio','portfolio','businessType','teamSize'];
   const updatedProfile = { ...(state.user.profile || {}) };
 
   fields.forEach(key => {
