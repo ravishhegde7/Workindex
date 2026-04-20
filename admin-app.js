@@ -1633,6 +1633,14 @@ var kycBtn = kycCount > 0
       });
   }
 
+window.deletePayment = function(id) {
+    if (!confirm('Permanently delete this payment record?')) return;
+    api('payments/' + id, 'DELETE').then(function(d) {
+      if (d.success) { toast('Payment record deleted'); loadPayments(); }
+      else toast(d.message || 'Failed', 'e');
+    }).catch(function() { toast('Error', 'e'); });
+  };
+   
   /* ═══ COMMUNICATION ══════════════════════════════════════════════════════ */
   function previewComm() {
     var target = g('commTarget').value;
