@@ -3876,23 +3876,35 @@ function loadEmailNotifications() {
 function reloadEmailLogs() {
   var cat  = g('emailLogCat')  ? g('emailLogCat').value  : 'all';
   var stat = g('emailLogStat') ? g('emailLogStat').value : 'all';
-  var qs   = 'email-logs?limit=100' + (cat !== 'all' ? '&category=' + cat : '') + (stat !== 'all' ? '&status=' + stat : '');
+  var qs   = 'email-logs?limit=500' + (cat !== 'all' ? '&category=' + cat : '') + (stat !== 'all' ? '&status=' + stat : '');
   g('emailLogsTbody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px"><div class="spin"></div></td></tr>';
+  _pages['emailLogs'] = 1;
   api(qs).then(function(d) {
     renderEmailLogsTable(d.logs || [], d.total || 0);
   });
 }
-
+   
 function renderEmailLogsTable(logs, total) {
+  _pageData['emailLogs'] = logs;
+  _pages['emailLogs'] = 1;
+  var tc = g('emailLogTotal'); if (tc) tc.textContent = (total || logs.length) + ' total';
+  renderEmailLogsPage();
+}
+
+function renderEmailLogsPage() {
   var tbody = g('emailLogsTbody');
   if (!tbody) return;
-  if (!logs.length) {
+  var existing = document.getElementById('pag-emailLogs');
+  if (existing) existing.remove();
+
+  var page = pagSlice('emailLogs', _pageData['emailLogs'] || []);
+
+  if (!page.length) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#606078">No email logs found</td></tr>';
-    var tc = g('emailLogTotal'); if (tc) tc.textContent = '0 emails';
     return;
   }
-  var tc = g('emailLogTotal'); if (tc) tc.textContent = total + ' total';
-  tbody.innerHTML = logs.map(function(l) {
+
+  tbody.innerHTML = page.map(function(l) {
     var statusBadge = l.status === 'sent'
       ? '<span class="badge bgr">Sent</span>'
       : '<span class="badge brd">Failed</span>';
@@ -3909,8 +3921,10 @@ function renderEmailLogsTable(logs, total) {
       '<td style="font-size:12px;color:#606078">' + date + '</td>' +
     '</tr>';
   }).join('');
-}
 
+  pagHTML('emailLogs', 'emailLogsTbody');
+}
+   
 function buildEmailNotificationsUI(settings, logs, total) {
   var groups = [
     {
