@@ -1622,7 +1622,10 @@ var kycBtn = kycCount > 0
             '<td style="font-size:12px;color:#a0a0b8">' + esc(meta.paymentInstrument||'-') + '</td>' +
             '<td>' + rpPay + rpOrd + failReason + '</td>' +
             '<td style="font-size:12px;color:#a0a0b8">' + fmtT(p.createdAt) + '</td>' +
-            '<td><span class="btn bgho" style="font-size:12px;padding:5px 8px" data-uid="' + esc(u._id||'') + '">Profile</span></td>' +
+            '<td style="display:flex;gap:4px;">' +
+  '<span class="btn bgho" style="font-size:12px;padding:5px 8px" data-uid="' + esc(u._id||'') + '">Profile</span>' +
+  '<button class="btn brdn" style="font-size:12px;padding:5px 8px" onclick="deletePayment(\'' + esc(p._id||'') + '\')">Delete</button>' +
+'</td>' +
           '</tr>';
         }).join(''));
       }).catch(function() {
