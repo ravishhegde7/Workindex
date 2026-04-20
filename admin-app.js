@@ -15,7 +15,8 @@
   var _pages = {
     experts: 1, clients: 1, approaches: 1, chats: 1,
     credits: 1, tickets: 1, posts: 1, reviews: 1,
-    registrations: 1, kyc: 1, suspReq: 1, reports: 1,  audit: 1, actions: 1 , serviceCategories: 1, admins: 1
+    registrations: 1, kyc: 1, suspReq: 1, reports: 1,  audit: 1, actions: 1 , serviceCategories: 1, admins: 1,
+    payments: 1, emailLogs: 1
   };
   var _pageData = {};
   var PER_PAGE = 10;
@@ -73,11 +74,13 @@
       reviews: function() { renderReviewsPage(); },
       registrations: function() { renderRegistrationsPage(); },
       kyc: function() { renderKycPage(); },
-             audit: function() { renderAuditPage(); },
-             actions: function() { renderActTblPage(); },
-             admins: function() { renderAdminsPage(); }
-
+      audit: function() { renderAuditPage(); },
+      actions: function() { renderActTblPage(); },
+      admins: function() { renderAdminsPage(); },
+      payments: function() { renderPaymentsPage(); },
+      emailLogs: function() { renderEmailLogsPage(); }
     };
+     
     if (reloaders[key]) reloaders[key]();
     // Scroll to top of table
     var tbl = document.getElementById(key === 'experts' ? 'eTbl' : key === 'clients' ? 'cTbl' : key === 'approaches' ? 'apTbl' : key === 'chats' ? 'chTbl' : key === 'credits' ? 'crTbl' : key === 'tickets' ? 'tkTbl' : key === 'posts' ? 'poTbl' : key === 'reviews' ? 'rvTbl' : key === 'registrations' ? 'rgTbl' : 'kycTbl');
@@ -1573,6 +1576,7 @@ var kycBtn = kycCount > 0
 
   /* ═══ PAYMENTS ═══════════════════════════════════════════════════════════ */
   var _pyStatus = 'all';
+  var _allPayments = [];
 
   function loadPayments() {
     setT('pyTbl', spin());
@@ -1581,59 +1585,138 @@ var kycBtn = kycCount > 0
     var filterSel = g('pyStatusFilter');
     if (filterSel && !filterSel._wired) {
       filterSel._wired = true;
-      filterSel.onchange = function() { _pyStatus = this.value; loadPayments(); };
+      filterSel.onchange = function() { _pyStatus = this.value; _pages['payments'] = 1; loadPayments(); };
     }
 
     var statusParam = (_pyStatus && _pyStatus !== 'all') ? '&status=' + _pyStatus : '';
-    api('payments?limit=200' + statusParam + (dF ? '&from=' + dF : '') + (dT ? '&to=' + dT : ''))
+    api('payments?limit=500' + statusParam + (dF ? '&from=' + dF : '') + (dT ? '&to=' + dT : ''))
       .then(function(d) {
-        var payments = d.payments || [];
-        var pc = g('pyCount'); if (pc) pc.textContent = payments.length + ' records';
-
-        if (!payments.length) {
-          setT('pyTbl', '<tr><td colspan="9" style="text-align:center;padding:30px;color:#606078">No payments found</td></tr>');
-          return;
-        }
-
-        var statusMap = {
-          success:  '<span class="badge bgr">✅ Success</span>',
-          failed:   '<span class="badge brd">❌ Failed</span>',
-          pending:  '<span class="badge byw">⏳ Pending</span>',
-          refunded: '<span class="badge bpu">💸 Refunded</span>'
-        };
-
-        setT('pyTbl', payments.map(function(p) {
-          var u = p.user || {};
-          var meta = p.metadata || {};
-
-          var statusBadge = statusMap[p.paymentStatus] || '<span class="badge bgy">' + esc(p.paymentStatus||'-') + '</span>';
-          var creditedVia = meta.creditedVia ? '<div style="font-size:10px;color:#a855f7;">via ' + esc(meta.creditedVia) + '</div>' : '';
-          var amtColor = p.paymentStatus === 'success' ? '#22c55e' : p.paymentStatus === 'failed' ? '#ef4444' : '#f59e0b';
-          var rpPay = meta.razorpayPaymentId ? '<div style="font-size:10px;color:#606078;font-family:monospace" title="' + esc(meta.razorpayPaymentId) + '">pay:…' + meta.razorpayPaymentId.slice(-8) + '</div>' : '';
-          var rpOrd = meta.razorpayOrderId   ? '<div style="font-size:10px;color:#606078;font-family:monospace" title="' + esc(meta.razorpayOrderId) + '">ord:…' + meta.razorpayOrderId.slice(-8) + '</div>' : '';
-          var failReason = meta.failureReason ? '<div style="font-size:11px;color:#f59e0b;margin-top:2px">' + esc(meta.failureReason.substring(0,50)) + '</div>' : '';
-
-          return '<tr>' +
-            '<td>' + uLnk(u._id||'', u.name||'-') + '<br><small style="color:#606078">' + esc(u.email||'') + '</small><br><small style="color:#606078">' + esc(u.phone||'') + '</small></td>' +
-            '<td><span style="color:' + amtColor + ';font-weight:700;">₹' + (p.amount||0).toLocaleString('en-IN') + '</span></td>' +
-            '<td style="color:#f59e0b;font-weight:600;font-size:15px;">' + (p.credits||0) + '</td>' +
-            '<td>' + statusBadge + creditedVia + '</td>' +
-            '<td style="font-size:12px;color:#3b82f6;font-weight:600">' + esc(meta.paymentMethod||p.paymentMethod||'razorpay') + '</td>' +
-            '<td style="font-size:12px;color:#a0a0b8">' + esc(meta.paymentInstrument||'-') + '</td>' +
-            '<td>' + rpPay + rpOrd + failReason + '</td>' +
-            '<td style="font-size:12px;color:#a0a0b8">' + fmtT(p.createdAt) + '</td>' +
-            '<td style="display:flex;gap:4px;">' +
-  '<span class="btn bgho" style="font-size:12px;padding:5px 8px" data-uid="' + esc(u._id||'') + '">Profile</span>' +
-  '<button class="btn brdn" style="font-size:12px;padding:5px 8px" onclick="deletePayment(\'' + esc(p._id||'') + '\')">Delete</button>' +
-'</td>' +
-          '</tr>';
-        }).join(''));
+        _allPayments = d.payments || [];
+        var pc = g('pyCount'); if (pc) pc.textContent = _allPayments.length + ' records';
+        _pages['payments'] = 1;
+        pagSlice('payments', _allPayments);
+        renderPaymentsPage();
       }).catch(function() {
-        setT('pyTbl', '<tr><td colspan="9" style="text-align:center;padding:30px;color:#606078">Error loading payments</td></tr>');
+        setT('pyTbl', '<tr><td colspan="10" style="text-align:center;padding:30px;color:#606078">Error loading payments</td></tr>');
       });
   }
 
-window.deletePayment = function(id) {
+  function renderPaymentsPage() {
+    var existing = document.getElementById('pag-payments');
+    if (existing) existing.remove();
+
+    var page = pagSlice('payments', _pageData['payments'] || []);
+
+    if (!page.length) {
+      setT('pyTbl', '<tr><td colspan="10" style="text-align:center;padding:30px;color:#606078">No payments found</td></tr>');
+      return;
+    }
+
+    var statusMap = {
+      success:  '<span class="badge bgr">✅ Success</span>',
+      failed:   '<span class="badge brd">❌ Failed</span>',
+      pending:  '<span class="badge byw">⏳ Pending</span>',
+      refunded: '<span class="badge bpu">💸 Refunded</span>'
+    };
+
+    // Bulk delete toolbar (injected above table)
+    var tblEl = g('pyTbl');
+    var tblParent = tblEl ? tblEl.closest('table') : null;
+    var toolbar = document.getElementById('pyBulkToolbar');
+    if (!toolbar && tblParent) {
+      toolbar = document.createElement('div');
+      toolbar.id = 'pyBulkToolbar';
+      toolbar.style.cssText = 'display:none;align-items:center;gap:10px;padding:10px 0;margin-bottom:8px;';
+      toolbar.innerHTML =
+        '<span id="pySelCount" style="font-size:13px;color:#a0a0b8;">0 selected</span>' +
+        '<button class="btn brdn" style="font-size:12px;padding:6px 14px;" onclick="bulkDeletePayments()">🗑 Delete Selected</button>' +
+        '<button class="btn bgho" style="font-size:12px;padding:6px 14px;" onclick="clearPaymentSelection()">Clear</button>';
+      tblParent.parentNode.insertBefore(toolbar, tblParent);
+    }
+
+    setT('pyTbl', page.map(function(p) {
+      var u = p.user || {};
+      var meta = p.metadata || {};
+      var statusBadge = statusMap[p.paymentStatus] || '<span class="badge bgy">' + esc(p.paymentStatus||'-') + '</span>';
+      var creditedVia = meta.creditedVia ? '<div style="font-size:10px;color:#a855f7;">via ' + esc(meta.creditedVia) + '</div>' : '';
+      var amtColor = p.paymentStatus === 'success' ? '#22c55e' : p.paymentStatus === 'failed' ? '#ef4444' : '#f59e0b';
+      var rpPay = meta.razorpayPaymentId ? '<div style="font-size:10px;color:#606078;font-family:monospace" title="' + esc(meta.razorpayPaymentId) + '">pay:…' + meta.razorpayPaymentId.slice(-8) + '</div>' : '';
+      var rpOrd = meta.razorpayOrderId   ? '<div style="font-size:10px;color:#606078;font-family:monospace" title="' + esc(meta.razorpayOrderId) + '">ord:…' + meta.razorpayOrderId.slice(-8) + '</div>' : '';
+      var failReason = meta.failureReason ? '<div style="font-size:11px;color:#f59e0b;margin-top:2px">' + esc(meta.failureReason.substring(0,50)) + '</div>' : '';
+
+      return '<tr id="pyrow_' + esc(p._id) + '">' +
+        '<td><input type="checkbox" class="py-chk" data-pid="' + esc(p._id||'') + '" onchange="onPaymentCheck()" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;"></td>' +
+        '<td>' + uLnk(u._id||'', u.name||'-') + '<br><small style="color:#606078">' + esc(u.email||'') + '</small><br><small style="color:#606078">' + esc(u.phone||'') + '</small></td>' +
+        '<td><span style="color:' + amtColor + ';font-weight:700;">₹' + (p.amount||0).toLocaleString('en-IN') + '</span></td>' +
+        '<td style="color:#f59e0b;font-weight:600;font-size:15px;">' + (p.credits||0) + '</td>' +
+        '<td>' + statusBadge + creditedVia + '</td>' +
+        '<td style="font-size:12px;color:#3b82f6;font-weight:600">' + esc(meta.paymentMethod||p.paymentMethod||'razorpay') + '</td>' +
+        '<td style="font-size:12px;color:#a0a0b8">' + esc(meta.paymentInstrument||'-') + '</td>' +
+        '<td>' + rpPay + rpOrd + failReason + '</td>' +
+        '<td style="font-size:12px;color:#a0a0b8">' + fmtT(p.createdAt) + '</td>' +
+        '<td style="display:flex;gap:4px;">' +
+          '<span class="btn bgho" style="font-size:12px;padding:5px 8px" data-uid="' + esc(u._id||'') + '">Profile</span>' +
+          '<button class="btn brdn" style="font-size:12px;padding:5px 8px" onclick="deletePayment(\'' + esc(p._id||'') + '\')">Delete</button>' +
+        '</td>' +
+      '</tr>';
+    }).join(''));
+
+    // Select-all checkbox in header
+    var thead = tblEl ? tblEl.closest('table').querySelector('thead tr') : null;
+    if (thead && !thead.querySelector('.py-chk-all')) {
+      var th = document.createElement('th');
+      th.innerHTML = '<input type="checkbox" class="py-chk-all" onchange="toggleAllPayments(this)" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;" title="Select all on this page">';
+      thead.insertBefore(th, thead.firstChild);
+    }
+
+    pagHTML('payments', 'pyTbl');
+  }
+
+  window.onPaymentCheck = function() {
+    var checked = document.querySelectorAll('.py-chk:checked').length;
+    var toolbar = g('pyBulkToolbar');
+    var countEl = g('pySelCount');
+    if (toolbar) toolbar.style.display = checked > 0 ? 'flex' : 'none';
+    if (countEl) countEl.textContent = checked + ' selected';
+    // Sync select-all checkbox state
+    var all = document.querySelectorAll('.py-chk').length;
+    var allChk = document.querySelector('.py-chk-all');
+    if (allChk) allChk.checked = checked > 0 && checked === all;
+  };
+
+  window.toggleAllPayments = function(masterChk) {
+    document.querySelectorAll('.py-chk').forEach(function(chk) { chk.checked = masterChk.checked; });
+    onPaymentCheck();
+  };
+
+  window.clearPaymentSelection = function() {
+    document.querySelectorAll('.py-chk').forEach(function(chk) { chk.checked = false; });
+    var allChk = document.querySelector('.py-chk-all');
+    if (allChk) allChk.checked = false;
+    onPaymentCheck();
+  };
+
+  window.bulkDeletePayments = function() {
+    var ids = Array.from(document.querySelectorAll('.py-chk:checked')).map(function(c) { return c.dataset.pid; });
+    if (!ids.length) { toast('Nothing selected', 'i'); return; }
+    if (!confirm('Permanently delete ' + ids.length + ' payment record(s)?')) return;
+    var done = 0, failed = 0;
+    var next = function() {
+      if (!ids.length) {
+        toast('Deleted ' + done + (failed ? ', ' + failed + ' failed' : '') + ' records');
+        loadPayments();
+        return;
+      }
+      var id = ids.shift();
+      api('payments/' + id, 'DELETE').then(function(d) {
+        if (d.success) done++; else failed++;
+        next();
+      }).catch(function() { failed++; next(); });
+    };
+    next();
+  };
+
+  window.deletePayment = function(id) {
     if (!confirm('Permanently delete this payment record?')) return;
     api('payments/' + id, 'DELETE').then(function(d) {
       if (d.success) { toast('Payment record deleted'); loadPayments(); }
