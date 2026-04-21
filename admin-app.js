@@ -1121,6 +1121,30 @@ function renderApproachesPage(arr) {
     var page = pagSlice('approaches', _pageData['approaches'] || []);
     var existing = document.getElementById('pag-approaches');
     if (existing) existing.remove();
+
+    // Bulk toolbar
+    var apTbl = document.getElementById('apTbl');
+    var apParent = apTbl ? apTbl.closest('table') : null;
+    var apToolbar = document.getElementById('apBulkToolbar');
+    if (!apToolbar && apParent) {
+      apToolbar = document.createElement('div');
+      apToolbar.id = 'apBulkToolbar';
+      apToolbar.style.cssText = 'display:none;align-items:center;gap:10px;padding:10px 0;margin-bottom:8px;';
+      apToolbar.innerHTML =
+        '<span id="apSelCount" style="font-size:13px;color:#a0a0b8;">0 selected</span>' +
+        '<button class="btn brdn" style="font-size:12px;padding:6px 14px;" onclick="bulkDeleteApproaches()">🗑 Delete Selected</button>' +
+        '<button class="btn bgho" style="font-size:12px;padding:6px 14px;" onclick="clearApproachSelection()">Clear</button>';
+      apParent.parentNode.insertBefore(apToolbar, apParent);
+    }
+
+    // Select-all in thead
+    var apThead = apTbl ? apTbl.closest('table').querySelector('thead tr') : null;
+    if (apThead && !apThead.querySelector('.ap-chk-all')) {
+      var apTh = document.createElement('th');
+      apTh.innerHTML = '<input type="checkbox" class="ap-chk-all" onchange="toggleAllApproaches(this)" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;" title="Select all">';
+      apThead.insertBefore(apTh, apThead.firstChild);
+    }
+
     setT('apTbl', page.map(function(a) {
       var en = a.expert ? esc(a.expert.name||'-') : '-', eid = a.expert ? a.expert._id : '';
       var uid = 'ap_' + a._id;
@@ -1130,10 +1154,53 @@ function renderApproachesPage(arr) {
       var message = '<div style="max-width:200px;">' + shortMsg + '</div>';
       var actions = '<div style="position:relative;display:inline-block;"><button class="btn bgho" onclick="document.getElementById(\'' + uid + '\').style.display = document.getElementById(\'' + uid + '\').style.display===\'block\'?\'none\':\'block\'; event.stopPropagation();">Actions ▾</button><div id="' + uid + '" style="display:none;position:absolute;right:0;top:32px;background:#1a1a24;border:1px solid #2a2a38;border-radius:8px;z-index:100;min-width:120px;box-shadow:0 4px 16px rgba(0,0,0,0.4);">' + (a.status === 'pending' ? '<div data-ap-id="' + a._id + '" data-ap-act="accepted" style="padding:10px 14px;cursor:pointer;color:#22c55e;font-size:13px;font-weight:600;" onmouseover="this.style.background=\'#2a2a38\'" onmouseout="this.style.background=\'transparent\'">✓ Accept</div><div data-ap-id="' + a._id + '" data-ap-act="rejected" style="padding:10px 14px;cursor:pointer;color:#ef4444;font-size:13px;font-weight:600;" onmouseover="this.style.background=\'#2a2a38\'" onmouseout="this.style.background=\'transparent\'">✕ Reject</div>' : '') + '<div data-ap-del="' + a._id + '" style="padding:10px 14px;cursor:pointer;color:#a0a0b8;font-size:13px;border-top:1px solid #2a2a38;" onmouseover="this.style.background=\'#2a2a38\'" onmouseout="this.style.background=\'transparent\'">🗑 Delete</div></div></div>';
       var statusBadge = a.status === 'completed' ? '<span class="badge bgr">completed</span>' : bdg(a.status);
-      return '<tr><td><span data-uid="' + eid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + en + '</span></td><td style="color:#a0a0b8">' + (a.client?esc(a.client.name):'-') + '</td><td style="font-size:12px">' + (a.request?esc(a.request.title):'-') + '</td><td style="color:#f59e0b;font-weight:700;">' + quote + '</td><td style="font-size:12px;color:#a0a0b8;max-width:180px;">' + message + '</td><td style="color:#f59e0b">' + (a.creditsSpent||0) + '</td><td>' + statusBadge + '</td><td style="font-size:12px;color:#a0a0b8">' + fmt(a.createdAt) + '</td><td>' + actions + '</td></tr>';
+      return '<tr><td><input type="checkbox" class="ap-chk" data-aid="' + a._id + '" onchange="onApproachCheck()" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;"></td><td><span data-uid="' + eid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + en + '</span></td>
     }).join(''));
     pagHTML('approaches', 'apTbl');
   }
+
+  window.onApproachCheck = function() {
+    var checked = document.querySelectorAll('.ap-chk:checked').length;
+    var toolbar = document.getElementById('apBulkToolbar');
+    var countEl = document.getElementById('apSelCount');
+    if (toolbar) toolbar.style.display = checked > 0 ? 'flex' : 'none';
+    if (countEl) countEl.textContent = checked + ' selected';
+    var all = document.querySelectorAll('.ap-chk').length;
+    var allChk = document.querySelector('.ap-chk-all');
+    if (allChk) allChk.checked = checked > 0 && checked === all;
+  };
+
+  window.toggleAllApproaches = function(masterChk) {
+    document.querySelectorAll('.ap-chk').forEach(function(chk) { chk.checked = masterChk.checked; });
+    onApproachCheck();
+  };
+
+  window.clearApproachSelection = function() {
+    document.querySelectorAll('.ap-chk').forEach(function(chk) { chk.checked = false; });
+    var allChk = document.querySelector('.ap-chk-all');
+    if (allChk) allChk.checked = false;
+    onApproachCheck();
+  };
+
+  window.bulkDeleteApproaches = function() {
+    var ids = Array.from(document.querySelectorAll('.ap-chk:checked')).map(function(c) { return c.dataset.aid; });
+    if (!ids.length) { toast('Nothing selected', 'i'); return; }
+    if (!confirm('Permanently delete ' + ids.length + ' approach(es)? Credits will be refunded to experts.')) return;
+    var done = 0, failed = 0;
+    var next = function() {
+      if (!ids.length) {
+        toast('Deleted ' + done + (failed ? ', ' + failed + ' failed' : '') + ' approaches');
+        loadApproaches();
+        return;
+      }
+      var id = ids.shift();
+      api('approaches/' + id, 'DELETE').then(function(d) {
+        if (d.success) done++; else failed++;
+        next();
+      }).catch(function() { failed++; next(); });
+    };
+    next();
+  };
    
 function showMsgModal(msg) {
     var existing = document.getElementById('msgReadModal');
