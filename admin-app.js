@@ -2069,6 +2069,29 @@ g('invAmt').value = inrAmt > 0 ? inrAmt : '';
   }
 
   function renderActTbl(users) {
+    // Bulk toolbar
+    var acTbl = document.getElementById('acTbl');
+    var acParent = acTbl ? acTbl.closest('table') : null;
+    var acToolbar = document.getElementById('acBulkToolbar');
+    if (!acToolbar && acParent) {
+      acToolbar = document.createElement('div');
+      acToolbar.id = 'acBulkToolbar';
+      acToolbar.style.cssText = 'display:none;align-items:center;gap:10px;padding:10px 0;margin-bottom:8px;';
+      acToolbar.innerHTML =
+        '<span id="acSelCount" style="font-size:13px;color:#a0a0b8;">0 selected</span>' +
+        '<button class="btn brdn" style="font-size:12px;padding:6px 14px;" onclick="bulkDeleteActions()">🗑 Delete Selected</button>' +
+        '<button class="btn bgho" style="font-size:12px;padding:6px 14px;" onclick="clearActSelection()">Clear</button>';
+      acParent.parentNode.insertBefore(acToolbar, acParent);
+    }
+
+    // Select-all in thead
+    var acThead = acTbl ? acTbl.closest('table').querySelector('thead tr') : null;
+    if (acThead && !acThead.querySelector('.ac-chk-all')) {
+      var acTh = document.createElement('th');
+      acTh.innerHTML = '<input type="checkbox" class="ac-chk-all" onchange="toggleAllActions(this)" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;" title="Select all">';
+      acThead.insertBefore(acTh, acThead.firstChild);
+    }
+
     setT('acTbl', users.map(function(u) {
       var bb = u.isBanned ? '<button class="btn bgrn" data-act="unban" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Unban</button>' : '<button class="btn brdn" data-act="ban" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Ban</button>';
       var delb = '<button class="btn brdn" style="background:rgba(139,0,0,0.25);border-color:rgba(139,0,0,0.6)" data-act="delete" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">🗑 Delete</button>';
@@ -2076,9 +2099,64 @@ g('invAmt').value = inrAmt > 0 ? inrAmt : '';
       var rb = u.isRestricted
         ? '<button class="btn bgrn" data-act="unrestrict" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Unrestrict</button>'
         : '<button class="btn bywn" style="background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3)" data-act="restrict" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Restrict</button>';      var warnBadge = (u.warnings||0) > 0 ? '<span style="color:' + ((u.warnings||0)>=3?'#ef4444':'#f59e0b') + ';font-weight:700">' + (u.warnings||0) + '/3</span>' : '0';
-      return '<tr><td><strong>' + esc(u.name) + '</strong></td><td>' + bdg(u.role) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td><td>' + ust(u) + (u.isRestricted ? ' <span class="badge brd">Restricted</span>' : '') + '</td><td>' + warnBadge + '</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">' + bb + '<button class="btn bywn" data-act="warn" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Warn</button>' + fb + rb + '<span class="btn bgho" data-uid="' + u._id + '">View</span>' + delb + '</div></td></tr>';
+      return '<tr>' +
+        '<td><input type="checkbox" class="ac-chk" data-uid="' + esc(u._id) + '" data-nm="' + esc(u.name) + '" onchange="onActCheck()" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;"></td>' +
+        '<td><strong>' + esc(u.name) + '</strong></td>' +
+        '<td>' + bdg(u.role) + '</td>' +
+        '<td style="font-size:12px;color:#a0a0b8">' + esc(u.email) + '</td>' +
+        '<td>' + ust(u) + (u.isRestricted ? ' <span class="badge brd">Restricted</span>' : '') + '</td>' +
+        '<td>' + warnBadge + '</td>' +
+        '<td><div style="display:flex;gap:4px;flex-wrap:wrap">' + bb + '<button class="btn bywn" data-act="warn" data-uid="' + u._id + '" data-nm="' + esc(u.name) + '">Warn</button>' + fb + rb + '<span class="btn bgho" data-uid="' + u._id + '">View</span>' + delb + '</div></td>' +
+      '</tr>';
     }).join(''));
   }
+
+  window.onActCheck = function() {
+    var checked = document.querySelectorAll('.ac-chk:checked').length;
+    var toolbar = document.getElementById('acBulkToolbar');
+    var countEl = document.getElementById('acSelCount');
+    if (toolbar) toolbar.style.display = checked > 0 ? 'flex' : 'none';
+    if (countEl) countEl.textContent = checked + ' selected';
+    var all = document.querySelectorAll('.ac-chk').length;
+    var allChk = document.querySelector('.ac-chk-all');
+    if (allChk) allChk.checked = checked > 0 && checked === all;
+  };
+
+  window.toggleAllActions = function(masterChk) {
+    document.querySelectorAll('.ac-chk').forEach(function(chk) { chk.checked = masterChk.checked; });
+    onActCheck();
+  };
+
+  window.clearActSelection = function() {
+    document.querySelectorAll('.ac-chk').forEach(function(chk) { chk.checked = false; });
+    var allChk = document.querySelector('.ac-chk-all');
+    if (allChk) allChk.checked = false;
+    onActCheck();
+  };
+
+  window.bulkDeleteActions = function() {
+    var selected = Array.from(document.querySelectorAll('.ac-chk:checked'));
+    if (!selected.length) { toast('Nothing selected', 'i'); return; }
+    var names = selected.map(function(c) { return c.dataset.nm; }).join(', ');
+    if (!confirm('PERMANENTLY DELETE ' + selected.length + ' user(s)?\n\n' + names + '\n\nThis cannot be undone.')) return;
+    var confirmText = prompt('Type DELETE to confirm bulk deletion of ' + selected.length + ' users:');
+    if (confirmText !== 'DELETE') { toast('Cancelled — text did not match', 'e'); return; }
+    var ids = selected.map(function(c) { return { uid: c.dataset.uid, nm: c.dataset.nm }; });
+    var done = 0, failed = 0;
+    var next = function() {
+      if (!ids.length) {
+        toast('Deleted ' + done + (failed ? ', ' + failed + ' failed' : '') + ' users');
+        searchActions();
+        return;
+      }
+      var item = ids.shift();
+      api('users/' + item.uid, 'DELETE').then(function(d) {
+        if (d.success) done++; else failed++;
+        next();
+      }).catch(function() { failed++; next(); });
+    };
+    next();
+  };
 
   /* ═══ HEATMAP ════════════════════════════════════════════════════════════ */
   var _hmData = {}, _hmState = null;
