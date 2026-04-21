@@ -6956,6 +6956,68 @@ function getItemsForSection(section) {
   };
   return (map[section] || (() => []))();
 }
+
+function showExpertWelcomeModal() {
+  const existing = document.getElementById('expertWelcomeModal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'expertWelcomeModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  const points = [
+    {
+      icon: '👥',
+      color: 'rgba(59,130,246,0.1)',
+      title: 'Up to 5 experts can approach each request',
+      desc: 'Client requests are open to a limited number of professionals. The earlier you approach, the better your chances of being noticed before the slots fill up.'
+    },
+    {
+      icon: '📋',
+      color: 'rgba(34,197,94,0.1)',
+      title: 'A complete profile builds client trust',
+      desc: 'Add your bio, experience, certifications, and a profile photo. Clients compare multiple professionals — a strong profile is often the deciding factor.'
+    },
+    {
+      icon: '💰',
+      color: 'rgba(245,158,11,0.1)',
+      title: 'Quote competitively to win more clients',
+      desc: "Price your services fairly relative to the client's budget. A competitive quote paired with a clear, confident message significantly increases your chances of being hired."
+    },
+    {
+      icon: '🎯',
+      color: 'rgba(239,68,68,0.1)',
+      title: 'WorkIndex opens the door — you close it',
+      desc: 'We connect you with verified clients. Your success depends entirely on how you present yourself, respond, and deliver. Make every approach count.'
+    }
+  ];
+
+  overlay.innerHTML = `
+    <div style="background:var(--bg);border-radius:20px;max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;">
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="font-size:48px;margin-bottom:12px;">🌟</div>
+        <h2 style="font-size:22px;font-weight:800;color:var(--text);margin:0 0 8px;">Welcome to WorkIndex</h2>
+        <p style="font-size:14px;color:var(--text-muted);margin:0;line-height:1.6;">Here's how to make the most of your time on the platform.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;">
+        ${points.map(p => `
+          <div style="background:var(--bg-gray);border:1.5px solid var(--border);border-radius:14px;padding:16px;display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:40px;height:40px;border-radius:12px;background:${p.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;">${p.icon}</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px;">${p.title}</div>
+              <div style="font-size:13px;color:var(--text-muted);line-height:1.6;">${p.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <button onclick="document.getElementById('expertWelcomeModal').remove(); setTimeout(() => startQuestionnaire('expert'), 300);"
+        style="width:100%;padding:15px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;">
+        Let's Get Started →
+      </button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
 // ─── EXPERT SERVICE FILTER MODAL ───
 function showServiceFilterModal(onComplete) {
   const services = WI_SERVICES.list;
