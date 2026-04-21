@@ -16,7 +16,7 @@
     experts: 1, clients: 1, approaches: 1, chats: 1,
     credits: 1, tickets: 1, posts: 1, reviews: 1,
     registrations: 1, kyc: 1, suspReq: 1, reports: 1,  audit: 1, actions: 1 , serviceCategories: 1, admins: 1,
-    payments: 1, emailLogs: 1
+    payments: 1, emailLogs: 1, commHistory: 1
   };
   var _pageData = {};
   var PER_PAGE = 10;
@@ -78,7 +78,9 @@
       actions: function() { renderActTblPage(); },
       admins: function() { renderAdminsPage(); },
       payments: function() { renderPaymentsPage(); },
-      emailLogs: function() { renderEmailLogsPage(); }
+      emailLogs: function() { renderEmailLogsPage(); },
+          commHistory: function() { renderCommHistoryPage(); }
+
     };
      
     if (reloaders[key]) reloaders[key]();
@@ -1725,7 +1727,8 @@ var kycBtn = kycCount > 0
   };
    
   /* ═══ COMMUNICATION ══════════════════════════════════════════════════════ */
-  function previewComm() {
+    var _allCommHistory = [];
+   function previewComm() {
     var target = g('commTarget').value;
     var label = { all:'All Users', experts:'All Experts', clients:'All Clients', custom:'Custom List' }[target] || target;
     toast('Will send to: ' + label, 'i');
@@ -1750,13 +1753,113 @@ var kycBtn = kycCount > 0
 
   function loadCommHistory() {
     api('communications/history').then(function(d) {
-      var logs = d.logs || [];
-      setT('commHist', logs.length ? logs.map(function(l) {
-        var typeTag = l.type === 'announcement' ? '<span class="badge bo">&#128276; Announcement</span>' : '<span class="badge bgy">&#128140; Email</span>';
-        return '<tr><td>' + typeTag + '</td><td style="font-size:13px">' + esc(l.subject||l.title||'-') + '</td><td>' + bdg(l.target||'all') + '</td><td style="color:#22c55e">' + (l.recipientCount||0) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmtT(l.createdAt) + '</td></tr>';
-      }).join('') : '<tr><td colspan="5" style="text-align:center;padding:20px;color:#606078">No history yet</td></tr>');
+      _allCommHistory = d.logs || [];
+      _pages['commHistory'] = 1;
+      pagSlice('commHistory', _allCommHistory);
+      renderCommHistoryPage();
     }).catch(function() {});
   }
+
+  function renderCommHistoryPage() {
+    var existing = document.getElementById('pag-commHistory');
+    if (existing) existing.remove();
+
+    var page = pagSlice('commHistory', _pageData['commHistory'] || []);
+
+    // Bulk toolbar
+    var tbl = document.getElementById('commHist');
+    var tblParent = tbl ? tbl.closest('table') : null;
+    var toolbar = document.getElementById('commBulkToolbar');
+    if (!toolbar && tblParent) {
+      toolbar = document.createElement('div');
+      toolbar.id = 'commBulkToolbar';
+      toolbar.style.cssText = 'display:none;align-items:center;gap:10px;padding:10px 0;margin-bottom:8px;';
+      toolbar.innerHTML =
+        '<span id="commSelCount" style="font-size:13px;color:#a0a0b8;">0 selected</span>' +
+        '<button class="btn brdn" style="font-size:12px;padding:6px 14px;" onclick="bulkDeleteCommHistory()">🗑 Delete Selected</button>' +
+        '<button class="btn bgho" style="font-size:12px;padding:6px 14px;" onclick="clearCommSelection()">Clear</button>';
+      tblParent.parentNode.insertBefore(toolbar, tblParent);
+    }
+
+    if (!page.length) {
+      setT('commHist', '<tr><td colspan="6" style="text-align:center;padding:20px;color:#606078">No history yet</td></tr>');
+      return;
+    }
+
+    // Select-all in thead
+    var thead = tbl ? tbl.closest('table').querySelector('thead tr') : null;
+    if (thead && !thead.querySelector('.comm-chk-all')) {
+      var th = document.createElement('th');
+      th.innerHTML = '<input type="checkbox" class="comm-chk-all" onchange="toggleAllComm(this)" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;" title="Select all">';
+      thead.insertBefore(th, thead.firstChild);
+    }
+
+    setT('commHist', page.map(function(l) {
+      var typeTag = l.type === 'announcement' ? '<span class="badge bo">&#128276; Announcement</span>' : '<span class="badge bgy">&#128140; Email</span>';
+      return '<tr>' +
+        '<td><input type="checkbox" class="comm-chk" data-cid="' + esc(l._id||'') + '" onchange="onCommCheck()" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;"></td>' +
+        '<td>' + typeTag + '</td>' +
+        '<td style="font-size:13px">' + esc(l.subject||l.title||'-') + '</td>' +
+        '<td>' + bdg(l.target||'all') + '</td>' +
+        '<td style="color:#22c55e">' + (l.recipientCount||0) + '</td>' +
+        '<td style="font-size:12px;color:#a0a0b8">' + fmtT(l.createdAt) + '</td>' +
+        '<td><button class="btn brdn" style="font-size:12px;padding:5px 8px" onclick="deleteSingleCommHistory(\'' + esc(l._id||'') + '\')">Delete</button></td>' +
+      '</tr>';
+    }).join(''));
+
+    pagHTML('commHistory', 'commHist');
+  }
+
+  window.onCommCheck = function() {
+    var checked = document.querySelectorAll('.comm-chk:checked').length;
+    var toolbar = document.getElementById('commBulkToolbar');
+    var countEl = document.getElementById('commSelCount');
+    if (toolbar) toolbar.style.display = checked > 0 ? 'flex' : 'none';
+    if (countEl) countEl.textContent = checked + ' selected';
+    var all = document.querySelectorAll('.comm-chk').length;
+    var allChk = document.querySelector('.comm-chk-all');
+    if (allChk) allChk.checked = checked > 0 && checked === all;
+  };
+
+  window.toggleAllComm = function(masterChk) {
+    document.querySelectorAll('.comm-chk').forEach(function(chk) { chk.checked = masterChk.checked; });
+    onCommCheck();
+  };
+
+  window.clearCommSelection = function() {
+    document.querySelectorAll('.comm-chk').forEach(function(chk) { chk.checked = false; });
+    var allChk = document.querySelector('.comm-chk-all');
+    if (allChk) allChk.checked = false;
+    onCommCheck();
+  };
+
+  window.deleteSingleCommHistory = function(id) {
+    if (!id || !confirm('Delete this communication log?')) return;
+    api('communications/history/' + id, 'DELETE').then(function(d) {
+      if (d.success) { toast('Deleted'); loadCommHistory(); }
+      else toast(d.message || 'Failed', 'e');
+    }).catch(function() { toast('Error', 'e'); });
+  };
+
+  window.bulkDeleteCommHistory = function() {
+    var ids = Array.from(document.querySelectorAll('.comm-chk:checked')).map(function(c) { return c.dataset.cid; });
+    if (!ids.length) { toast('Nothing selected', 'i'); return; }
+    if (!confirm('Permanently delete ' + ids.length + ' communication log(s)?')) return;
+    var done = 0, failed = 0;
+    var next = function() {
+      if (!ids.length) {
+        toast('Deleted ' + done + (failed ? ', ' + failed + ' failed' : '') + ' records');
+        loadCommHistory();
+        return;
+      }
+      var id = ids.shift();
+      api('communications/history/' + id, 'DELETE').then(function(d) {
+        if (d.success) done++; else failed++;
+        next();
+      }).catch(function() { failed++; next(); });
+    };
+    next();
+  };
 
   /* ═══ INVOICES ═══════════════════════════════════════════════════════════ */
   var _invExpertName = '';
