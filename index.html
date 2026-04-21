@@ -3411,6 +3411,8 @@ async function handleVerifySignupOTP() {
         qState.sequence = buildQuestionSequence();
         showPage('questionnaire');
         renderQuestion();
+      } else if (data.user.role === 'expert') {
+        showExpertWelcomeModal();
       } else {
         startQuestionnaire(data.user.role);
       }
