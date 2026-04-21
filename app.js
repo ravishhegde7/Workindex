@@ -263,7 +263,11 @@ async function register(formData) {
   localStorage.setItem('user', JSON.stringify(state.user));
   
   showToast('Registration successful!', 'success');
-   startQuestionnaire(state.user.role); // ← NEW: Go to questionnaire instead
+if (state.user.role === 'expert') {
+  showExpertWelcomeModal();
+} else {
+  startQuestionnaire(state.user.role);
+}
 }  else {
       showToast(data.message || 'Registration failed', 'error');
     }
@@ -296,7 +300,9 @@ function enterDashboard() {
    
   // Show service filter modal for new experts
   if (state.user.role === 'expert') {
-    const hasFilter = state.user?.profile?.browseServiceFilter?.length > 0;
+    const hasFilter = (state.user?.profile?.browseServiceFilter?.length > 0) ||
+                  (state.user?.profile?.servicesOffered?.length > 0) ||
+                  (state.user?.servicesOffered?.length > 0);
     const isNewUser = !localStorage.getItem('hasSeenServiceFilter_' + state.user._id);
     if (isNewUser || !hasFilter) {
       localStorage.setItem('hasSeenServiceFilter_' + state.user._id, 'true');
