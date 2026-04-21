@@ -1349,14 +1349,81 @@ function showMsgModal(msg) {
     var page = pagSlice('credits', _pageData['credits'] || []);
     var existing = document.getElementById('pag-credits');
     if (existing) existing.remove();
+
+    // Bulk toolbar
+    var crTbl = document.getElementById('crTbl');
+    var crParent = crTbl ? crTbl.closest('table') : null;
+    var crToolbar = document.getElementById('crBulkToolbar');
+    if (!crToolbar && crParent) {
+      crToolbar = document.createElement('div');
+      crToolbar.id = 'crBulkToolbar';
+      crToolbar.style.cssText = 'display:none;align-items:center;gap:10px;padding:10px 0;margin-bottom:8px;';
+      crToolbar.innerHTML =
+        '<span id="crSelCount" style="font-size:13px;color:#a0a0b8;">0 selected</span>' +
+        '<button class="btn brdn" style="font-size:12px;padding:6px 14px;" onclick="bulkDeleteCredits()">🗑 Delete Selected</button>' +
+        '<button class="btn bgho" style="font-size:12px;padding:6px 14px;" onclick="clearCreditSelection()">Clear</button>';
+      crParent.parentNode.insertBefore(crToolbar, crParent);
+    }
+
+    // Select-all in thead
+    var crThead = crTbl ? crTbl.closest('table').querySelector('thead tr') : null;
+    if (crThead && !crThead.querySelector('.cr-chk-all')) {
+      var crTh = document.createElement('th');
+      crTh.innerHTML = '<input type="checkbox" class="cr-chk-all" onchange="toggleAllCredits(this)" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;" title="Select all">';
+      crThead.insertBefore(crTh, crThead.firstChild);
+    }
+
     var tc = { purchase:'bgr', spent:'bo', refund:'bpu', bonus:'btl' };
     setT('crTbl', page.map(function(tx) {
       var uid = tx.user ? tx.user._id : '', un = tx.user ? esc(tx.user.name||'-') : '-', ue = tx.user ? esc(tx.user.email||'') : '';
       var displayAmt = (tx.type === 'purchase' && tx.purchaseDetails && tx.purchaseDetails.amountPaid) ? '₹' + tx.purchaseDetails.amountPaid.toLocaleString('en-IN') : (tx.amount > 0 ? '+' : '') + tx.amount + ' cr';
-      return '<tr><td><span data-uid="' + uid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + un + '</span><br><small style="color:#606078">' + ue + '</small></td><td><span class="badge ' + (tc[tx.type]||'bgy') + '">' + (tx.type||'') + '</span></td><td style="color:' + (tx.amount>0?'#22c55e':'#ef4444') + '">' + displayAmt + '</td><td style="color:#f59e0b">' + (tx.balanceAfter||0) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc((tx.description||'-').substring(0, 40)) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmtT(tx.createdAt) + '</td></tr>';
+      return '<tr><td><input type="checkbox" class="cr-chk" data-txid="' + tx._id + '" onchange="onCreditCheck()" style="accent-color:#FC8019;width:15px;height:15px;cursor:pointer;"></td><td><span data-uid="' + uid + '" style="cursor:pointer;color:#FC8019;font-weight:600">' + un + '</span><br><small style="color:#606078">' + ue + '</small></td><td><span class="badge ' + (tc[tx.type]||'bgy') + '">' + (tx.type||'') + '</span></td><td style="color:' + (tx.amount>0?'#22c55e':'#ef4444') + '">' + displayAmt + '</td><td style="color:#f59e0b">' + (tx.balanceAfter||0) + '</td><td style="font-size:12px;color:#a0a0b8">' + esc((tx.description||'-').substring(0, 40)) + '</td><td style="font-size:12px;color:#a0a0b8">' + fmtT(tx.createdAt) + '</td></tr>';
     }).join(''));
     pagHTML('credits', 'crTbl');
   }
+
+  window.onCreditCheck = function() {
+    var checked = document.querySelectorAll('.cr-chk:checked').length;
+    var toolbar = document.getElementById('crBulkToolbar');
+    var countEl = document.getElementById('crSelCount');
+    if (toolbar) toolbar.style.display = checked > 0 ? 'flex' : 'none';
+    if (countEl) countEl.textContent = checked + ' selected';
+    var all = document.querySelectorAll('.cr-chk').length;
+    var allChk = document.querySelector('.cr-chk-all');
+    if (allChk) allChk.checked = checked > 0 && checked === all;
+  };
+
+  window.toggleAllCredits = function(masterChk) {
+    document.querySelectorAll('.cr-chk').forEach(function(chk) { chk.checked = masterChk.checked; });
+    onCreditCheck();
+  };
+
+  window.clearCreditSelection = function() {
+    document.querySelectorAll('.cr-chk').forEach(function(chk) { chk.checked = false; });
+    var allChk = document.querySelector('.cr-chk-all');
+    if (allChk) allChk.checked = false;
+    onCreditCheck();
+  };
+
+  window.bulkDeleteCredits = function() {
+    var ids = Array.from(document.querySelectorAll('.cr-chk:checked')).map(function(c) { return c.dataset.txid; });
+    if (!ids.length) { toast('Nothing selected', 'i'); return; }
+    if (!confirm('Permanently delete ' + ids.length + ' transaction record(s)?\n\nNote: This only removes the log record, it does NOT reverse the credit balance.')) return;
+    var done = 0, failed = 0;
+    var next = function() {
+      if (!ids.length) {
+        toast('Deleted ' + done + (failed ? ', ' + failed + ' failed' : '') + ' records');
+        loadCredits();
+        return;
+      }
+      var id = ids.shift();
+      api('credits/' + id, 'DELETE').then(function(d) {
+        if (d.success) done++; else failed++;
+        next();
+      }).catch(function() { failed++; next(); });
+    };
+    next();
+  };
 
   /* ═══ REFUNDS ════════════════════════════════════════════════════════════ */
   function loadRefunds() {
