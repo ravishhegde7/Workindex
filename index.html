@@ -4055,18 +4055,15 @@ function exploreStartFlow(serviceKey, preAnswers) {
 
   if (state.user && state.token) {
     qState = {
-  step: 0, sequence: [],
-  answers: { service: serviceKey, ...preAnswers },
-  role: 'client'
-};
-qState.sequence = buildQuestionSequence();
-// Always skip step 0 (service) since it's pre-filled
-qState.step = 1;
-// Also skip any further steps that have pre-filled answers
-while (
-  qState.step < qState.sequence.length - 1 &&
-  _isStepAnswered(qState.sequence[qState.step], qState.answers)
-) { qState.step++; }
+      step: 0, sequence: [],
+      answers: { service: serviceKey, ...preAnswers },
+      role: 'client'
+    };
+    qState.sequence = buildQuestionSequence();
+    while (
+      qState.step < qState.sequence.length - 1 &&
+      _isStepAnswered(qState.sequence[qState.step], qState.answers)
+    ) { qState.step++; }
     showPage('questionnaire');
     renderQuestion();
   } else {
@@ -4508,21 +4505,16 @@ function proceedAfterGoogleSignup() {
   if (overlay) overlay.remove();
 
   const user = state.user;
-  if (state.pendingServiceFlow && data.user.role === 'client') {
-      const svc = state.pendingServiceFlow;
-      state.pendingServiceFlow = null;
-      qState = { step:1, sequence:[], answers:{ service: svc }, role:'client' };
-      qState.sequence = buildQuestionSequence();
-      showPage('questionnaire');
-      renderQuestion();
-    } else if (data.user.role === 'expert') {
-      showExpertWelcomeModal();
-    } else if (!state._guestQuestionnaire) {
-      startQuestionnaire(data.user.role);
-    } else {
-      state._guestQuestionnaire = false;
-      await submitQuestionnaire();
-    }
+  if (state.pendingServiceFlow && user.role === 'client') {
+    const svc = state.pendingServiceFlow;
+    state.pendingServiceFlow = null;
+    qState = { step:1, sequence:[], answers:{ service: svc }, role:'client' };
+    qState.sequence = buildQuestionSequence();
+    showPage('questionnaire');
+    renderQuestion();
+  } else {
+    startQuestionnaire(user.role);
+  }
 }
   
 // ── Hook: re-render buttons when auth mode switches ───────────────────────
