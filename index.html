@@ -4055,15 +4055,18 @@ function exploreStartFlow(serviceKey, preAnswers) {
 
   if (state.user && state.token) {
     qState = {
-      step: 0, sequence: [],
-      answers: { service: serviceKey, ...preAnswers },
-      role: 'client'
-    };
-    qState.sequence = buildQuestionSequence();
-    while (
-      qState.step < qState.sequence.length - 1 &&
-      _isStepAnswered(qState.sequence[qState.step], qState.answers)
-    ) { qState.step++; }
+  step: 0, sequence: [],
+  answers: { service: serviceKey, ...preAnswers },
+  role: 'client'
+};
+qState.sequence = buildQuestionSequence();
+// Always skip step 0 (service) since it's pre-filled
+qState.step = 1;
+// Also skip any further steps that have pre-filled answers
+while (
+  qState.step < qState.sequence.length - 1 &&
+  _isStepAnswered(qState.sequence[qState.step], qState.answers)
+) { qState.step++; }
     showPage('questionnaire');
     renderQuestion();
   } else {
