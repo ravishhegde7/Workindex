@@ -265,8 +265,11 @@ async function register(formData) {
   showToast('Registration successful!', 'success');
 if (state.user.role === 'expert') {
   showExpertWelcomeModal();
-} else {
+} else if (!state._guestQuestionnaire) {
   startQuestionnaire(state.user.role);
+} else {
+  state._guestQuestionnaire = false;
+  submitQuestionnaire();
 }
 }  else {
       showToast(data.message || 'Registration failed', 'error');
