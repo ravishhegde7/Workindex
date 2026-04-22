@@ -1764,7 +1764,7 @@
   <div style="background: var(--bg); padding: 16px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
       <div id="qStepText" style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Step 1 of 12</div>
-      <button onclick="if(confirm('Exit questionnaire? Progress will be lost.')){showPage(state.user.role === 'expert' ? 'expertDash' : 'clientDash')}" style="padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;">Exit</button>
+      <button onclick="exitQuestionnaire()" style="padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;">Exit</button>
     </div>
     <div style="height: 4px; background: var(--bg-gray); border-radius: 2px; overflow: hidden;">
       <div id="qProgressFill" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.3s;"></div>
