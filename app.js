@@ -7180,4 +7180,273 @@ function clearAuthForms() {
   if (terms) terms.checked = false;
   if (signupBtn) { signupBtn.disabled = true; signupBtn.style.opacity = '0.5'; }
 }
+
+// ─── GUEST SIGNUP MODAL (shown after questionnaire for non-logged-in users) ───
+function showGuestSignupModal() {
+  const existing = document.getElementById('guestSignupModal');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'guestSignupModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2000;display:flex;align-items:flex-end;justify-content:center;';
+
+  overlay.innerHTML = `
+    <div style="background:var(--bg);width:100%;max-width:480px;border-radius:20px 20px 0 0;padding:28px 24px 40px;max-height:90vh;overflow-y:auto;">
+      <div style="width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;"></div>
+      
+      <!-- Progress indicator -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:12px 16px;background:rgba(252,128,25,0.06);border-radius:12px;border:1px solid rgba(252,128,25,0.2);">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="color:#fff;font-size:16px;">✓</span>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);">Your requirements are ready!</div>
+          <div style="font-size:12px;color:var(--text-muted);">Create a free account to post and get quotes</div>
+        </div>
+      </div>
+
+      <h3 style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px;">One last step</h3>
+      <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;line-height:1.5;">Sign up free to post your request. Verified professionals will respond within 24 hours.</p>
+
+      <!-- Google signup button -->
+      <div id="guestGoogleSignupBtn" style="width:100%;margin-bottom:16px;min-height:44px;"></div>
+      
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <span style="font-size:12px;color:var(--text-muted);white-space:nowrap;">or sign up with email</span>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+
+      <!-- Email signup form -->
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
+        <input type="text" id="guestSignupName" placeholder="Full Name"
+          style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+        <input type="email" id="guestSignupEmail" placeholder="Email address"
+          style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+        <input type="tel" id="guestSignupPhone" placeholder="10-digit phone number" maxlength="10"
+          style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:var(--bg);color:var(--text);box-sizing:border-box;"
+          oninput="this.value=this.value.replace(/\D/g,'')">
+        <input type="password" id="guestSignupPassword" placeholder="Password (min 6 characters)"
+          style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+      </div>
+
+      <!-- OTP step (hidden initially) -->
+      <div id="guestOTPStep" style="display:none;margin-bottom:20px;">
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:36px;margin-bottom:8px;">📧</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">Check your email</div>
+          <div style="font-size:13px;color:var(--text-muted);">Enter the 6-digit code sent to <strong id="guestOTPEmail"></strong></div>
+        </div>
+        <input type="text" id="guestOTPInput" placeholder="_ _ _ _ _ _" maxlength="6" inputmode="numeric"
+          style="width:100%;padding:16px;border:1.5px solid var(--border);border-radius:10px;font-size:28px;letter-spacing:10px;text-align:center;font-weight:700;box-sizing:border-box;background:var(--bg);color:var(--text);"
+          onkeypress="if(event.key==='Enter') verifyGuestOTP()">
+        <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--text-muted);">
+          Didn't get it? <button onclick="resendGuestOTP()" style="background:none;border:none;color:var(--primary);font-size:13px;font-weight:700;cursor:pointer;">Resend</button>
+        </div>
+      </div>
+
+      <!-- Terms checkbox -->
+      <div id="guestTermsRow" style="margin-bottom:16px;">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--text-muted);line-height:1.5;">
+          <input type="checkbox" id="guestTermsCheck"
+            style="width:18px;height:18px;margin-top:1px;accent-color:var(--primary);flex-shrink:0;cursor:pointer;">
+          <span>I agree to the <button type="button" onclick="openTermsModal('client')" style="background:none;border:none;color:var(--primary);font-size:13px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;">Terms & Conditions</button></span>
+        </label>
+      </div>
+
+      <!-- Submit button -->
+      <div id="guestSignupFormStep">
+        <button id="guestSignupSubmitBtn" onclick="submitGuestSignup()"
+          style="width:100%;padding:15px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px;">
+          Send OTP & Continue →
+        </button>
+      </div>
+      <div id="guestVerifyStep" style="display:none;">
+        <button onclick="verifyGuestOTP()"
+          style="width:100%;padding:15px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px;">
+          Verify & Post Request →
+        </button>
+        <button onclick="document.getElementById('guestOTPStep').style.display='none';document.getElementById('guestSignupFormStep').style.display='block';document.getElementById('guestVerifyStep').style.display='none';"
+          style="width:100%;padding:12px;background:none;border:1.5px solid var(--border);border-radius:12px;font-size:14px;color:var(--text);cursor:pointer;">
+          ← Change details
+        </button>
+      </div>
+
+      <button onclick="closeGuestSignupModal()"
+        style="width:100%;padding:12px;background:none;border:none;color:var(--text-muted);font-size:14px;cursor:pointer;margin-top:4px;">
+        Cancel
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeGuestSignupModal(); });
+
+  // Render Google button inside modal
+  setTimeout(() => {
+    if (window.google && window.google.accounts) {
+      const container = document.getElementById('guestGoogleSignupBtn');
+      if (container) {
+        window.google.accounts.id.renderButton(container, {
+          theme: 'outline', size: 'large',
+          width: container.offsetWidth || 340,
+          text: 'signup_with'
+        });
+        // Re-wire callback for guest flow
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: (response) => handleGuestGoogleCredential(response),
+          ux_mode: 'popup'
+        });
+        window.google.accounts.id.renderButton(container, {
+          theme: 'outline', size: 'large',
+          width: container.offsetWidth || 340,
+          text: 'signup_with'
+        });
+      }
+    }
+  }, 100);
+}
+
+function closeGuestSignupModal() {
+  document.getElementById('guestSignupModal')?.remove();
+}
+
+async function submitGuestSignup() {
+  const name     = document.getElementById('guestSignupName')?.value.trim();
+  const email    = document.getElementById('guestSignupEmail')?.value.trim();
+  const phone    = document.getElementById('guestSignupPhone')?.value.trim();
+  const password = document.getElementById('guestSignupPassword')?.value;
+  const terms    = document.getElementById('guestTermsCheck')?.checked;
+
+  if (!name || !email || !phone || !password) {
+    showToast('Please fill all fields', 'error'); return;
+  }
+  if (!/^[a-zA-Z\s\.\-']{2,60}$/.test(name)) {
+    showToast('Enter a valid name', 'error'); return;
+  }
+  if (!/^[0-9]{10}$/.test(phone) || !/^[6-9]/.test(phone)) {
+    showToast('Enter a valid 10-digit phone number', 'error'); return;
+  }
+  if (password.length < 6) {
+    showToast('Password must be at least 6 characters', 'error'); return;
+  }
+  if (!terms) {
+    showToast('Please agree to Terms & Conditions', 'error'); return;
+  }
+
+  const btn = document.getElementById('guestSignupSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Sending OTP...';
+
+  try {
+    const res = await fetch(`${API_URL}/auth/send-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, password, role: 'client' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('guestOTPEmail').textContent = email;
+      document.getElementById('guestOTPStep').style.display = 'block';
+      document.getElementById('guestSignupFormStep').style.display = 'none';
+      document.getElementById('guestVerifyStep').style.display = 'block';
+      document.getElementById('guestTermsRow').style.display = 'none';
+      showToast(`Code sent to ${email}`, 'success');
+    } else {
+      showToast(data.message || 'Failed to send OTP', 'error');
+      btn.disabled = false; btn.textContent = 'Send OTP & Continue →';
+    }
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+    btn.disabled = false; btn.textContent = 'Send OTP & Continue →';
+  }
+}
+
+async function verifyGuestOTP() {
+  const email = document.getElementById('guestSignupEmail')?.value.trim();
+  const otp   = document.getElementById('guestOTPInput')?.value.trim();
+  if (!otp || otp.length !== 6) { showToast('Enter the 6-digit code', 'error'); return; }
+
+  const btn = document.querySelector('#guestVerifyStep button:first-child');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+
+  try {
+    const res = await fetch(`${API_URL}/auth/verify-otp-register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp })
+    });
+    const data = await res.json();
+    if (data.success && data.token) {
+      state.token = data.token;
+      state.user  = data.user;
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      state._guestQuestionnaire = false;
+      closeGuestSignupModal();
+      showToast('Account created! Posting your request...', 'success');
+      // Now submit the questionnaire as logged-in user
+      await submitQuestionnaire();
+    } else {
+      showToast(data.message || 'Invalid code', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Verify & Post Request →'; }
+    }
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify & Post Request →'; }
+  }
+}
+
+async function resendGuestOTP() {
+  const email = document.getElementById('guestSignupEmail')?.value.trim();
+  if (!email) return;
+  try {
+    await fetch(`${API_URL}/auth/resend-signup-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    showToast('Code resent!', 'success');
+  } catch (e) { showToast('Network error', 'error'); }
+}
+
+async function handleGuestGoogleCredential(response) {
+  const credential = response.credential;
+  if (!credential) { showToast('Google sign-in failed', 'error'); return; }
+  try {
+    showToast('Connecting with Google...', 'info');
+    const res = await fetch(`${API_URL}/auth/google-init`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential, role: 'client' })
+    });
+    const data = await res.json();
+    if (!data.success) { showToast(data.message || 'Google sign-in failed', 'error'); return; }
+
+    if (data.action === 'login') {
+      state.token = data.token;
+      state.user  = data.user;
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      state._guestQuestionnaire = false;
+      closeGuestSignupModal();
+      showToast('Signed in! Posting your request...', 'success');
+      await submitQuestionnaire();
+    } else if (data.action === 'verify_otp') {
+      // Google new user needs OTP — use existing flow
+      _gOtpEmail = data.email;
+      closeGuestSignupModal();
+      // Temporarily show auth page OTP screen
+      showPage('auth');
+      switchAuthMode('signup');
+      showGoogleOTPScreen(data.email);
+      // After OTP verified, handleGoogleVerifyOTP will call startQuestionnaire
+      // We need to re-route it — store pending answers
+      state._pendingGuestAnswers = { ...qState.answers };
+    }
+  } catch (err) {
+    showToast('Network error. Please try again.', 'error');
+  }
+}
+
 // ═══ END OF JAVASCRIPT ═══
