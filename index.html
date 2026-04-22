@@ -3615,20 +3615,23 @@ function startServiceFlow(serviceKey) {
       answers: { service: serviceKey },
       role: 'client'
     };
-    // Pre-select service and build full sequence
     qState.answers.service = serviceKey;
     qState.sequence = buildQuestionSequence();
-    // Skip service selection step — start at step 1
     qState.step = 1;
     showPage('questionnaire');
     renderQuestion();
   } else {
-    // Not logged in — store intent, go to signup
-    state.pendingServiceFlow = serviceKey;
-    showPage('auth');
-    switchAuthMode('signup');
-    selectRole('client');
-    showToast('Create a free account to continue', 'info');
+    // Not logged in — run questionnaire first, signup at end
+    qState = {
+      step: 1,
+      sequence: [],
+      answers: { service: serviceKey },
+      role: 'client'
+    };
+    qState.sequence = buildQuestionSequence();
+    state._guestQuestionnaire = true; // flag: show signup at end
+    showPage('questionnaire');
+    renderQuestion();
   }
 }
 // ─── TERMS MODAL ─────────────────────────────────────────
