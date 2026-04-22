@@ -3527,9 +3527,12 @@ async function handleVerifySignupOTP() {
         renderQuestion();
       } else if (data.user.role === 'expert') {
         showExpertWelcomeModal();
-      } else {
-        startQuestionnaire(data.user.role);
-      }
+      } else if (!state._guestQuestionnaire) {
+  startQuestionnaire(data.user.role);
+} else {
+  state._guestQuestionnaire = false;
+  await submitQuestionnaire();
+}
     } else {
       showToast(data.message || 'Invalid code', 'error');
     }
@@ -4388,9 +4391,12 @@ async function handleGoogleVerifyOTP() {
       qState.sequence = buildQuestionSequence();
       showPage('questionnaire');
       renderQuestion();
-    } else {
-      startQuestionnaire(data.user.role);
-    }
+    } else if (!state._guestQuestionnaire) {
+  startQuestionnaire(data.user.role);
+} else {
+  state._guestQuestionnaire = false;
+  await submitQuestionnaire();
+}
  
   } catch (err) {
     showToast('Network error. Please try again.', 'error');
