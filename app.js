@@ -7417,6 +7417,9 @@ async function resendGuestOTP() {
 }
 
 async function handleGuestGoogleCredential(response) {
+  console.log('[GuestGoogle] handleGuestGoogleCredential called');
+  console.log('[GuestGoogle] state._guestQuestionnaire =', state._guestQuestionnaire);
+  console.log('[GuestGoogle] qState.answers =', JSON.stringify(qState.answers));
   const credential = response.credential;
   if (!credential) { showToast('Google sign-in failed', 'error'); return; }
   try {
@@ -7441,12 +7444,20 @@ async function handleGuestGoogleCredential(response) {
         await submitQuestionnaire();
       }, 300);
     } else if (data.action === 'verify_otp') {
-      // Google new user needs OTP — preserve guest flag and answers
+      console.log('[GuestGoogle] action=verify_otp, setting _guestQuestionnaire=true');
+      console.log('[GuestGoogle] qState.answers before OTP screen =', JSON.stringify(qState.answers));
       _gOtpEmail = data.email;
-      // Keep _guestQuestionnaire = true so after OTP, submitQuestionnaire() is called
       state._guestQuestionnaire = true;
+      // CRITICAL: snapshot qState so showPage('auth') can't wipe it
+      const _savedQState = JSON.parse(JSON.stringify(qState));
       closeGuestSignupModal();
       showPage('auth');
+      // Restore qState after showPage may have reset it
+      qState.answers  = _savedQState.answers;
+      qState.role     = _savedQState.role;
+      qState.sequence = _savedQState.sequence;
+      qState.step     = _savedQState.step;
+      console.log('[GuestGoogle] qState restored after showPage =', JSON.stringify(qState));
       switchAuthMode('signup');
       showGoogleOTPScreen(data.email);
     }
