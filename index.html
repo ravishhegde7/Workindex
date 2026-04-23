@@ -4344,6 +4344,11 @@ function showGoogleOTPScreen(email) {
  
 // ── Verify OTP for new Google user ─────────────────────────────────────────
 async function handleGoogleVerifyOTP() {
+  console.log('[GoogleOTP] handleGoogleVerifyOTP called');
+  console.log('[GoogleOTP] state._guestQuestionnaire =', state._guestQuestionnaire);
+  console.log('[GoogleOTP] _gOtpEmail =', _gOtpEmail);
+  console.log('[GoogleOTP] qState at entry =', JSON.stringify(qState));
+
   const otp = document.getElementById('signupOTP')?.value?.trim();
   if (!otp || otp.length !== 6) {
     showToast('Enter the 6-digit code', 'error');
