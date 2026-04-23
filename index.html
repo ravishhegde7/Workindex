@@ -4390,9 +4390,17 @@ async function handleGoogleVerifyOTP() {
     console.log('[GoogleOTP] After verify — data.user.role =', data.user.role);
     console.log('[GoogleOTP] state._guestQuestionnaire =', state._guestQuestionnaire);
     console.log('[GoogleOTP] state.pendingServiceFlow =', state.pendingServiceFlow);
+    console.log('[GoogleOTP] data.needsPhone =', data.needsPhone);
     console.log('[GoogleOTP] qState.answers =', JSON.stringify(qState.answers));
 
+    if (data.needsPhone) {
+      console.log('[GoogleOTP] → needsPhone branch, calling showGooglePhoneScreen');
+      showGooglePhoneScreen(data.user);
+      return;
+    }
+
     if (state.pendingServiceFlow && data.user.role === 'client') {
+      console.log('[GoogleOTP] → pendingServiceFlow branch');
       const svc = state.pendingServiceFlow;
       state.pendingServiceFlow = null;
       qState = {
@@ -4405,12 +4413,14 @@ async function handleGoogleVerifyOTP() {
       showPage('questionnaire');
       renderQuestion();
     } else if (state._guestQuestionnaire) {
+      console.log('[GoogleOTP] → _guestQuestionnaire branch — submitting with answers:', JSON.stringify(qState.answers));
       state._guestQuestionnaire = false;
       showToast('Account created! Posting your request...', 'success');
       setTimeout(async () => {
         await submitQuestionnaire();
       }, 300);
     } else {
+      console.log('[GoogleOTP] → FALLBACK startQuestionnaire branch — THIS SHOULD NOT HAPPEN for guest flow');
       startQuestionnaire(data.user.role);
     }
  
