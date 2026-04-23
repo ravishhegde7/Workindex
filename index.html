@@ -4527,6 +4527,10 @@ async function submitGooglePhone(userId) {
 
 
 function proceedAfterGoogleSignup() {
+  console.log('[proceedAfterGoogleSignup] called');
+  console.log('[proceedAfterGoogleSignup] state._guestQuestionnaire =', state._guestQuestionnaire);
+  console.log('[proceedAfterGoogleSignup] qState.answers =', JSON.stringify(qState.answers));
+
   const overlay = document.getElementById('googlePhoneOverlay');
   if (overlay) overlay.remove();
 
@@ -4538,7 +4542,15 @@ function proceedAfterGoogleSignup() {
     qState.sequence = buildQuestionSequence();
     showPage('questionnaire');
     renderQuestion();
+  } else if (state._guestQuestionnaire) {
+    console.log('[proceedAfterGoogleSignup] → guest flow, submitting questionnaire');
+    state._guestQuestionnaire = false;
+    showToast('Account created! Posting your request...', 'success');
+    setTimeout(async () => {
+      await submitQuestionnaire();
+    }, 300);
   } else {
+    console.log('[proceedAfterGoogleSignup] → normal flow, startQuestionnaire');
     startQuestionnaire(user.role);
   }
 }
