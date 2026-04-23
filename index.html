@@ -4344,11 +4344,7 @@ function showGoogleOTPScreen(email) {
  
 // ── Verify OTP for new Google user ─────────────────────────────────────────
 async function handleGoogleVerifyOTP() {
-  console.log('[GoogleOTP] handleGoogleVerifyOTP called');
-  console.log('[GoogleOTP] state._guestQuestionnaire =', state._guestQuestionnaire);
-  console.log('[GoogleOTP] _gOtpEmail =', _gOtpEmail);
-  console.log('[GoogleOTP] qState at entry =', JSON.stringify(qState));
-
+  
   const otp = document.getElementById('signupOTP')?.value?.trim();
   if (!otp || otp.length !== 6) {
     showToast('Enter the 6-digit code', 'error');
@@ -4387,12 +4383,7 @@ async function handleGoogleVerifyOTP() {
       return;
     }
 
-    console.log('[GoogleOTP] After verify — data.user.role =', data.user.role);
-    console.log('[GoogleOTP] state._guestQuestionnaire =', state._guestQuestionnaire);
-    console.log('[GoogleOTP] state.pendingServiceFlow =', state.pendingServiceFlow);
-    console.log('[GoogleOTP] data.needsPhone =', data.needsPhone);
-    console.log('[GoogleOTP] qState.answers =', JSON.stringify(qState.answers));
-
+    
     if (data.needsPhone) {
       console.log('[GoogleOTP] → needsPhone branch, calling showGooglePhoneScreen');
       showGooglePhoneScreen(data.user);
@@ -4413,14 +4404,14 @@ async function handleGoogleVerifyOTP() {
       showPage('questionnaire');
       renderQuestion();
     } else if (state._guestQuestionnaire) {
-      console.log('[GoogleOTP] → _guestQuestionnaire branch — submitting with answers:', JSON.stringify(qState.answers));
+      
       state._guestQuestionnaire = false;
       showToast('Account created! Posting your request...', 'success');
       setTimeout(async () => {
         await submitQuestionnaire();
       }, 300);
     } else {
-      console.log('[GoogleOTP] → FALLBACK startQuestionnaire branch — THIS SHOULD NOT HAPPEN for guest flow');
+      
       startQuestionnaire(data.user.role);
     }
  
