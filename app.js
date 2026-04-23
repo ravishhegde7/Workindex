@@ -7417,9 +7417,6 @@ async function resendGuestOTP() {
 }
 
 async function handleGuestGoogleCredential(response) {
-  console.log('[GuestGoogle] handleGuestGoogleCredential called');
-  console.log('[GuestGoogle] state._guestQuestionnaire =', state._guestQuestionnaire);
-  console.log('[GuestGoogle] qState.answers =', JSON.stringify(qState.answers));
   const credential = response.credential;
   if (!credential) { showToast('Google sign-in failed', 'error'); return; }
   try {
