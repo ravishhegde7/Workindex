@@ -7444,8 +7444,6 @@ async function handleGuestGoogleCredential(response) {
         await submitQuestionnaire();
       }, 300);
     } else if (data.action === 'verify_otp') {
-      console.log('[GuestGoogle] action=verify_otp, setting _guestQuestionnaire=true');
-      console.log('[GuestGoogle] qState.answers before OTP screen =', JSON.stringify(qState.answers));
       _gOtpEmail = data.email;
       state._guestQuestionnaire = true;
       // CRITICAL: snapshot qState so showPage('auth') can't wipe it
@@ -7457,7 +7455,6 @@ async function handleGuestGoogleCredential(response) {
       qState.role     = _savedQState.role;
       qState.sequence = _savedQState.sequence;
       qState.step     = _savedQState.step;
-      console.log('[GuestGoogle] qState restored after showPage =', JSON.stringify(qState));
       switchAuthMode('signup');
       showGoogleOTPScreen(data.email);
     }
