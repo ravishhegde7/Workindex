@@ -4035,15 +4035,18 @@ function exploreGoLevel3(serviceKey) {
 
   // Populate leaf items
   const list = document.getElementById('explore-l3-list');
-  list.innerHTML = svc.items.map(item => `
-    <div onclick="exploreStartFlow('${item.serviceKey}', ${JSON.stringify(item.pre)})"
+  list.innerHTML = svc.items.map((item, idx) => {
+    const dataKey = 'exploreL3_' + idx + '_' + Date.now();
+    window[dataKey] = item;
+    return `
+    <div onclick="(function(){ var d=window['${dataKey}']; exploreStartFlow(d.serviceKey, d.pre); })()"
       style="padding:10px 10px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;
              color:var(--text);transition:all 0.15s;margin-bottom:3px;"
       onmouseover="this.style.background='rgba(252,128,25,0.08)';this.style.color='var(--primary)'"
       onmouseout="this.style.background='transparent';this.style.color='var(--text)'">
       ${item.label}
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   document.getElementById('explore-level-1').style.display = 'none';
   document.getElementById('explore-level-2').style.display = 'none';
