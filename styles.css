@@ -1324,9 +1324,9 @@ body.dark-mode .explore-cat-item.active {
 .q-modal-card {
   position: relative;
   z-index: 1;
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  background: rgba(255,255,255,0.96);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.14);
   width: 100%;
   max-width: 580px;
   max-height: 90vh;
@@ -1334,9 +1334,10 @@ body.dark-mode .explore-cat-item.active {
   flex-direction: column;
   overflow: hidden;
   animation: qModalIn 0.25s ease;
+  border: 1px solid rgba(255,255,255,0.6);
 }
 body.dark-mode .q-modal-card {
-  background: #1e1e1e;
+  background: rgba(30,30,30,0.97);
   border: 1px solid rgba(255,255,255,0.08);
 }
 
