@@ -1169,11 +1169,10 @@ body.dark-mode #expertStatHero > div:nth-child(3) {
   z-index: 1;
 }
 
-<!-- Terms CSS — add inside your <style> or styles.css -->
-<style>
 .terms-section {
   margin-bottom: 24px;
 }
+
 .terms-heading {
   font-size: 15px;
   font-weight: 700;
@@ -1241,7 +1240,7 @@ body.dark-mode .explore-cat-item.active {
 .role-card { cursor: pointer; }
 .feature-card { cursor: pointer; }
 
-</style>
+
 /* ── HOW IT WORKS ── */
 .hiw-hero { text-align:center; padding:56px 24px 36px; background:var(--bg-gray); position:relative; overflow:hidden; }
 .hiw-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle,rgba(252,128,25,0.1),transparent 70%); pointer-events:none; }
