@@ -1418,10 +1418,25 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
   margin-top: 2px !important;
 }
 
+/* ── Inner flex row inside option ── */
+.questionnaire-option > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 100% !important;
+}
+
+/* ── Label text — force left ── */
+.questionnaire-option > div > div {
+  flex: 1 !important;
+  text-align: left !important;
+  min-width: 0 !important;
+}
+
 /* ── Radio circle — push to right ── */
-.questionnaire-option > div:last-child {
+.questionnaire-option > div > div:last-child {
   margin-left: auto !important;
-  flex-shrink: 0 !important;
+  flex: 0 0 22px !important;
   width: 22px !important;
   height: 22px !important;
   border-radius: 50% !important;
