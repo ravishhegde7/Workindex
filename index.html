@@ -1626,19 +1626,18 @@
 
     <!-- Progress Header -->
     <div class="q-modal-header">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <div id="qStepText" style="font-size:13px; font-weight:600; color:var(--text-muted);">Step 1 of 12</div>
+      <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:12px;">
         <button onclick="exitQuestionnaire()"
           style="padding:5px 14px; border:1px solid var(--border); border-radius:20px; background:transparent; color:var(--text-muted); font-size:13px; font-weight:600; cursor:pointer;">
           ✕ Exit
         </button>
       </div>
-      <!-- Progress bar -->
+      <!-- Progress bar only — no step counter -->
       <div style="height:4px; background:var(--border); border-radius:2px; overflow:hidden;">
         <div id="qProgressFill" style="width:0%; height:100%; background:var(--primary); transition:width 0.4s ease; border-radius:2px;"></div>
       </div>
     </div>
-
+    
     <!-- Question Content -->
     <div id="qContent" class="q-modal-body"></div>
 
