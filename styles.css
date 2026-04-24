@@ -1295,75 +1295,94 @@ body.dark-mode .explore-cat-item.active {
 .hiw-trust-item { font-size:11.5px; color:rgba(255,255,255,0.45); }
 
 
-/* ═══ QUESTIONNAIRE REDESIGN v2 ═══ */
+/* ═══ QUESTIONNAIRE — BARK-STYLE MODAL ═══ */
 
-/* ── Page shell ── */
+/* ── Page: hide scrollbar, show backdrop ── */
 #questionnaire {
-  background: #fff;
+  background: transparent;
   min-height: 100vh;
-}
-body.dark-mode #questionnaire {
-  background: var(--bg);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
 }
 
-/* ── Progress header ── */
-#questionnaire > div:first-child {
+/* ── Blurred page backdrop ── */
+.q-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 0;
+}
+
+/* ── The modal card itself ── */
+.q-modal-card {
+  position: relative;
+  z-index: 1;
   background: #fff;
-  border-bottom: 1px solid var(--border);
-  padding: 14px 20px 0;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: qModalIn 0.25s ease;
 }
-body.dark-mode #questionnaire > div:first-child {
-  background: var(--bg);
-}
-
-/* ── Step counter text ── */
-#qStepText {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
-}
-
-/* ── Progress bar track ── */
-#questionnaire > div:first-child > div:last-child {
-  height: 3px;
-  background: #f0f0f0;
-  border-radius: 0;
-  margin-top: 12px;
-}
-body.dark-mode #questionnaire > div:first-child > div:last-child {
-  background: var(--bg-gray);
+body.dark-mode .q-modal-card {
+  background: #1e1e1e;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ── Progress fill ── */
-#qProgressFill {
-  height: 100%;
-  background: var(--primary);
-  border-radius: 0;
-  transition: width 0.4s ease;
+@keyframes qModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-/* ── Content area ── */
-#qContent {
-  padding: 32px 20px 140px;
-  max-width: 560px;
-  margin: 0 auto;
+/* ── Header inside card ── */
+.q-modal-header {
+  padding: 20px 24px 0;
+  flex-shrink: 0;
 }
 
-/* ── Question title block ── */
-#qContent h2 {
-  font-size: 22px !important;
+/* ── Scrollable body ── */
+.q-modal-body {
+  padding: 24px 24px 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ── Footer with nav buttons ── */
+.q-modal-footer {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  background: #fff;
+}
+body.dark-mode .q-modal-footer {
+  background: #1e1e1e;
+}
+
+/* ── Question title ── */
+.q-modal-body h2 {
+  font-size: 20px !important;
   font-weight: 800 !important;
   color: var(--text) !important;
   line-height: 1.3 !important;
   margin-bottom: 6px !important;
 }
 
-#qContent > div > p {
+.q-modal-body > div > p {
   font-size: 14px !important;
   color: var(--text-muted) !important;
   line-height: 1.5 !important;
-  margin-bottom: 24px !important;
+  margin-bottom: 20px !important;
 }
 
 /* ── Single-select option rows — MOBILE (list style) ── */
@@ -1395,12 +1414,12 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
 /* ── DESKTOP: switch to Bark-style tile grid ── */
 @media (min-width: 768px) {
   /* Wrap all options in a grid */
-  #qContent > div:not(:first-child) {
+  .q-modal-body > div:not(:first-child) {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
-    gap: 12px !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 10px !important;
   }
-
+   
   /* Each tile */
   .questionnaire-option {
     flex-direction: column !important;
@@ -1458,13 +1477,13 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
   }
 
   /* Content area — wider on desktop */
-  #qContent {
-    max-width: 680px !important;
-    padding: 40px 24px 140px !important;
+  .q-modal-body {
+    max-width: 100% !important;
+    padding: 24px !important;
   }
 
   /* Multi-select also goes grid */
-  #qContent > div:not(:first-child):has(.questionnaire-multi-option) {
+  .q-modal-body > div:not(:first-child):has(.questionnaire-multi-option) {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
     gap: 12px !important;
@@ -1477,13 +1496,13 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
   }
 
   /* Textarea, inputs, sliders, address — stay full width, no grid */
-  #qContent textarea,
-  #qContent input,
-  #qContent select,
-  #qContent > div:not(:first-child):has(textarea),
-  #qContent > div:not(:first-child):has(input[type="text"]),
-  #qContent > div:not(:first-child):has(input[type="range"]),
-  #qContent > div:not(:first-child):has(select) {
+  .q-modal-body textarea,
+  .q-modal-body input,
+  .q-modal-body select,
+  .q-modal-body > div:not(:first-child):has(textarea),
+  .q-modal-body > div:not(:first-child):has(input[type="text"]),
+  .q-modal-body > div:not(:first-child):has(input[type="range"]),
+  .q-modal-body > div:not(:first-child):has(select) {
     display: block !important;
     grid-template-columns: unset !important;
   }
@@ -1579,7 +1598,7 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
 }
 
 /* ── Textarea ── */
-#qContent textarea {
+.q-modal-body textarea {
   border-radius: 14px !important;
   border: 1.5px solid var(--border) !important;
   font-size: 15px !important;
@@ -1591,17 +1610,17 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
   resize: vertical !important;
 }
 
-#qContent textarea:focus {
+.q-modal-body textarea:focus {
   border-color: var(--primary) !important;
   outline: none !important;
   box-shadow: 0 0 0 3px rgba(252,128,25,0.08) !important;
 }
 
 /* ── Text / number inputs ── */
-#qContent input[type="text"],
-#qContent input[type="tel"],
-#qContent input[type="date"],
-#qContent input[type="number"] {
+.q-modal-body input[type="text"],
+.q-modal-body input[type="tel"],
+.q-modal-body input[type="date"],
+.q-modal-body input[type="number"] {
   border-radius: 14px !important;
   border: 1.5px solid var(--border) !important;
   font-size: 16px !important;
@@ -1611,14 +1630,14 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
   color: var(--text) !important;
 }
 
-#qContent input:focus {
+.q-modal-body input:focus {
   border-color: var(--primary) !important;
   outline: none !important;
   box-shadow: 0 0 0 3px rgba(252,128,25,0.08) !important;
 }
 
 /* ── Address fields ── */
-#qContent select {
+.q-modal-body select {
   border-radius: 14px !important;
   border: 1.5px solid var(--border) !important;
   font-size: 15px !important;
@@ -1628,13 +1647,13 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
   transition: border-color 0.15s !important;
 }
 
-#qContent select:focus {
+.q-modal-body select:focus {
   border-color: var(--primary) !important;
   outline: none !important;
 }
 
 /* ── Slider ── */
-#qContent input[type="range"] {
+.q-modal-body input[type="range"] {
   -webkit-appearance: none !important;
   width: 100% !important;
   height: 6px !important;
@@ -1646,7 +1665,7 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
   cursor: pointer !important;
 }
 
-#qContent input[type="range"]::-webkit-slider-thumb {
+.q-modal-body input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none !important;
   width: 24px !important;
   height: 24px !important;
@@ -1709,7 +1728,7 @@ body.dark-mode #questionnaire > div:first-child > div:last-child {
 }
 
 /* ── Pincode autofill green borders ── */
-#qContent input[style*="#10b981"] {
+.q-modal-body input[style*="#10b981"] {
   box-shadow: 0 0 0 3px rgba(16,185,129,0.1) !important;
 }
 
