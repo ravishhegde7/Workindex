@@ -1305,7 +1305,7 @@ body.dark-mode .explore-cat-item.active {
 /* ── Page: modal layout only when active ── */
 #questionnaire {
   background: transparent;
-  min-height: 100vh;
+  min-height: unset;
   position: relative;
 }
 
@@ -1318,6 +1318,7 @@ body.dark-mode .explore-cat-item.active {
   inset: 0 !important;
   min-height: unset !important;
   z-index: 500;
+  background: rgba(0, 0, 0, 0.55) !important;
 }
 
 /* ── Simple dark overlay — NO blur ── */
