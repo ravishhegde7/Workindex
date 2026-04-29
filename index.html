@@ -3369,6 +3369,7 @@ loadExpertData();
       const data = await res.json();
       if (data.success) {
         showToast('Request posted successfully!', 'success');
+        document.getElementById('questionnaire').classList.remove('active');
         const serviceLabelsConfirm = {
           itr: 'ITR Filing', gst: 'GST Services', accounting: 'Accounting / Bookkeeping',
           audit: 'Audit Services', photography: 'Photography', development: 'App / Web Development'
