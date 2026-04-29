@@ -85,6 +85,14 @@ function toggleDarkMode() {
 
 // ─── NAVIGATION ─── 
 function showPage(pageId, pushState = true) {
+  if (pageId === 'questionnaire') {
+    document.getElementById('questionnaire').classList.add('active');
+    state.currentPage = pageId;
+    return;
+  }
+
+  document.getElementById('questionnaire')?.classList.remove('active');
+
   document.querySelectorAll('.page').forEach(page => {
     page.classList.remove('active');
   });
