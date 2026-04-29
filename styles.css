@@ -1318,18 +1318,14 @@ body.dark-mode .explore-cat-item.active {
   inset: 0 !important;
   min-height: unset !important;
   z-index: 500;
-  background: rgba(0, 0, 0, 0.35) !important;
-  backdrop-filter: blur(3px) !important;
-  -webkit-backdrop-filter: blur(3px) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* ── Simple dark overlay — NO blur ── */
+/* ── Backdrop removed — overlay handled by #questionnaire.active ── */
 .q-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  z-index: 0;
-  pointer-events: none;
+  display: none;
 }
 
 /* ── The modal card itself ── */
