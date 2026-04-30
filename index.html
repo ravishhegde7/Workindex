@@ -577,6 +577,172 @@
   
   
   <!-- END TRENDING SERVICES -->
+
+  <!-- ═══ FIND BY LOCATION SECTION ═══ -->
+  <div style="padding: 60px 20px 50px; background: var(--bg-gray);">
+    <div style="max-width: 1200px; margin: 0 auto;">
+
+      <!-- Header -->
+      <div style="text-align: center; margin-bottom: 40px;">
+        <div style="display:inline-block; background:rgba(252,128,25,0.1); color:var(--primary); font-size:13px; font-weight:700; padding:6px 16px; border-radius:20px; margin-bottom:14px; letter-spacing:0.5px;">📍 Find Near You</div>
+        <h2 style="font-size:30px; font-weight:800; color:var(--text); margin:0 0 10px;">Find Professionals by City</h2>
+        <p style="font-size:15px; color:var(--text-muted); margin:0;">Verified CAs, developers and photographers across India</p>
+      </div>
+
+      <!-- Service tabs -->
+      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:28px;" id="cityServiceTabs">
+        <button onclick="switchCityTab('itr')" id="cityTab_itr"
+          style="padding:8px 20px; border-radius:20px; border:1.5px solid var(--primary); background:var(--primary); color:#fff; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s;">
+          📄 ITR Filing
+        </button>
+        <button onclick="switchCityTab('gst')" id="cityTab_gst"
+          style="padding:8px 20px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--text); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s;">
+          🧾 GST Services
+        </button>
+        <button onclick="switchCityTab('accounting')" id="cityTab_accounting"
+          style="padding:8px 20px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--text); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s;">
+          📊 Accounting
+        </button>
+        <button onclick="switchCityTab('development')" id="cityTab_development"
+          style="padding:8px 20px; border-radius:20px; border:1.5px solid var(--border); background:transparent; color:var(--text); font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s;">
+          💻 Development
+        </button>
+      </div>
+
+      <!-- City grids — one per service tab -->
+      <div id="cityGrid_itr">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-bottom:20px;">
+          <a href="/itr-filing-bangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Bangalore</div></a>
+          <a href="/itr-filing-koramangala.html" style="text-decoration:none;">
+            <div class="city-card">📍 Koramangala</div></a>
+          <a href="/itr-filing-indiranagar.html" style="text-decoration:none;">
+            <div class="city-card">📍 Indiranagar</div></a>
+          <a href="/itr-filing-hsr-layout.html" style="text-decoration:none;">
+            <div class="city-card">📍 HSR Layout</div></a>
+          <a href="/itr-filing-whitefield.html" style="text-decoration:none;">
+            <div class="city-card">📍 Whitefield</div></a>
+          <a href="/itr-filing-electronic-city.html" style="text-decoration:none;">
+            <div class="city-card">📍 Electronic City</div></a>
+          <a href="/itr-filing-bellandur.html" style="text-decoration:none;">
+            <div class="city-card">📍 Bellandur</div></a>
+          <a href="/itr-filing-mysore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mysore</div></a>
+          <a href="/itr-filing-mangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mangalore</div></a>
+          <a href="/itr-filing-hubli.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Hubli</div></a>
+          <a href="/itr-filing-karnataka.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🗺️ All Karnataka</div></a>
+          <a href="/itr-filing-india.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🇮🇳 All India</div></a>
+        </div>
+      </div>
+
+      <div id="cityGrid_gst" style="display:none;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-bottom:20px;">
+          <a href="/gst-services-bangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Bangalore</div></a>
+          <a href="/gst-services-koramangala.html" style="text-decoration:none;">
+            <div class="city-card">📍 Koramangala</div></a>
+          <a href="/gst-services-indiranagar.html" style="text-decoration:none;">
+            <div class="city-card">📍 Indiranagar</div></a>
+          <a href="/gst-services-hsr-layout.html" style="text-decoration:none;">
+            <div class="city-card">📍 HSR Layout</div></a>
+          <a href="/gst-services-whitefield.html" style="text-decoration:none;">
+            <div class="city-card">📍 Whitefield</div></a>
+          <a href="/gst-services-electronic-city.html" style="text-decoration:none;">
+            <div class="city-card">📍 Electronic City</div></a>
+          <a href="/gst-services-bellandur.html" style="text-decoration:none;">
+            <div class="city-card">📍 Bellandur</div></a>
+          <a href="/gst-services-banashankari.html" style="text-decoration:none;">
+            <div class="city-card">📍 Banashankari</div></a>
+          <a href="/gst-services-mysore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mysore</div></a>
+          <a href="/gst-services-mangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mangalore</div></a>
+          <a href="/gst-services-karnataka.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🗺️ All Karnataka</div></a>
+          <a href="/gst-services-india.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🇮🇳 All India</div></a>
+        </div>
+      </div>
+
+      <div id="cityGrid_accounting" style="display:none;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-bottom:20px;">
+          <a href="/accounting-services-bangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Bangalore</div></a>
+          <a href="/accounting-services-mysore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mysore</div></a>
+          <a href="/accounting-services-mangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mangalore</div></a>
+          <a href="/accounting-services-karnataka.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🗺️ All Karnataka</div></a>
+          <a href="/accounting-services-india.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🇮🇳 All India</div></a>
+        </div>
+      </div>
+
+      <div id="cityGrid_development" style="display:none;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-bottom:20px;">
+          <a href="/web-developer-bangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Bangalore</div></a>
+          <a href="/web-developer-mysore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mysore</div></a>
+          <a href="/web-developer-mangalore.html" style="text-decoration:none;">
+            <div class="city-card">🏙️ Mangalore</div></a>
+          <a href="/web-developer-karnataka.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🗺️ All Karnataka</div></a>
+          <a href="/web-developer-india.html" style="text-decoration:none;">
+            <div class="city-card" style="background:rgba(252,128,25,0.08); border-color:rgba(252,128,25,0.3); color:var(--primary);">🇮🇳 All India</div></a>
+        </div>
+      </div>
+
+      <!-- Bottom CTA -->
+      <div style="text-align:center; margin-top:10px;">
+        <p style="font-size:13px; color:var(--text-muted);">Don't see your city? <a onclick="showPage('auth')" style="color:var(--primary); font-weight:700; cursor:pointer; text-decoration:none;">Post a request</a> — we'll match you with professionals nearby.</p>
+      </div>
+
+    </div>
+  </div>
+  <!-- END FIND BY LOCATION SECTION -->
+
+  <style>
+  .city-card {
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .city-card:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(252,128,25,0.12);
+  }
+  </style>
+
+  <script>
+  function switchCityTab(service) {
+    ['itr','gst','accounting','development'].forEach(function(s) {
+      var grid = document.getElementById('cityGrid_' + s);
+      var tab  = document.getElementById('cityTab_' + s);
+      if (!grid || !tab) return;
+      var isActive = s === service;
+      grid.style.display = isActive ? 'block' : 'none';
+      tab.style.background   = isActive ? 'var(--primary)' : 'transparent';
+      tab.style.color        = isActive ? '#fff' : 'var(--text)';
+      tab.style.borderColor  = isActive ? 'var(--primary)' : 'var(--border)';
+    });
+  }
+  </script>
+  
   <div class="features-section">
     <h2 class="section-title">Why Choose WorkIndex?</h2>
     <p class="section-subtitle">The easiest way to find and hire verified professionals</p>
